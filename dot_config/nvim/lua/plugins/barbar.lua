@@ -1,63 +1,42 @@
+-- Test
 return {
-  'romgrk/barbar.nvim',
+  "romgrk/barbar.nvim",
   dependencies = {
-    'nvim-tree/nvim-web-devicons', -- Optional: file icons
-    'lewis6991/gitsigns.nvim',     -- Optional: git status integration
+    "nvim-tree/nvim-web-devicons",
+    "lewis6991/gitsigns.nvim",
   },
-  opts = {
-    -- Productivity-focused configuration
-    animation = true,        -- Smooth transitions
-    auto_hide = false,       -- Always show bufferline
-    clickable = true,        -- Enable mouse interactions
-    focus_on_close = 'left', -- Predictable buffer navigation
-
-    -- Minimalist appearance
-    maximum_padding = 1,
-    minimum_padding = 1,
-    maximum_length = 30, -- Reasonable buffer name length
-
-    -- User-friendly features
-    icons = {
-      preset = 'default',  -- Clean, standard icon set
-      buffer_index = true, -- Show buffer numbers
-      diagnostics = {
-        [vim.diagnostic.severity.ERROR] = { enabled = true },
-        [vim.diagnostic.severity.WARN] = { enabled = true },
+  config = function()
+    require("barbar").setup({
+      animation = true,
+      auto_hide = false,
+      tabpages = true,
+      clickable = true,
+      icons = {
+        buffer_index = true,
+        filetype = { enabled = true },
+        separator = { left = "▎", right = "▎" },
       },
-    },
+      no_name_title = "New Buffer",
+    })
 
-    -- Semantic buffer selection
-    semantic_letters = true,
-    letters = 'asdfjkl;ghnmxcvbziowerutyqpASDFJKLGHNMXCVBZIOWERUTYQP',
-
-    -- Sorting and organization
-    sort = {
-      ignore_case = true, -- Case-insensitive sorting
-    },
-
-    -- Sidebar integration
-    sidebar_filetypes = {
-      NvimTree = true,
-      undotree = { text = 'Undo', align = 'left' },
-    }
-  },
-
-  -- Key mappings for efficient navigation
-  config = function(_, opts)
-    require('barbar').setup(opts)
-
-    local map = vim.api.nvim_set_keymap
     local opts = { noremap = true, silent = true }
 
-    -- Buffer navigation
-    map('n', '<A-,>', '<Cmd>BufferPrevious<CR>', opts)
-    map('n', '<A-.>', '<Cmd>BufferNext<CR>', opts)
+    -- Buffer Navigation
+    vim.keymap.set("n", "<leader>h", "<Cmd>BufferPrevious<CR>", opts)
+    vim.keymap.set("n", "<leader>l", "<Cmd>BufferNext<CR>", opts)
 
-    -- Buffer management
-    map('n', '<A-c>', '<Cmd>BufferClose<CR>', opts)
-    map('n', '<A-p>', '<Cmd>BufferPin<CR>', opts)
+    -- Direct Buffer Selection (1-9)
+    for i = 1, 9 do
+      vim.keymap.set("n", "<leader>" .. i, "<Cmd>BufferGoto " .. i .. "<CR>", opts)
+    end
 
-    -- Quick buffer selection
-    map('n', '<C-p>', '<Cmd>BufferPick<CR>', opts)
-  end
+    -- Buffer Management
+    vim.keymap.set("n", "<leader>x", "<Cmd>BufferDelete<CR>", opts)
+    vim.keymap.set("n", "<leader>p", "<Cmd>BufferPin<CR>", opts)
+    vim.keymap.set("n", "<leader>L", "<Cmd>BufferLast<CR>", opts)
+
+    -- Buffer Reordering
+    vim.keymap.set("n", "<A-h>", "<Cmd>BufferMovePrevious<CR>", opts)
+    vim.keymap.set("n", "<A-l>", "<Cmd>BufferMoveNext<CR>", opts)
+  end,
 }
