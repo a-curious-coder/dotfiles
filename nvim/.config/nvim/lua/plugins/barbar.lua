@@ -27,6 +27,7 @@ return {
 
 		local opts = { noremap = true, silent = true }
 		-- Buffer navigation
+		vim.keymap.set("n", "<leader>x", "<Cmd>BufferDelete<CR>", opts) -- Next buffer
 		vim.keymap.set("n", "<leader>bp", "<Cmd>BufferPrevious<CR>", opts) -- Previous buffer
 		vim.keymap.set("n", "<leader>bn", "<Cmd>BufferNext<CR>", opts) -- Next buffer
 

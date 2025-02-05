@@ -82,7 +82,7 @@ function M.config()
 
             if not format_ok then
               vim.notify(
-                string.format("Formatting failed: %s", format_err or "unknown error"),
+                string.format("WOW Formatting failed: %s", format_err or "unknown error"),
                 vim.log.levels.ERROR
               )
               vim.api.nvim_err_writeln(debug.traceback())
@@ -93,12 +93,12 @@ function M.config()
     end,
 
     -- Debug and diagnostic settings
-    debug = true,                     -- Enable debug mode to help diagnose issues
+    debug = true,                       -- Enable debug mode to help diagnose issues
     diagnostics_format = "#{m} [#{s}]", -- Include source in message format
     fallback_severity = vim.diagnostic.severity.HINT,
-    log_level = "trace",              -- Increase logging for troubleshooting
-    stdout = true,                    -- Enable stdout logging
-    stderr = true,                    -- Enable stderr logging
+    log_level = "trace",                -- Increase logging for troubleshooting
+    stdout = true,                      -- Enable stdout logging
+    stderr = true,                      -- Enable stderr logging
   })
 
   -- Add keybinding for manual formatting
