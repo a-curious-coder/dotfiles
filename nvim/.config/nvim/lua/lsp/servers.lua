@@ -17,13 +17,31 @@ M.server_configs = {
     }
   },
   tailwindcss = {
+    filetypes = {
+      "html", "vue", "javascriptreact",
+      "typescriptreact", "svelte", "astro"
+    },
+    init_options = {
+      userLanguages = {
+        vue = "html"
+      }
+    },
     root_dir = function(fname)
       return require("lspconfig").util.root_pattern("tailwind.config.js", "tailwind.config.cjs")(fname)
     end
   },
-  volar = {
-    filetypes = { 'typescript', 'javascript', 'javascriptreact', 'typescriptreact', 'vue', 'json' },
-    cmd = { 'vue-language-server', '--stdio' }
+  volar = {},
+  ts_ls = {
+    init_options = {
+      plugins = {
+        {
+          name = "@vue/typescript-plugin",
+          location = "/root/.nvm/versions/node/v23.6.1/lib",
+          languages = { "vue" },
+        },
+      },
+    },
+    filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
   }
 }
 
