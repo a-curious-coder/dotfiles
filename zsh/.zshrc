@@ -1,5 +1,6 @@
 # If you come from bash you might have to change your $PATH.
 export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+export PATH=$PATH:/snap/bin
 
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -96,9 +97,6 @@ export ARCHFLAGS="-arch $(uname -m)"
 # - $ZSH_CUSTOM/aliases.zsh
 # - $ZSH_CUSTOM/macos.zsh
 # For a full list of active aliases, run `alias`.
-
-# Load Deno environment
-. "$HOME/.deno/env"
 
 # Modern ls alternatives using lsd
 alias ls='lsd'
