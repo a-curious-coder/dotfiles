@@ -30,18 +30,28 @@ M.server_configs = {
       return require("lspconfig").util.root_pattern("tailwind.config.js", "tailwind.config.cjs")(fname)
     end
   },
-  volar = {},
+   -- Updated ts_ls config (remove vue from filetypes)
   ts_ls = {
     init_options = {
       plugins = {
         {
           name = "@vue/typescript-plugin",
-          location = "/root/.nvm/versions/node/v23.6.1/lib",
-          languages = { "vue" },
-        },
-      },
+          location = vim.fn.stdpath("data") .. "/mason/packages/vue-language-server/node_modules/@vue/typescript-plugin",
+          languages = { "vue" }
+        }
+      }
     },
-    filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+    filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" } -- REMOVE 'vue' here
+  },
+
+  -- Volar config (add takeover mode)
+  volar = {
+    filetypes = { 'vue', 'typescript', 'javascript' },
+    init_options = {
+      vue = {
+        hybridMode = false -- Disable for full takeover[9]
+      }
+    }
   }
 }
 
