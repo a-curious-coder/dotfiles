@@ -1,105 +1,79 @@
 #!/usr/bin/env bash
 
-# ADHD-Friendly Setup Script with Enhanced Reliability
-# ---------------------------------------------------
+# Main setup script for dotfiles
+# ------------------------------
+
+# Source utility functions
+source "$(dirname "$0")/utils/colors.sh"
+source "$(dirname "$0")/utils/os_detection.sh"
 
 # Configuration
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-COLOR_INFO='\033[1;34m'
-COLOR_SUCCESS='\033[1;32m'
-COLOR_RESET='\033[0m'
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+BACKUP_DIR="$HOME/dotfiles_backup/$(date +%Y%m%d_%H%M%S)"
 
-# ADHD-Friendly Status Messages
-function info_msg() {
-    echo -e "${COLOR_INFO}ℹ️  $1${COLOR_RESET}"
-}
-
-function success_msg() {
-    echo -e "${COLOR_SUCCESS}✅  $1${COLOR_RESET}"
-}
-
-# Dependency Check
-command -v zsh >/dev/null 2>&1 || {
-    echo -e "❌ Zsh not installed!\nInstall with:"
-    [[ "$(uname)" == "Linux" ]] && echo "sudo apt install zsh"
-    [[ "$(uname)" == "Darwin" ]] && echo "brew install zsh"
-    exit 1
-}
-
-# Install Required Packages
-info_msg "Checking system dependencies..."
-if ! command -v git >/dev/null 2>&1; then
-    info_msg "Installing git..."
-    [[ "$(uname)" == "Linux" ]] && sudo apt install -y git
-    [[ "$(uname)" == "Darwin" ]] && brew install git
+# Create backup directory if needed
+if [ ! -d "$BACKUP_DIR" ]; then
+    mkdir -p "$BACKUP_DIR"
+    info_msg "Created backup directory at $BACKUP_DIR"
 fi
 
-# ADHD-Optimized ZSH Setup
-info_msg "Configuring ZSH plugins..."
-
-# Clone with error handling and visual feedback
-clone_plugin() {
-    local repo=$1
-    local dest=$2
-    
-    if [ ! -d "$dest" ]; then
-        git clone -q --depth 1 "$repo" "$dest" && \
-        success_msg "Installed $(basename $dest)" || \
-        { echo -e "❌ Failed to install $(basename $dest)"; exit 1; }
+# Check for stow
+if ! command -v stow >/dev/null 2>&1; then
+    info_msg "Installing stow..."
+    if is_macos; then
+        brew install stow
+    elif is_ubuntu; then
+        sudo apt-get update && sudo apt-get install -y stow
     else
-        info_msg "Skipping $(basename $dest) (already exists)"
+        error_msg "Unsupported OS for automatic stow installation"
+        exit 1
     fi
+    success_msg "Stow installed successfully"
+fi
+
+# Determine if we're on a server
+is_server() {
+    # Simple heuristic - servers typically don't have display
+    [ -z "$DISPLAY" ] && [ "$XDG_SESSION_TYPE" != "wayland" ] && ! is_macos
 }
 
-# Install ZSH Components
-clone_plugin "https://github.com/zsh-users/zsh-autosuggestions" \
-    "${ZSH_CUSTOM}/plugins/zsh-autosuggestions"
+# Run installation scripts
+info_msg "Running installation scripts..."
+for installer in */install.sh; do
+    dir_name=$(dirname "$installer")
 
-clone_plugin "https://github.com/zsh-users/zsh-syntax-highlighting" \
-    "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting"
+    # Skip GUI applications on servers
+    if is_server && [[ "$dir_name" == "wezterm" || "$dir_name" == "other-gui-app" ]]; then
+        info_msg "Skipping $dir_name on server environment"
+        continue
+    fi
 
-# Configure Wezterm with ADHD-friendly colors
-info_msg "Setting up Wezterm config..."
-WEZTERM_CONFIG="$HOME/.config/wezterm"
-if [ ! -d "$WEZTERM_CONFIG" ]; then
-    git clone -q https://github.com/KevinSilvester/wezterm-config.git "$WEZTERM_CONFIG" && \
-    success_msg "Installed Wezterm config" || \
-    { echo -e "❌ Failed to install Wezterm config"; exit 1; }
-else
-    info_msg "Wezterm config already exists - backup recommended"
-fi
+    info_msg "Setting up $dir_name..."
+    bash "$installer"
+    if [ $? -eq 0 ]; then
+        success_msg "$dir_name setup completed"
+    else
+        warning_msg "$dir_name setup encountered issues"
+    fi
+done
 
-# ADHD-Friendly ZSH Configuration
-info_msg "Updating .zshrc with ADHD optimizations..."
-ZSH_AUTOSUGGEST_CONFIG=(
-    "# ADHD-friendly autocomplete"
-    "ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#585858,bold'"
-    "ZSH_AUTOSUGGEST_STRATEGY=(history completion)"
-    "bindkey '^ ' autosuggest-accept"
-)
+# Stow configurations
+info_msg "Symlinking configuration files with stow..."
+for dir in */; do
+    dir_name=$(basename "$dir")
+    # Skip utility directories
+    if [[ "$dir_name" != "utils" && "$dir_name" != "core" ]]; then
+        info_msg "Stowing $dir_name configurations..."
+        cd "$DOTFILES_DIR"
+        stow -v -t "$HOME" "$dir_name"
+        if [ $? -eq 0 ]; then
+            success_msg "$dir_name configurations linked"
+        else
+            warning_msg "Issues linking $dir_name configurations"
+        fi
+    fi
+done
 
-if ! grep -q "zsh-autosuggestions" ~/.zshrc; then
-    cat << EOF >> ~/.zshrc
-
-# ADHD-Optimized Additions
-${ZSH_AUTOSUGGEST_CONFIG[@]}
-plugins+=(zsh-autosuggestions zsh-syntax-highlighting)
-EOF
-    success_msg "Updated .zshrc with ADHD optimizations"
-else
-    info_msg "zsh-autosuggestions already in .zshrc"
-fi
-
-# Final Checks
-info_msg "Validating installation..."
-[ -d "${ZSH_CUSTOM}/plugins/zsh-autosuggestions" ] && \
-[ -d "${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting" ] && \
-[ -d "$WEZTERM_CONFIG" ] && \
-success_msg "Setup completed successfully! 🎉"
-
-# ADHD-Friendly Reminder
-echo -e "\n${COLOR_INFO}💡 Remember to:${COLOR_RESET}"
-echo "1. Restart your terminal"
-echo "2. Run 'omz reload' if using Oh My Zsh"
-echo "3. Configure Wezterm colors if needed"
+success_msg "Dotfiles setup completed! 🎉"
+info_msg "You may need to restart your shell to apply all changes."
 
