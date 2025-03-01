@@ -9,13 +9,26 @@ if status is-interactive
     else if string match -qr Linux (uname)
         # Linux settings
         set -gx HOMEBREW_PREFIX "/home/linuxbrew/.linuxbrew"
+        fish_add_path $HOME/.rbenv/bin
     end
-
+    set -gx GEM_HOME $HOME/.gem
+    set -gx GOROOT $HOME/
     ## Path Management
     ## -----------------------------
     # Base paths
     fish_add_path $HOME/.local/bin
     fish_add_path $HOME/bin
+
+    # Set Go environment variables
+    if test (uname) = "Darwin" # macOS
+        set -x GOROOT /usr/local/go
+    else # Linux/Ubuntu
+        set -x GOROOT /usr/local/go
+    end
+
+    set -x GOPATH $HOME/go
+    fish_add_path $GOPATH/bin $GOROOT/bin
+
 
     # Platform-specific paths
     if test -d $HOMEBREW_PREFIX/bin
@@ -49,7 +62,7 @@ if status is-interactive
     alias ls "lsd --group-dirs first"
     alias ll "ls -lh"
     alias la "ls -a"
-    alias lla "ls -lah"
+    alias l "ls -lah"
     alias lt "ls --tree"
 
     ## Development Setup
@@ -77,9 +90,7 @@ if status is-interactive
     end
 
     # Ruby environment
-    if command -qs rbenv
-        status --is-interactive; and source (rbenv init -|psub)
-    end
+    status --is-interactive; and source (rbenv init -|psub)
 
     # Node Version Manager (install fisher first)
     if not functions -q nvm
