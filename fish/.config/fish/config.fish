@@ -12,20 +12,14 @@ if status is-interactive
         fish_add_path $HOME/.rbenv/bin
     end
     set -gx GEM_HOME $HOME/.gem
-    set -gx GOROOT $HOME/
+
     ## Path Management
     ## -----------------------------
     # Base paths
     fish_add_path $HOME/.local/bin
     fish_add_path $HOME/bin
 
-    # Set Go environment variables
-    if test (uname) = "Darwin" # macOS
-        set -x GOROOT /usr/local/go
-    else # Linux/Ubuntu
-        set -x GOROOT /usr/local/go
-    end
-
+    set -x GOROOT /usr/local/go
     set -x GOPATH $HOME/go
     fish_add_path $GOPATH/bin $GOROOT/bin
 

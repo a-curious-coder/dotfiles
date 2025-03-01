@@ -11,7 +11,7 @@ install_or_update_go() {
     info_msg "Checking Go installation..."
     
     # Get the latest Go version
-    LATEST_VERSION=$(curl -s https://go.dev/VERSION?m=text)
+    LATEST_VERSION=$(curl -s https://go.dev/VERSION?m=text | head -1 | sed 's/\([0-9]*\.[0-9]*\.[0-9]*\)/\1/')
     
     # Check if Go is installed
     if command -v go >/dev/null 2>&1; then
