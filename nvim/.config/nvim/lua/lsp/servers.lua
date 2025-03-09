@@ -30,29 +30,70 @@ M.server_configs = {
       return require("lspconfig").util.root_pattern("tailwind.config.js", "tailwind.config.cjs")(fname)
     end
   },
-   -- Updated ts_ls config (remove vue from filetypes)
+  -- Updated ts_ls config (remove vue from filetypes)
   ts_ls = {
     init_options = {
       plugins = {
         {
-          name = "@vue/typescript-plugin",
-          location = vim.fn.stdpath("data") .. "/mason/packages/vue-language-server/node_modules/@vue/typescript-plugin",
-          languages = { "vue" }
-        }
-      }
+          name = '@vue/typescript-plugin',
+          location = vim.fn.stdpath 'data' .. '/mason/packages/vue-language-server/node_modules/@vue/language-server',
+          languages = { 'vue' },
+        },
+      },
     },
-    filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact" } -- REMOVE 'vue' here
+    settings = {
+      typescript = {
+        tsserver = {
+          useSyntaxServer = false,
+        },
+        inlayHints = {
+          includeInlayParameterNameHints = 'all',
+          includeInlayParameterNameHintsWhenArgumentMatchesName = true,
+          includeInlayFunctionParameterTypeHints = true,
+          includeInlayVariableTypeHints = true,
+          includeInlayVariableTypeHintsWhenTypeMatchesName = true,
+          includeInlayPropertyDeclarationTypeHints = true,
+          includeInlayFunctionLikeReturnTypeHints = true,
+          includeInlayEnumMemberValueHints = true,
+        },
+      },
+    },
   },
-
   -- Volar config (add takeover mode)
   volar = {
-    filetypes = { 'vue', 'typescript', 'javascript' },
     init_options = {
       vue = {
-        hybridMode = false -- Disable for full takeover[9]
-      }
-    }
-  }
+        hybridMode = false,
+      },
+    },
+    settings = {
+      typescript = {
+        inlayHints = {
+          enumMemberValues = {
+            enabled = true,
+          },
+          functionLikeReturnTypes = {
+            enabled = true,
+          },
+          propertyDeclarationTypes = {
+            enabled = true,
+          },
+          parameterTypes = {
+            enabled = true,
+            suppressWhenArgumentMatchesName = true,
+          },
+          variableTypes = {
+            enabled = true,
+          },
+        },
+      },
+      html = {
+        format = {
+          wrapAttributes = "force-expand-multiline",
+        },
+      },
+    },
+  },
 }
 
 return M
