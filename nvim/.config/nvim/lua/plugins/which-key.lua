@@ -16,7 +16,7 @@ return {
           suggestions = 20,
         },
       },
-      window = {
+      win = {
         border = "single",
         position = "bottom",
       },
@@ -27,17 +27,15 @@ return {
     })
 
     -- Register key groups
-    wk.register({
-      ["<leader>"] = {
-        f = { name = "Find/Files" },
-        g = { name = "Git" },
-        b = { name = "Buffers" },
-        w = { name = "Workspace" },
-        t = { name = "Tests" },
-        d = { name = "Debug" },
-        c = { name = "Code" },
-        u = { name = "UI" },
-      },
+    wk.add({
+      { "<leader>b", group = "Buffers" },
+      { "<leader>c", group = "Code" },
+      { "<leader>d", group = "Debug" },
+      { "<leader>f", group = "Find/Files" },
+      { "<leader>g", group = "Git" },
+      { "<leader>t", group = "Tests" },
+      { "<leader>u", group = "UI" },
+      { "<leader>w", group = "Workspace" },
     })
   end
 }

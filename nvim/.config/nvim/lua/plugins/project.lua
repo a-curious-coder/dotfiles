@@ -37,7 +37,7 @@ return {
     -- Keybinding to list projects
     vim.keymap.set(
       "n",
-      "<leader>fp",
+      "<leader>fp ",
       function() require('telescope').extensions.projects.projects() end,
       { desc = "Find projects" }
     )
