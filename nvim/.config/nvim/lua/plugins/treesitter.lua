@@ -1,13 +1,26 @@
 return {
 	{
+		-- TreeSitter plugin for advanced syntax highlighting and code parsing
 		"nvim-treesitter/nvim-treesitter",
 		build = ":TSUpdate",
 		config = function()
-			local config = require("nvim-treesitter.configs")
-			config.setup({
+			-- Import TreeSitter configuration module
+			local treesitter = require("nvim-treesitter.configs")
+
+			-- Setup TreeSitter with common configuration options
+			treesitter.setup({
+				-- Automatically install missing parsers
 				auto_install = true,
-				highlight = { enable = true },
-				indent = { enable = false },
+
+				-- Enable syntax highlighting
+				highlight = { 
+					enable = true 
+				},
+
+				-- Disable automatic indentation
+				indent = { 
+					enable = false 
+				},
 			})
 		end
 	}

@@ -1,8 +1,11 @@
+-- Core LSP configuration components
 local utils = require("lsp.utils")
 local keymaps = require("lsp.keymaps")
 local servers = require("lsp.servers")
 
+-- LSP plugin configurations
 return {
+	-- Mason: Package manager for LSP servers
 	{
 		"williamboman/mason.nvim",
 		event = { "BufReadPre", "BufNewFile" },
@@ -10,6 +13,8 @@ return {
 			require("mason").setup()
 		end,
 	},
+
+	-- Mason-LSPConfig: Bridge between Mason and LSPConfig
 	{
 		"williamboman/mason-lspconfig.nvim",
 		event = { "BufReadPre", "BufNewFile" },
@@ -17,32 +22,36 @@ return {
 			auto_install = true,
 		},
 	},
+
+	-- LSPConfig: Core LSP client configuration
 	{
 		"neovim/nvim-lspconfig",
 		event = { "BufReadPre", "BufNewFile" },
 		config = function()
-			local capabilities = require('cmp_nvim_lsp').default_capabilities()
 			local lspconfig = require("lspconfig")
+			local cmp_capabilities = require('cmp_nvim_lsp').default_capabilities()
 
-			-- Enhanced on_attach function
-			local on_attach = function(client, bufnr)
+			-- Set up LSP attachments and keymaps for each buffer
+			local function setup_buffer_lsp(client, bufnr)
 				utils.notify_lsp_status(client, bufnr)
 				keymaps.setup(bufnr)
 			end
 
-			-- Setup LSP servers
+			-- Configure each LSP server with common capabilities
 			for server_name, config in pairs(servers.server_configs) do
-				config.capabilities = capabilities
-				config.on_attach = on_attach
-				lspconfig[server_name].setup(config)
+				lspconfig[server_name].setup({
+					capabilities = cmp_capabilities,
+					on_attach = setup_buffer_lsp,
+					-- Merge server-specific settings
+					unpack(config)
+				})
 			end
 
-			-- Add status line component
+			-- Update statusline with active LSP info
 			vim.api.nvim_create_autocmd("LspAttach", {
-				callback = function(args)
-					local bufnr = args.buf
-					local client = vim.lsp.get_client_by_id(args.data.client_id)
-					vim.b[bufnr].lsp_status = string.format("LSP: %s", client.name)
+				callback = function(ev)
+					local client = vim.lsp.get_client_by_id(ev.data.client_id)
+					vim.b[ev.buf].lsp_status = string.format("LSP: %s", client.name)
 				end,
 			})
 		end,

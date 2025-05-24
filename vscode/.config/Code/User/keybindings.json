@@ -1,0 +1,114 @@
+[
+    // File navigation
+    {
+        "key": "ctrl+p",
+        "command": "workbench.action.quickOpen"
+    },
+    {
+        "key": "ctrl+shift+p",
+        "command": "workbench.action.showCommands"
+    },
+    {
+        "key": "ctrl+shift+e",
+        "command": "workbench.view.explorer"
+    },
+    {
+        "key": "ctrl+shift+f",
+        "command": "workbench.view.search"
+    },
+    {
+        "key": "ctrl+shift+g",
+        "command": "workbench.view.scm"
+    },
+    {
+        "key": "ctrl+shift+d",
+        "command": "workbench.view.debug"
+    },
+    {
+        "key": "ctrl+shift+x",
+        "command": "workbench.view.extensions"
+    },
+
+    // Terminal
+    {
+        "key": "ctrl+`",
+        "command": "workbench.action.terminal.toggleTerminal"
+    },
+    {
+        "key": "ctrl+shift+`",
+        "command": "workbench.action.terminal.new"
+    },
+
+    // Editor navigation
+    {
+        "key": "ctrl+tab",
+        "command": "workbench.action.nextEditor"
+    },
+    {
+        "key": "ctrl+shift+tab",
+        "command": "workbench.action.previousEditor"
+    },
+    {
+        "key": "alt+left",
+        "command": "workbench.action.navigateBack"
+    },
+    {
+        "key": "alt+right",
+        "command": "workbench.action.navigateForward"
+    },
+
+    // Code editing
+    {
+        "key": "ctrl+d",
+        "command": "editor.action.addSelectionToNextFindMatch"
+    },
+    {
+        "key": "ctrl+shift+l",
+        "command": "editor.action.selectHighlights"
+    },
+    {
+        "key": "alt+up",
+        "command": "editor.action.moveLinesUpAction"
+    },
+    {
+        "key": "alt+down",
+        "command": "editor.action.moveLinesDownAction"
+    },
+    {
+        "key": "shift+alt+up",
+        "command": "editor.action.copyLinesUpAction"
+    },
+    {
+        "key": "shift+alt+down",
+        "command": "editor.action.copyLinesDownAction"
+    },
+    {
+        "key": "ctrl+shift+k",
+        "command": "editor.action.deleteLines"
+    },
+
+    // Git shortcuts
+    {
+        "key": "ctrl+shift+g g",
+        "command": "git.openChange"
+    },
+
+    // LazyGit integration (if terminal command available)
+    {
+        "key": "ctrl+shift+g l",
+        "command": "workbench.action.terminal.sendSequence",
+        "args": {
+            "text": "lazygit\u000D"
+        }
+    },
+
+    // Custom shortcuts for productivity
+    {
+        "key": "ctrl+k ctrl+t",
+        "command": "workbench.action.selectTheme"
+    },
+    {
+        "key": "ctrl+k ctrl+s",
+        "command": "workbench.action.openSettings"
+    }
+]

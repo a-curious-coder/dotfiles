@@ -1,0 +1,24 @@
+# GNU Stow configuration
+# ======================
+
+# Default target directory (user's home directory)
+--target=$HOME
+
+# Verbose output by default
+--verbose
+
+# Simulate operations without making changes (comment out for actual stowing)
+# --simulate
+
+# Directories to ignore when stowing
+--ignore=README.*
+--ignore=LICENSE.*
+--ignore=CHANGELOG.*
+--ignore=\.git
+--ignore=\.gitignore
+--ignore=\.DS_Store
+--ignore=Thumbs\.db
+--ignore=desktop\.ini
+
+# Don't follow symlinks when computing stow operations
+--no-folding

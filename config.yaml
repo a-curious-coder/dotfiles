@@ -1,0 +1,167 @@
+# Software Package Configuration
+# ==============================
+
+packages:
+  # Development Tools
+  docker:
+    name: "Docker Engine"
+    install_method: "script"
+    url: "https://get.docker.com"
+    verify_command: "docker --version"
+    post_install:
+      - "sudo usermod -aG docker $USER"
+      - "sudo systemctl enable docker"
+      - "sudo systemctl start docker"
+
+  lazydocker:
+    name: "LazyDocker"
+    install_method: "binary"
+    url: "https://github.com/jesseduffield/lazydocker/releases/latest/download/lazydocker_0.23.1_Linux_x86_64.tar.gz"
+    extract_to: "/tmp/lazydocker"
+    binary_name: "lazydocker"
+    install_to: "/usr/local/bin/"
+    verify_command: "lazydocker --version"
+
+  lazygit:
+    name: "LazyGit"
+    install_method: "binary"
+    url: "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_0.40.2_Linux_x86_64.tar.gz"
+    extract_to: "/tmp/lazygit"
+    binary_name: "lazygit"
+    install_to: "/usr/local/bin/"
+    verify_command: "lazygit --version"
+
+  ghostty:
+    name: "Ghostty Terminal"
+    install_method: "snap"
+    package: "ghostty"
+    verify_command: "ghostty --version"
+
+  vscode:
+    name: "Visual Studio Code"
+    install_method: "apt"
+    repository: "https://packages.microsoft.com/repos/code"
+    key: "https://packages.microsoft.com/keys/microsoft.asc"
+    package: "code"
+    verify_command: "code --version"
+
+  # System Tools
+  neovim:
+    name: "Neovim"
+    install_method: "appimage"
+    url: "https://github.com/neovim/neovim/releases/latest/download/nvim.appimage"
+    install_to: "/usr/local/bin/nvim"
+    verify_command: "nvim --version"
+
+  zsh:
+    name: "Zsh Shell"
+    install_method: "apt"
+    package: "zsh"
+    verify_command: "zsh --version"
+    post_install:
+      - "chsh -s $(which zsh)"
+
+  stow:
+    name: "GNU Stow"
+    install_method: "apt"
+    package: "stow"
+    verify_command: "stow --version"
+
+  git:
+    name: "Git"
+    install_method: "apt"
+    package: "git"
+    verify_command: "git --version"
+
+  curl:
+    name: "cURL"
+    install_method: "apt"
+    package: "curl"
+    verify_command: "curl --version"
+
+  wget:
+    name: "Wget"
+    install_method: "apt"
+    package: "wget"
+    verify_command: "wget --version"
+
+  # Modern CLI Tools
+  lsd:
+    name: "LSDeluxe (modern ls)"
+    install_method: "apt"
+    package: "lsd"
+    verify_command: "lsd --version"
+
+  ripgrep:
+    name: "ripgrep (modern grep)"
+    install_method: "apt"
+    package: "ripgrep"
+    verify_command: "rg --version"
+
+  fd:
+    name: "fd (modern find)"
+    install_method: "apt"
+    package: "fd-find"
+    verify_command: "fd --version"
+
+  bat:
+    name: "bat (modern cat)"
+    install_method: "apt"
+    package: "bat"
+    verify_command: "bat --version"
+
+  fzf:
+    name: "fzf (fuzzy finder)"
+    install_method: "apt"
+    package: "fzf"
+    verify_command: "fzf --version"
+
+  # Development Dependencies
+  nodejs:
+    name: "Node.js"
+    install_method: "script"
+    url: "https://deb.nodesource.com/setup_lts.x"
+    package: "nodejs"
+    verify_command: "node --version"
+
+  golang:
+    name: "Go Programming Language"
+    install_method: "binary"
+    url: "https://go.dev/dl/go1.21.5.linux-amd64.tar.gz"
+    extract_to: "/usr/local/"
+    verify_command: "go version"
+    post_install:
+      - "export PATH=$PATH:/usr/local/go/bin"
+
+  rust:
+    name: "Rust Programming Language"
+    install_method: "script"
+    url: "https://sh.rustup.rs"
+    script_args: "-y"
+    verify_command: "rustc --version"
+
+  tmux:
+    name: "tmux"
+    install_method: "apt"
+    package: "tmux"
+    verify_command: "tmux -V"
+
+  # Clipboard tools
+  xclip:
+    name: "xclip"
+    install_method: "apt"
+    package: "xclip"
+    verify_command: "xclip -version"
+
+  # Build tools
+  build-essential:
+    name: "Build Essential"
+    install_method: "apt"
+    package: "build-essential"
+    verify_command: "gcc --version"
+
+# Oh My Zsh plugins to install
+zsh_plugins:
+  - "zsh-autosuggestions"
+  - "zsh-syntax-highlighting"
+  - "powerlevel10k"
