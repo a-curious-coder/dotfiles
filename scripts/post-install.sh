@@ -207,7 +207,7 @@ main() {
     success ""
     info "Next steps:"
     info "1. Restart your terminal or run 'source ~/.zshrc'"
-    info "2. Configure Git with your name and email if needed"
+    info "2. Configure Git credentials: 'scripts/setup-git-user.sh'"
     info "3. Run './scripts/show-tools.sh' to see what's installed"
     info "4. Check 'CTF-GUIDE.md' for security tools usage"
     info "5. Use 'ctf-workspace <name>' to start CTF challenges"

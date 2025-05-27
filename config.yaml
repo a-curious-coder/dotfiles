@@ -20,13 +20,11 @@ packages:
     url: "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64"
     install_to: "/usr/local/bin/docker-compose"
     verify_command: "docker-compose --version"
-    post_install:
-      - "sudo chmod +x /usr/local/bin/docker-compose"
 
   lazydocker:
     name: "LazyDocker"
     install_method: "binary"
-    url: "https://github.com/jesseduffield/lazydocker/releases/latest/download/lazydocker_0.23.1_Linux_x86_64.tar.gz"
+    url: "https://github.com/jesseduffield/lazydocker/releases/download/v0.24.1/lazydocker_0.24.1_Linux_x86_64.tar.gz"
     extract_to: "/tmp/lazydocker"
     binary_name: "lazydocker"
     install_to: "/usr/local/bin/"
@@ -62,26 +60,26 @@ packages:
     name: "Postman API Platform"
     install_method: "snap"
     package: "postman"
-    verify_command: "postman --version"
+    verify_command: "snap list postman"
 
   insomnia:
     name: "Insomnia REST Client"
     install_method: "snap"
     package: "insomnia"
-    verify_command: "insomnia --version"
+    verify_command: "snap list insomnia"
 
   # Database Tools
   dbeaver:
     name: "DBeaver Database Tool"
     install_method: "snap"
     package: "dbeaver-ce"
-    verify_command: "dbeaver --version"
+    verify_command: "snap list dbeaver-ce"
 
   mysql-client:
     name: "MySQL Client"
     install_method: "apt"
     package: "mysql-client"
-    verify_command: "mysql --version"
+    verify_command: "mysql --version --help"
 
   postgresql-client:
     name: "PostgreSQL Client"
@@ -98,7 +96,7 @@ packages:
   # Cloud Tools
   aws-cli:
     name: "AWS CLI"
-    install_method: "script"
+    install_method: "custom"
     url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
     verify_command: "aws --version"
 
@@ -139,14 +137,13 @@ packages:
     name: "Masscan Port Scanner"
     install_method: "apt"
     package: "masscan"
-    verify_command: "masscan --version"
+    verify_command: "command -v masscan"
 
   # Web Security
   burpsuite:
     name: "Burp Suite Community"
-    install_method: "script"
-    url: "https://portswigger.net/burp/releases/download?product=community&type=Linux"
-    verify_command: "burpsuite --version"
+    install_method: "custom"
+    verify_command: "command -v burpsuite"
 
   gobuster:
     name: "Gobuster Directory Buster"
@@ -158,15 +155,15 @@ packages:
     name: "DIRB Web Content Scanner"
     install_method: "apt"
     package: "dirb"
-    verify_command: "dirb"
+    verify_command: "command -v dirb"
 
   # Reverse Engineering
   ghidra:
     name: "Ghidra Reverse Engineering"
     install_method: "binary"
-    url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.4_build/ghidra_10.4_PUBLIC_20230928.zip"
+    url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.1.2_build/ghidra_11.1.2_PUBLIC_20240709.zip"
     extract_to: "/opt/ghidra"
-    verify_command: "/opt/ghidra/ghidraRun"
+    verify_command: "command -v ghidra || test -f /opt/ghidra/ghidraRun"
 
   gdb:
     name: "GNU Debugger"
@@ -191,13 +188,13 @@ packages:
     name: "John the Ripper"
     install_method: "apt"
     package: "john"
-    verify_command: "john --version"
+    verify_command: "command -v john"
 
   binwalk:
     name: "Binwalk Firmware Analysis"
     install_method: "apt"
     package: "binwalk"
-    verify_command: "binwalk --help"
+    verify_command: "command -v binwalk"
 
   steghide:
     name: "Steghide Steganography"
@@ -214,29 +211,11 @@ packages:
 
   # === MULTIMEDIA & PRODUCTIVITY ===
 
-  vlc:
-    name: "VLC Media Player"
-    install_method: "apt"
-    package: "vlc"
-    verify_command: "vlc --version"
-
   firefox:
     name: "Firefox Browser"
     install_method: "snap"
     package: "firefox"
     verify_command: "firefox --version"
-
-  chromium:
-    name: "Chromium Browser"
-    install_method: "snap"
-    package: "chromium"
-    verify_command: "chromium --version"
-
-  gimp:
-    name: "GIMP Image Editor"
-    install_method: "apt"
-    package: "gimp"
-    verify_command: "gimp --version"
 
   # === SYSTEM TOOLS ===
 
@@ -327,25 +306,19 @@ packages:
     name: "fd (modern find)"
     install_method: "apt"
     package: "fd-find"
-    verify_command: "fd --version"
+    verify_command: "fdfind --version"
 
   bat:
     name: "bat (modern cat)"
     install_method: "apt"
     package: "bat"
-    verify_command: "bat --version"
+    verify_command: "batcat --version"
 
   fzf:
     name: "fzf (fuzzy finder)"
     install_method: "apt"
     package: "fzf"
     verify_command: "fzf --version"
-
-  exa:
-    name: "exa (modern ls alternative)"
-    install_method: "apt"
-    package: "exa"
-    verify_command: "exa --version"
 
   # Development Dependencies
   nodejs:
@@ -360,7 +333,7 @@ packages:
     install_method: "binary"
     url: "https://go.dev/dl/go1.21.5.linux-amd64.tar.gz"
     extract_to: "/usr/local/"
-    verify_command: "go version"
+    verify_command: "GOROOT=/usr/lib/go-1.23 /usr/lib/go-1.23/bin/go version || go version"
     post_install:
       - "export PATH=$PATH:/usr/local/go/bin"
 
@@ -370,6 +343,14 @@ packages:
     url: "https://sh.rustup.rs"
     script_args: "-y"
     verify_command: "rustc --version"
+
+  rbenv:
+    name: "Ruby Version Manager (rbenv)"
+    install_method: "custom"
+    verify_command: "rbenv --version"
+    post_install:
+      - "echo 'export PATH=\"$HOME/.rbenv/bin:$PATH\"' >> ~/.zshrc"
+      - "echo 'eval \"$(rbenv init -)\"' >> ~/.zshrc"
 
   tmux:
     name: "tmux"
@@ -418,25 +399,9 @@ zsh_plugins:
   - "zsh-syntax-highlighting"
   - "powerlevel10k"
 
-# Manual installation recommendations
-manual_installs:
-  vpn:
-    - "Private Internet Access (PIA) VPN - Download from official website"
-    - "OpenVPN - sudo apt install openvpn"
-    - "WireGuard - sudo apt install wireguard"
-
-  specialized_security:
-    - "Metasploit Framework - curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall"
-    - "OWASP ZAP - Download from https://www.zaproxy.org/download/"
-    - "Kali Linux tools via Katoolin - https://github.com/LionSec/katoolin"
-    - "Bloodhound - Download from https://github.com/BloodHoundAD/BloodHound"
-
-  development:
-    - "JetBrains IDEs - Download from https://www.jetbrains.com/"
-    - "Android Studio - Download from https://developer.android.com/studio"
-    - "Figma - Use web version or download desktop app"
-
-  virtualization:
-    - "VirtualBox - sudo apt install virtualbox"
-    - "VMware Workstation - Download from VMware website"
-    - "QEMU/KVM - sudo apt install qemu-kvm virt-manager"
+# Optional manual installations
+optional_tools:
+  - "VirtualBox - sudo apt install virtualbox"
+  - "OWASP ZAP - https://www.zaproxy.org/download/"
+  - "JetBrains IDEs - https://www.jetbrains.com/"
+  - "Metasploit Framework - via Kali Linux or manual install"

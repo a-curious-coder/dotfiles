@@ -26,6 +26,61 @@ header() { echo -e "${PURPLE}[HEADER]${NC} $1"; }
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPTS_DIR="${DOTFILES_DIR}/scripts"
 
+# Installation mode selection
+show_installation_menu() {
+    echo -e "${YELLOW}🚀 Choose Installation Mode:${NC}"
+    echo ""
+    echo -e "${BLUE}[1]${NC} 🔄 Full Install - Install everything (recommended)"
+    echo -e "${BLUE}[2]${NC} ⚙️  Dotfiles Only - Just configure shell/editor, no packages"
+    echo -e "${BLUE}[q]${NC} ❌ Quit"
+    echo ""
+    echo -n "Select installation mode: "
+    read -r mode_choice
+
+    case "$mode_choice" in
+        "1")
+            info "Starting full installation..."
+            return 0  # Continue with original script
+            ;;
+        "2")
+            info "Setting up dotfiles only..."
+            setup_dotfiles_only
+            exit 0
+            ;;
+        "q"|"Q")
+            info "Installation cancelled. Goodbye! 👋"
+            exit 0
+            ;;
+        *)
+            warning "Invalid choice. Using Full Install..."
+            return 0
+            ;;
+    esac
+}
+
+# Setup dotfiles without installing packages
+setup_dotfiles_only() {
+    header "🔧 Setting up dotfiles configuration..."
+
+    # Run dotfiles setup
+    if [[ -f "${SCRIPTS_DIR}/setup-dotfiles.sh" ]]; then
+        "${SCRIPTS_DIR}/setup-dotfiles.sh"
+    else
+        warning "Dotfiles setup script not found, using stow directly..."
+        cd "$DOTFILES_DIR"
+
+        # Stow all configurations
+        for dir in */; do
+            if [[ -d "$dir" && "$dir" != "scripts/" ]]; then
+                stow "${dir%/}" 2>/dev/null || true
+            fi
+        done
+    fi
+
+    success "Dotfiles setup complete! ✅"
+    info "Your shell configuration is ready. Restart your terminal or run 'source ~/.zshrc'"
+}
+
 # Banner
 show_banner() {
     echo -e "${CYAN}"
@@ -50,11 +105,15 @@ check_system() {
         exit 1
     fi
 
-    # Check if we have sudo access
+    # Check if we have sudo access and prompt if needed
     if ! sudo -n true 2>/dev/null; then
-        error "This script requires sudo access"
-        error "Please run: sudo -v"
-        exit 1
+        warning "This script requires sudo access for package installation"
+        info "You may be prompted for your password..."
+
+        if ! sudo -v; then
+            error "Failed to obtain sudo access"
+            exit 1
+        fi
     fi
 
     success "System check passed: Linux detected with sudo access"
@@ -183,8 +242,14 @@ handle_error() {
 trap handle_error ERR
 
 # Main execution
+# Main installation function
 main() {
     show_banner
+
+    # Show installation mode selection
+    show_installation_menu
+
+    # If we reach here, user chose Classic Mode
     check_system
     setup_scripts
     update_system
