@@ -24,8 +24,23 @@ check_tool() {
     local cmd="${2:-$1}"
     local version_flag="${3:---version}"
 
-    if command -v "$cmd" &> /dev/null; then
-        local version=$(eval "$cmd $version_flag 2>/dev/null | head -1" 2>/dev/null || echo "installed")
+    # Check for snap packages first
+    if [[ "$cmd" == "postman" || "$cmd" == "insomnia" || "$cmd" == "dbeaver-ce" ]]; then
+        if snap list "$cmd" &> /dev/null; then
+            local version=$(snap list "$cmd" 2>/dev/null | tail -n +2 | awk '{print $2}' | head -1)
+            echo -e "${GREEN}✓${NC} $tool - $version"
+        else
+            echo -e "${YELLOW}✗${NC} $tool - not found"
+        fi
+    elif command -v "$cmd" &> /dev/null; then
+        # Use timeout to prevent hanging commands and clean up output
+        local version=$(timeout 5s bash -c "$cmd $version_flag 2>/dev/null" 2>/dev/null | head -1 | sed 's/^[[:space:]]*//' | cut -c1-80)
+
+        # If version is empty or just whitespace, show as installed
+        if [[ -z "$version" || "$version" =~ ^[[:space:]]*$ ]]; then
+            version="installed"
+        fi
+
         echo -e "${GREEN}✓${NC} $tool - ${version}"
     else
         echo -e "${YELLOW}✗${NC} $tool - not found"
@@ -44,9 +59,20 @@ echo ""
 
 echo -e "${BLUE}🌐 Programming Languages:${NC}"
 check_tool "Node.js" "node"
-check_tool "Go" "go" "version"
+# Special handling for Go which might need GOROOT set
+if command -v go &> /dev/null; then
+    go_version=$(timeout 5s bash -c "GOROOT=/usr/lib/go-1.23 go version 2>/dev/null || go version 2>/dev/null" | head -1 | sed 's/^[[:space:]]*//' | cut -c1-80)
+    if [[ -n "$go_version" && ! "$go_version" =~ ^[[:space:]]*$ ]]; then
+        echo -e "${GREEN}✓${NC} Go - ${go_version}"
+    else
+        echo -e "${GREEN}✓${NC} Go - installed"
+    fi
+else
+    echo -e "${YELLOW}✗${NC} Go - not found"
+fi
 check_tool "Rust" "rustc"
 check_tool "Python 3" "python3"
+check_tool "rbenv" "rbenv"
 echo ""
 
 echo -e "${BLUE}🔒 Security Tools:${NC}"
@@ -66,24 +92,23 @@ check_tool "Steghide" "steghide"
 echo ""
 
 echo -e "${BLUE}🌐 Full-Stack Tools:${NC}"
-check_tool "Postman" "postman"
-check_tool "Insomnia" "insomnia"
-check_tool "DBeaver" "dbeaver"
-check_tool "MySQL Client" "mysql"
-check_tool "PostgreSQL Client" "psql"
-check_tool "Redis CLI" "redis-cli"
-check_tool "AWS CLI" "aws"
-check_tool "Terraform" "terraform"
-check_tool "Kubectl" "kubectl"
+check_tool "Postman" "postman" "--help"
+check_tool "Insomnia" "insomnia" "--help"
+check_tool "DBeaver" "dbeaver-ce" "--help"
+check_tool "MySQL Client" "mysql" "--help"
+check_tool "PostgreSQL Client" "psql" "--help"
+check_tool "Redis CLI" "redis-cli" "--help"
+check_tool "AWS CLI" "aws" "--version"
+check_tool "Terraform" "terraform" "--version"
+check_tool "Kubectl" "kubectl" "version --client --short"
 echo ""
 
 echo -e "${BLUE}⚡ Modern CLI Tools:${NC}"
 check_tool "lsd (modern ls)" "lsd"
-check_tool "bat (modern cat)" "bat"
+check_tool "bat (modern cat)" "batcat"
 check_tool "ripgrep (rg)" "rg"
-check_tool "fd (modern find)" "fd"
+check_tool "fd (modern find)" "fdfind"
 check_tool "fzf (fuzzy finder)" "fzf"
-check_tool "exa" "exa"
 check_tool "htop" "htop"
 check_tool "jq" "jq"
 check_tool "yq" "yq"
@@ -91,7 +116,16 @@ echo ""
 
 echo -e "${BLUE}🐚 Shell Environment:${NC}"
 check_tool "Zsh" "zsh"
-check_tool "Oh My Zsh" "omz" "version"
+# Special check for Oh My Zsh
+if [[ -d "${HOME}/.oh-my-zsh" ]]; then
+    omz_version="installed"
+    if command -v omz &> /dev/null; then
+        omz_version=$(omz version 2>/dev/null || echo "installed")
+    fi
+    echo -e "${GREEN}✓${NC} Oh My Zsh - ${omz_version}"
+else
+    echo -e "${YELLOW}✗${NC} Oh My Zsh - not found"
+fi
 check_tool "Tmux" "tmux" "-V"
 echo ""
 

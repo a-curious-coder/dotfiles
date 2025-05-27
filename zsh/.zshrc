@@ -37,6 +37,7 @@ export ARCHFLAGS="-arch $(uname -m)"
 export EDITOR='nvim'
 export GOPATH="$HOME/go"
 export GOROOT="/usr/local/go"
+export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
 
 # Path Configuration
 export PATH="$HOME/.local/bin:$PATH"
@@ -81,5 +82,3 @@ setopt CORRECT_ALL
 # Better completion
 autoload -U compinit
 compinit
-
-

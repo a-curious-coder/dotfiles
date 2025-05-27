@@ -9,13 +9,25 @@ alias lla='ls -la'
 alias lt='ls --tree'
 
 # Modern cat with syntax highlighting
-alias cat='bat'
+if command -v batcat &> /dev/null; then
+    alias cat='batcat'
+    alias bat='batcat'
+elif command -v bat &> /dev/null; then
+    alias cat='bat'
+fi
 
 # Modern grep
-alias grep='rg'
+if command -v rg &> /dev/null; then
+    alias grep='rg'
+fi
 
 # Modern find
-alias find='fd'
+if command -v fdfind &> /dev/null; then
+    alias find='fdfind'
+    alias fd='fdfind'
+elif command -v fd &> /dev/null; then
+    alias find='fd'
+fi
 
 # Git aliases
 alias g='git'
@@ -83,7 +95,8 @@ alias reload='source ~/.zshrc'
 # Development shortcuts
 alias serve='python3 -m http.server 8000'
 alias myip='curl -s ifconfig.me'
-alias weather='curl -s wttr.in'
+# Weather function is defined in .zsh_functions
+# alias weather='curl -s wttr.in'
 
 # === CTF & SECURITY ALIASES ===
 
