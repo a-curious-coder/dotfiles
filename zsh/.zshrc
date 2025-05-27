@@ -1,14 +1,9 @@
 # Modern Zsh Configuration
 # =======================
 
-# Enable Powerlevel10k instant prompt
-if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
-  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
-fi
-
 # Oh My Zsh Configuration
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="powerlevel10k/powerlevel10k"
+ZSH_THEME="robbyrussell"
 
 # Oh My Zsh settings
 CASE_SENSITIVE="true"
@@ -70,9 +65,6 @@ fi
 if [[ -f "$HOME/.cargo/env" ]]; then
     source "$HOME/.cargo/env"
 fi
-
-# Load Powerlevel10k configuration
-[[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
 
 # History configuration
 HISTSIZE=10000

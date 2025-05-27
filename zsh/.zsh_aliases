@@ -84,3 +84,48 @@ alias reload='source ~/.zshrc'
 alias serve='python3 -m http.server 8000'
 alias myip='curl -s ifconfig.me'
 alias weather='curl -s wttr.in'
+
+# === CTF & SECURITY ALIASES ===
+
+# Network & Scanning
+alias nse='nmap --script-help'
+alias nmapquick='nmap -sC -sV -O'
+alias nmapfull='nmap -sC -sV -O -p-'
+alias masscanfast='masscan -p1-65535 --rate=10000'
+
+# Web Application Testing
+alias dirbuster='gobuster dir'
+alias subdomains='sublist3r -d'
+alias whatweb='whatweb --color=never'
+
+# Forensics & Analysis
+alias strings='strings -a'
+alias hexdump='hexdump -C'
+alias fileinfo='file -b'
+alias entropy='binwalk -E'
+
+# Crypto
+alias b64d='base64 -d'
+alias b64e='base64'
+alias rot13='tr a-zA-Z n-za-mN-ZA-M'
+alias md5='md5sum'
+alias sha1='sha1sum'
+alias sha256='sha256sum'
+
+# Python security tools
+alias pwntools='python3 -c "import pwn; pwn.context.update(arch=\"amd64\", os=\"linux\")"'
+alias scapy='python3 -c "from scapy.all import *"'
+
+# Quick servers
+alias phpserver='php -S localhost:8000'
+alias pyserver='python3 -m http.server'
+alias nodeserver='npx http-server'
+
+# === DATABASE SHORTCUTS ===
+alias mysql='mysql -u root -p'
+alias psql='psql -U postgres'
+alias redis='redis-cli'
+alias mongo='mongosh'
+
+# === DOCKER SECURITY ===
+alias dockerscan='docker run --rm -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy'

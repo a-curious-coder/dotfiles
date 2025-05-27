@@ -1,155 +1,92 @@
-# 🚀 Dotfiles - Automated Development Environment
+# 🚀 Dotfiles - Full-Stack Developer + CTF Edition
 
-One command to set up your entire Linux development environment!
+One command to set up your entire Linux development environment optimized for **full-stack development** and **Capture The Flag (CTF)** competitions!
 
-## 🎯 What This Does
+```
+╔═══════════════════════════════════════════════════════════════════════════════╗
+║                      🛡️  DEVELOPER + SECURITY TOOLKIT  🛡️                     ║
+║                                                                               ║
+║  🔧 61+ Tools Automated    🐚 Modern Shell    🔒 CTF Ready    🌐 Full-Stack   ║
+╚═══════════════════════════════════════════════════════════════════════════════╝
+```
 
-This repository automates the installation and configuration of a complete development environment including:
+## What You Get
 
-- **🐚 Modern Shell**: Zsh with Oh My Zsh and Powerlevel10k theme
-- **🖥️ Terminal**: Ghostty terminal with custom shaders and configurations
-- **🛠️ Development Tools**: Docker, LazyDocker, LazyGit, Git, VS Code, Neovim
-- **🔧 Programming Languages**: Go, Rust, Node.js with version managers
-- **⚡ Modern CLI Tools**: lsd, bat, ripgrep, fd, fzf, and more
-- **📝 Configuration Files**: Optimized configs for all tools
+- **Modern Shell**: Zsh + Oh My Zsh + Powerlevel10k
+- **Security Tools**: Nmap, Burp Suite, Ghidra, Hashcat, Wireshark
+- **Development**: Docker, VS Code, Git, database clients, API tools
+- **Languages**: Go, Rust, Node.js with version managers
+- **CLI Tools**: bat, ripgrep, fzf, and modern alternatives
 
-## 🚀 Quick Start
+## Installation
 
 ```bash
-# Clone the repository
 git clone https://github.com/yourusername/dotfiles.git ~/.dotfiles
-
-# Navigate to the directory
 cd ~/.dotfiles
-
-# Make the installer executable and run it
-chmod +x install.sh
-./install.sh
+chmod +x install.sh && ./install.sh
 ```
 
-That's it! ☕ Grab a coffee while your development environment sets itself up.
+> 📋 See full package list: [`show-tools`](./scripts/show-tools.sh) command after installation
+> 🛡️ CTF workflows: See [CTF-GUIDE.md](./CTF-GUIDE.md)
 
-## 📋 What Gets Installed
+## Key Features
 
-### 🔧 Core Tools
-- **Docker Engine** - Container platform
-- **LazyDocker** - Docker management TUI
-- **LazyGit** - Git management TUI
-- **Ghostty** - Modern terminal emulator
-- **VS Code** - Code editor with essential extensions
-- **Neovim** - Modern text editor
-- **Git** - Version control with optimized configuration
+### 🔒 Security & CTF (25+ tools)
+- **Network**: Nmap, Masscan, Wireshark
+- **Web**: Burp Suite, Gobuster, DIRB
+- **Reverse**: Ghidra, Radare2, GDB
+- **Crypto**: Hashcat, John the Ripper
+- **Python**: Pwntools, Scapy, Impacket
 
-### 🐚 Shell Environment
-- **Zsh** - Modern shell
-- **Oh My Zsh** - Zsh framework
-- **Powerlevel10k** - Beautiful and fast theme
-- **Auto-suggestions** - Command completion
-- **Syntax highlighting** - Code highlighting in terminal
+### 🌐 Full-Stack Development
+- **Containers**: Docker + LazyDocker
+- **APIs**: Postman, Insomnia
+- **Databases**: MySQL, PostgreSQL, DBeaver
+- **Cloud**: AWS CLI, Terraform, kubectl
+- **Version Control**: Git + LazyGit
 
-### 🌐 Programming Languages
-- **Go** - Systems programming language
-- **Rust** - Memory-safe systems language
-- **Node.js** - JavaScript runtime
-- **NVM** - Node version manager
+### 🐚 Enhanced Shell
+- CTF-specific aliases: `portscan`, `webenum`, `revshell`
+- Security functions: `ctf-workspace`, `hashid`, `b64`
+- Modern tools: `bat`, `ripgrep`, `fzf`
 
-### ⚡ Modern CLI Tools
-- **lsd** - Modern ls with colors and icons
-- **bat** - Modern cat with syntax highlighting
-- **ripgrep** - Fast grep alternative
-- **fd** - Fast find alternative
-- **fzf** - Fuzzy finder
+## Customization
 
-## 🎨 Customization
-
-### Adding Software Packages
-
-Edit `config.yaml` to add new packages:
-
+**Add packages**: Edit `config.yaml`
 ```yaml
 packages:
-  your-package:
-    name: "Package Name"
-    install_method: "apt"  # or "snap", "script", "binary", "appimage"
-    package: "package-name"
-    verify_command: "package-name --version"
+  your-tool:
+    name: "Your Tool"
+    install_method: "apt"
+    package: "tool-name"
 ```
 
-### Modifying Configurations
+**Modify configs**:
+- Shell: `zsh/` directory
+- Git: `git/.gitconfig`
+- Terminal: `ghostty/.config/ghostty/config`
 
-- **Zsh**: Edit `zsh/.zshrc`, `zsh/.zsh_aliases`, `zsh/.zsh_functions`
-- **Git**: Edit `git/.gitconfig`
-- **Ghostty**: Edit `ghostty/.config/ghostty/config`
-- **Tmux**: Edit `tmux/.tmux.conf`
+## Quick Setup
 
-## 📁 Repository Structure
+After installation:
+```bash
+# Configure Git
+git config --global user.name "Your Name"
+git config --global user.email "your.email@example.com"
 
-```
-.dotfiles/
-├── install.sh              # Main installation script
-├── config.yaml             # Software package definitions
-├── scripts/                 # Installation scripts
-│   ├── install-packages.sh  # Package installation logic
-│   ├── setup-dotfiles.sh    # Stow configuration setup
-│   └── post-install.sh      # Post-installation tasks
-├── zsh/                     # Zsh configuration
-├── git/                     # Git configuration
-├── ghostty/                 # Ghostty terminal configuration
-├── tmux/                    # Tmux configuration
-├── nvim/                    # Neovim configuration
-└── .stowrc                  # Stow configuration
+# Customize shell theme
+p10k configure
+
+# Show installed tools
+show-tools
 ```
 
-## 🔧 Manual Steps (Optional)
+## Troubleshooting
 
-After installation, you may want to:
-
-1. **Configure Git user info**:
-   ```bash
-   git config --global user.name "Your Name"
-   git config --global user.email "your.email@example.com"
-   ```
-
-2. **Customize Powerlevel10k theme**:
-   ```bash
-   p10k configure
-   ```
-
-3. **Install additional VS Code extensions**:
-   ```bash
-   code --install-extension extension-name
-   ```
-
-## 🆘 Troubleshooting
-
-### Script Fails
-- Ensure you have `sudo` access
-- Check internet connection
-- Run `sudo apt update` first
-
-### Missing Software
-- Check `config.yaml` for package definitions
-- Verify package names for your Ubuntu/Debian version
-- Some packages may require different repositories
-
-### Permission Issues
-- Run `sudo chown -R $(whoami):$(whoami) ~/.config`
-- Logout and login for group changes (Docker) to take effect
-
-## 🤝 Contributing
-
-Feel free to:
-- Add new software packages to `config.yaml`
-- Improve configuration files
-- Submit issues and feature requests
-- Create pull requests
-
-## 📝 License
-
-This project is open source and available under the [MIT License](LICENSE).
+**Installation fails**: Ensure `sudo` access and internet connection
+**Missing packages**: Check `config.yaml` package names
+**Permissions**: Run `sudo chown -R $(whoami):$(whoami) ~/.config`
 
 ---
 
-**Happy coding!** 🎉✨
-
-Made with ❤️ for developers who value automation and beautiful terminals.
+**Happy hacking!** 🎉 Made with ❤️ for developers and security researchers.

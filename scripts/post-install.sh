@@ -62,6 +62,43 @@ setup_git_config() {
     fi
 }
 
+# Install Python packages for security and CTF
+install_python_packages() {
+    info "Installing Python packages for development and security..."
+
+    if command -v pip3 &> /dev/null; then
+        local packages=(
+            "pwntools"
+            "requests"
+            "beautifulsoup4"
+            "scapy"
+            "cryptography"
+            "pycrypto"
+            "pillow"
+            "numpy"
+            "sqlparse"
+            "paramiko"
+            "impacket"
+            "volatility3"
+            "flask"
+            "django"
+            "fastapi"
+            "pytest"
+            "black"
+            "pylint"
+        )
+
+        for package in "${packages[@]}"; do
+            info "Installing Python package: $package"
+            pip3 install --user "$package" 2>/dev/null || warning "Failed to install $package"
+        done
+
+        success "Python packages installed"
+    else
+        warning "pip3 not found, skipping Python package installation"
+    fi
+}
+
 # Install VS Code extensions
 install_vscode_extensions() {
     info "Installing VS Code extensions..."
@@ -82,6 +119,12 @@ install_vscode_extensions() {
             "github.copilot"
             "github.copilot-chat"
             "ms-vscode.theme-monokai-dimmed"
+            "ms-vscode.hexeditor"
+            "ms-toolsai.jupyter"
+            "redhat.vscode-yaml"
+            "hashicorp.terraform"
+            "ms-kubernetes-tools.vscode-kubernetes-tools"
+            "ms-vscode.powershell"
         )
 
         for extension in "${extensions[@]}"; do
@@ -117,6 +160,34 @@ setup_aliases() {
     fi
 }
 
+# Show manual installation recommendations
+show_manual_recommendations() {
+    info "Showing additional software recommendations..."
+
+    echo ""
+    warning "=== MANUAL INSTALLATIONS RECOMMENDED ==="
+    echo ""
+    info "🔒 VPN Software:"
+    info "  • Private Internet Access (PIA) - https://www.privateinternetaccess.com/download"
+    info "  • OpenVPN: sudo apt install openvpn"
+    info "  • WireGuard: sudo apt install wireguard"
+    echo ""
+    info "🛡️ Additional Security Tools:"
+    info "  • Metasploit Framework: curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall"
+    info "  • OWASP ZAP: https://www.zaproxy.org/download/"
+    info "  • Bloodhound: https://github.com/BloodHoundAD/BloodHound"
+    echo ""
+    info "💻 Development IDEs:"
+    info "  • JetBrains IDEs: https://www.jetbrains.com/"
+    info "  • Android Studio: https://developer.android.com/studio"
+    echo ""
+    info "🖥️ Virtualization:"
+    info "  • VirtualBox: sudo apt install virtualbox"
+    info "  • VMware Workstation: Download from VMware website"
+    info "  • QEMU/KVM: sudo apt install qemu-kvm virt-manager"
+    echo ""
+}
+
 # Main execution
 main() {
     info "Running post-installation tasks..."
@@ -125,8 +196,10 @@ main() {
     setup_rust
     setup_git_config
     install_vscode_extensions
+    install_python_packages
     setup_environment
     setup_aliases
+    show_manual_recommendations
 
     success "Post-installation tasks completed!"
     success ""
@@ -135,8 +208,9 @@ main() {
     info "Next steps:"
     info "1. Restart your terminal or run 'source ~/.zshrc'"
     info "2. Configure Git with your name and email if needed"
-    info "3. Customize your Ghostty terminal configuration"
-    info "4. Install additional VS Code extensions as needed"
+    info "3. Run './scripts/show-tools.sh' to see what's installed"
+    info "4. Check 'CTF-GUIDE.md' for security tools usage"
+    info "5. Use 'ctf-workspace <name>' to start CTF challenges"
     success ""
 }
 

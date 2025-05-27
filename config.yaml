@@ -1,5 +1,6 @@
 # Software Package Configuration
 # ==============================
+# Enhanced setup for Full-Stack Development + CTF/Security Research
 
 packages:
   # Development Tools
@@ -12,6 +13,15 @@ packages:
       - "sudo usermod -aG docker $USER"
       - "sudo systemctl enable docker"
       - "sudo systemctl start docker"
+
+  docker-compose:
+    name: "Docker Compose"
+    install_method: "binary"
+    url: "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64"
+    install_to: "/usr/local/bin/docker-compose"
+    verify_command: "docker-compose --version"
+    post_install:
+      - "sudo chmod +x /usr/local/bin/docker-compose"
 
   lazydocker:
     name: "LazyDocker"
@@ -45,7 +55,191 @@ packages:
     package: "code"
     verify_command: "code --version"
 
-  # System Tools
+  # === FULL-STACK DEVELOPMENT TOOLS ===
+
+  # API Development & Testing
+  postman:
+    name: "Postman API Platform"
+    install_method: "snap"
+    package: "postman"
+    verify_command: "postman --version"
+
+  insomnia:
+    name: "Insomnia REST Client"
+    install_method: "snap"
+    package: "insomnia"
+    verify_command: "insomnia --version"
+
+  # Database Tools
+  dbeaver:
+    name: "DBeaver Database Tool"
+    install_method: "snap"
+    package: "dbeaver-ce"
+    verify_command: "dbeaver --version"
+
+  mysql-client:
+    name: "MySQL Client"
+    install_method: "apt"
+    package: "mysql-client"
+    verify_command: "mysql --version"
+
+  postgresql-client:
+    name: "PostgreSQL Client"
+    install_method: "apt"
+    package: "postgresql-client"
+    verify_command: "psql --version"
+
+  redis-tools:
+    name: "Redis Tools"
+    install_method: "apt"
+    package: "redis-tools"
+    verify_command: "redis-cli --version"
+
+  # Cloud Tools
+  aws-cli:
+    name: "AWS CLI"
+    install_method: "script"
+    url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+    verify_command: "aws --version"
+
+  terraform:
+    name: "Terraform"
+    install_method: "binary"
+    url: "https://releases.hashicorp.com/terraform/1.6.6/terraform_1.6.6_linux_amd64.zip"
+    extract_to: "/tmp/terraform"
+    binary_name: "terraform"
+    install_to: "/usr/local/bin/"
+    verify_command: "terraform --version"
+
+  kubectl:
+    name: "Kubernetes CLI"
+    install_method: "binary"
+    url: "https://dl.k8s.io/release/v1.29.0/bin/linux/amd64/kubectl"
+    install_to: "/usr/local/bin/kubectl"
+    verify_command: "kubectl version --client"
+
+  # === SECURITY & CTF TOOLS ===
+
+  # Network Analysis
+  wireshark:
+    name: "Wireshark Network Analyzer"
+    install_method: "apt"
+    package: "wireshark"
+    verify_command: "wireshark --version"
+    post_install:
+      - "sudo usermod -aG wireshark $USER"
+
+  nmap:
+    name: "Nmap Network Scanner"
+    install_method: "apt"
+    package: "nmap"
+    verify_command: "nmap --version"
+
+  masscan:
+    name: "Masscan Port Scanner"
+    install_method: "apt"
+    package: "masscan"
+    verify_command: "masscan --version"
+
+  # Web Security
+  burpsuite:
+    name: "Burp Suite Community"
+    install_method: "script"
+    url: "https://portswigger.net/burp/releases/download?product=community&type=Linux"
+    verify_command: "burpsuite --version"
+
+  gobuster:
+    name: "Gobuster Directory Buster"
+    install_method: "apt"
+    package: "gobuster"
+    verify_command: "gobuster version"
+
+  dirb:
+    name: "DIRB Web Content Scanner"
+    install_method: "apt"
+    package: "dirb"
+    verify_command: "dirb"
+
+  # Reverse Engineering
+  ghidra:
+    name: "Ghidra Reverse Engineering"
+    install_method: "binary"
+    url: "https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_10.4_build/ghidra_10.4_PUBLIC_20230928.zip"
+    extract_to: "/opt/ghidra"
+    verify_command: "/opt/ghidra/ghidraRun"
+
+  gdb:
+    name: "GNU Debugger"
+    install_method: "apt"
+    package: "gdb"
+    verify_command: "gdb --version"
+
+  radare2:
+    name: "Radare2 Reverse Engineering"
+    install_method: "apt"
+    package: "radare2"
+    verify_command: "r2 -version"
+
+  # Crypto & Forensics
+  hashcat:
+    name: "Hashcat Password Cracker"
+    install_method: "apt"
+    package: "hashcat"
+    verify_command: "hashcat --version"
+
+  john:
+    name: "John the Ripper"
+    install_method: "apt"
+    package: "john"
+    verify_command: "john --version"
+
+  binwalk:
+    name: "Binwalk Firmware Analysis"
+    install_method: "apt"
+    package: "binwalk"
+    verify_command: "binwalk --help"
+
+  steghide:
+    name: "Steghide Steganography"
+    install_method: "apt"
+    package: "steghide"
+    verify_command: "steghide --version"
+
+  # Python Security Tools
+  python3-pip:
+    name: "Python 3 Pip"
+    install_method: "apt"
+    package: "python3-pip"
+    verify_command: "pip3 --version"
+
+  # === MULTIMEDIA & PRODUCTIVITY ===
+
+  vlc:
+    name: "VLC Media Player"
+    install_method: "apt"
+    package: "vlc"
+    verify_command: "vlc --version"
+
+  firefox:
+    name: "Firefox Browser"
+    install_method: "snap"
+    package: "firefox"
+    verify_command: "firefox --version"
+
+  chromium:
+    name: "Chromium Browser"
+    install_method: "snap"
+    package: "chromium"
+    verify_command: "chromium --version"
+
+  gimp:
+    name: "GIMP Image Editor"
+    install_method: "apt"
+    package: "gimp"
+    verify_command: "gimp --version"
+
+  # === SYSTEM TOOLS ===
+
   neovim:
     name: "Neovim"
     install_method: "appimage"
@@ -85,6 +279,37 @@ packages:
     package: "wget"
     verify_command: "wget --version"
 
+  jq:
+    name: "jq JSON Processor"
+    install_method: "apt"
+    package: "jq"
+    verify_command: "jq --version"
+
+  yq:
+    name: "yq YAML Processor"
+    install_method: "binary"
+    url: "https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64"
+    install_to: "/usr/local/bin/yq"
+    verify_command: "yq --version"
+
+  htop:
+    name: "htop Process Monitor"
+    install_method: "apt"
+    package: "htop"
+    verify_command: "htop --version"
+
+  tree:
+    name: "Tree Directory Listing"
+    install_method: "apt"
+    package: "tree"
+    verify_command: "tree --version"
+
+  unzip:
+    name: "Unzip Archive Tool"
+    install_method: "apt"
+    package: "unzip"
+    verify_command: "unzip -v"
+
   # Modern CLI Tools
   lsd:
     name: "LSDeluxe (modern ls)"
@@ -115,6 +340,12 @@ packages:
     install_method: "apt"
     package: "fzf"
     verify_command: "fzf --version"
+
+  exa:
+    name: "exa (modern ls alternative)"
+    install_method: "apt"
+    package: "exa"
+    verify_command: "exa --version"
 
   # Development Dependencies
   nodejs:
@@ -160,8 +391,52 @@ packages:
     package: "build-essential"
     verify_command: "gcc --version"
 
+  cmake:
+    name: "CMake Build System"
+    install_method: "apt"
+    package: "cmake"
+    verify_command: "cmake --version"
+
+# Python packages for CTF/Security
+python_packages:
+  - "pwntools"           # CTF exploitation library
+  - "requests"           # HTTP library
+  - "beautifulsoup4"     # Web scraping
+  - "scapy"              # Packet manipulation
+  - "cryptography"       # Crypto library
+  - "pycrypto"           # Crypto functions
+  - "pillow"             # Image processing
+  - "numpy"              # Numerical computing
+  - "sqlparse"           # SQL parsing
+  - "paramiko"           # SSH client
+  - "impacket"           # Network protocols
+  - "volatility3"        # Memory forensics
+
 # Oh My Zsh plugins to install
 zsh_plugins:
   - "zsh-autosuggestions"
   - "zsh-syntax-highlighting"
   - "powerlevel10k"
+
+# Manual installation recommendations
+manual_installs:
+  vpn:
+    - "Private Internet Access (PIA) VPN - Download from official website"
+    - "OpenVPN - sudo apt install openvpn"
+    - "WireGuard - sudo apt install wireguard"
+
+  specialized_security:
+    - "Metasploit Framework - curl https://raw.githubusercontent.com/rapid7/metasploit-omnibus/master/config/templates/metasploit-framework-wrappers/msfupdate.erb > msfinstall && chmod 755 msfinstall && ./msfinstall"
+    - "OWASP ZAP - Download from https://www.zaproxy.org/download/"
+    - "Kali Linux tools via Katoolin - https://github.com/LionSec/katoolin"
+    - "Bloodhound - Download from https://github.com/BloodHoundAD/BloodHound"
+
+  development:
+    - "JetBrains IDEs - Download from https://www.jetbrains.com/"
+    - "Android Studio - Download from https://developer.android.com/studio"
+    - "Figma - Use web version or download desktop app"
+
+  virtualization:
+    - "VirtualBox - sudo apt install virtualbox"
+    - "VMware Workstation - Download from VMware website"
+    - "QEMU/KVM - sudo apt install qemu-kvm virt-manager"
