@@ -7,9 +7,6 @@
 # Verbose output by default
 --verbose
 
-# Simulate operations without making changes (comment out for actual stowing)
-# --simulate
-
 # Directories to ignore when stowing
 --ignore=README.*
 --ignore=LICENSE.*

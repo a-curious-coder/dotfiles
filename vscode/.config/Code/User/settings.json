@@ -1,188 +1,95 @@
 {
-    // Editor Settings
-    "editor.fontSize": 14,
-    "editor.fontFamily": "'FiraCode Nerd Font', 'Droid Sans Mono', 'monospace', monospace",
-    "editor.fontLigatures": true,
-    "editor.lineHeight": 1.5,
-    "editor.cursorBlinking": "smooth",
-    "editor.cursorSmoothCaretAnimation": "on",
-    "editor.smoothScrolling": true,
-    "editor.minimap.enabled": true,
-    "editor.wordWrap": "on",
-    "editor.bracketPairColorization.enabled": true,
-    "editor.guides.bracketPairs": "active",
-    "editor.inlineSuggest.enabled": true,
-    "editor.suggestSelection": "first",
-    "editor.acceptSuggestionOnCommitCharacter": false,
-    "editor.acceptSuggestionOnEnter": "on",
-    "editor.quickSuggestions": {
-        "other": true,
-        "comments": false,
-        "strings": false
+  "workbench.colorTheme": "GitHub Dark Dimmed",
+  "workbench.colorCustomizations": {
+    "terminal.foreground": "#00FD61",
+    "terminal.background": "#383737"
+  },
+  // Set terminal letter spacing
+  "terminal.integrated.letterSpacing": 2,
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  
+  "[csharp]": {
+    "editor.defaultFormatter": "csharpier.csharpier-vscode"
+  },
+  "terminal.integrated.fontSize": 12,
+  "files.exclude": {
+    "**/.classpath": true,
+    "**/.factorypath": true,
+    "**/.project": true,
+    "**/.settings": true,
+    "*~": true
+  },
+  "editor.suggestSelection": "first",
+  "editor.inlineSuggest.enabled": true,
+  "github.copilot.enable": {
+    "*": false,
+    "plaintext": true,
+    "markdown": true,
+    "scminput": false,
+    "yaml": false,
+    "python": true
+  },
+  "editor.fontLigatures": false,
+  "files.associations": {
+    "*.rmd": "markdown"
+  },
+  "better-comments.tags": [
+  
+    {
+      "tag": "!",
+      "color": "#FFC0CB",
+      "strikethrough": false,
+      "underline": false,
+      "backgroundColor": "transparent",
+      "bold": false,
+      "italic": false
+    }
+  ],
+  "liveServer.settings.donotVerifyTags": true,
+  "editor.minimap.enabled": false,
+  "editor.accessibilitySupport": "off",
+  "liveServer.settings.donotShowInfoMsg": true,
+  "[html]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "git.ignoreMissingGitWarning": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
     },
-
-    // Workbench Settings
-    "workbench.colorTheme": "Monokai",
-    "workbench.iconTheme": "material-icon-theme",
-    "workbench.startupEditor": "welcomePage",
-    "workbench.editor.showTabs": true,
-    "workbench.editor.tabCloseButton": "right",
-    "workbench.activityBar.location": "default",
-    "workbench.sideBar.location": "left",
-    "workbench.panel.defaultLocation": "bottom",
-
-    // Terminal Settings
-    "terminal.integrated.shell.linux": "/bin/zsh",
-    "terminal.integrated.fontFamily": "'FiraCode Nerd Font', monospace",
-    "terminal.integrated.fontSize": 14,
-    "terminal.integrated.lineHeight": 1.2,
-    "terminal.integrated.cursorBlinking": true,
-    "terminal.integrated.cursorStyle": "block",
-    "terminal.integrated.scrollback": 10000,
-    "terminal.integrated.defaultProfile.linux": "zsh",
-
-    // File Settings
-    "files.autoSave": "afterDelay",
-    "files.autoSaveDelay": 1000,
-    "files.trimTrailingWhitespace": true,
-    "files.insertFinalNewline": true,
-    "files.trimFinalNewlines": true,
-    "files.exclude": {
-        "**/.git": true,
-        "**/.svn": true,
-        "**/.hg": true,
-        "**/CVS": true,
-        "**/.DS_Store": true,
-        "**/node_modules": true,
-        "**/bower_components": true,
-        "**/.nyc_output": true,
-        "**/coverage": true,
-        "**/.next": true,
-        "**/.cache": true,
-        "**/dist": true,
-        "**/build": true
-    },
-
-    // Language-specific Settings
-    "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.fixAll.eslint": "explicit"
-        }
-    },
-    "[typescript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.fixAll.eslint": "explicit"
-        }
-    },
-    "[json]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[html]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[css]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "editor.formatOnSave": true
-    },
-    "[markdown]": {
-        "editor.wordWrap": "on",
-        "editor.quickSuggestions": {
-            "comments": "off",
-            "strings": "off",
-            "other": "off"
-        }
-    },
-    "[go]": {
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit"
-        }
-    },
-    "[rust]": {
-        "editor.formatOnSave": true
-    },
-    "[python]": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "ms-python.black-formatter"
-    },
-
-    // Git Settings
-    "git.autofetch": true,
-    "git.confirmSync": false,
-    "git.enableSmartCommit": true,
-    "git.postCommitCommand": "none",
-    "git.showPushSuccessNotification": true,
-
-    // Explorer Settings
-    "explorer.confirmDelete": true,
-    "explorer.confirmDragAndDrop": true,
-    "explorer.openEditors.visible": 0,
-
-    // Search Settings
-    "search.exclude": {
-        "**/node_modules": true,
-        "**/bower_components": true,
-        "**/*.code-search": true,
-        "**/coverage": true,
-        "**/dist": true,
-        "**/build": true
-    },
-
-    // Extension Settings
-    "extensions.autoUpdate": true,
-    "extensions.autoCheckUpdates": true,
-
-    // Security Settings
-    "security.workspace.trust.untrustedFiles": "prompt",
-
-    // Vim Settings (if using Vim extension)
-    "vim.useSystemClipboard": true,
-    "vim.useCtrlKeys": true,
-    "vim.hlsearch": true,
-    "vim.insertModeKeyBindings": [
-        {
-            "before": ["j", "j"],
-            "after": ["<Esc>"]
-        }
-    ],
-
-    // GitHub Copilot Settings
-    "github.copilot.enable": {
-        "*": true,
-        "yaml": true,
-        "plaintext": false,
-        "markdown": true
-    },
-
-    // Error Lens Settings (if installed)
-    "errorLens.enabledDiagnosticLevels": [
-        "error",
-        "warning",
-        "info"
-    ],
-
-    // Prettier Settings
-    "prettier.semi": true,
-    "prettier.singleQuote": true,
-    "prettier.tabWidth": 2,
-    "prettier.trailingComma": "es5",
-    "prettier.printWidth": 80,
-
-    // ESLint Settings
-    "eslint.alwaysShowStatus": true,
-    "eslint.format.enable": true,
-
-    // Update Settings
-    "update.mode": "start",
-    "update.showReleaseNotes": true,
-
-    // Performance Settings
-    "search.maintainFileSearchCache": true,
-    "search.collapseResults": "auto"
+},
+"isort.args": [
+  "--profile",
+  "black"
+],
+"notebook.output.textLineLimit": 100,
+"notebook.output.scrolling": true,
+"git.enableSmartCommit": true,
+"githubPullRequests.createOnPublishBranch": "never",
+"files.autoSave": "afterDelay",
+"cmake.showOptionsMovedNotification": false,
+"git.openRepositoryInParentFolders": "always",
+"workbench.sideBar.location": "right",
+"vim.smartRelativeLine": true,
+"github.copilot.editor.enableAutoCompletions": true,
+"remote.SSH.remotePlatform": {
+  "2.58.82.20": "linux"
+},
+"workbench.startupEditor": "none",
+"[vue]": {
+  "editor.defaultFormatter": "Vue.volar"
+}
 }

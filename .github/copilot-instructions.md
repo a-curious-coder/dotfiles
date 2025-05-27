@@ -44,3 +44,5 @@ This is a dotfiles repository using GNU Stow for symlink management, zsh shell c
 - Avoid hardcoded paths when possible
 - Include backup and restore procedures
 - Follow XDG Base Directory specification where applicable
+
+USE mcp-compass MCP server to best decide which mcp servers to use.

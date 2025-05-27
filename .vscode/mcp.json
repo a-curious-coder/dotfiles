@@ -35,6 +35,12 @@
       "args": [
         "duckduckgo-mcp-server"
       ]
+    },
+    "git-mcp-server": {
+      // Use a descriptive name
+      "type": "stdio",
+      "command": "node", // Use node to run the script
+      "args": ["~/mcp/git-mcp-server/dist/index.js"], // Relative path using home directory
     }
   },
 }
