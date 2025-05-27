@@ -1,13 +1,17 @@
 [user]
-    # Set your name and email here or use:
-    # git config --global user.name "Your Name"
-    # git config --global user.email "your.email@example.com"
+    # Personal credentials are loaded from ~/.gitconfig.local
+    # This file is gitignored to keep your real details private
+    # Run: scripts/setup-git-user.sh to configure your credentials
+
+[include]
+    # Include local config for personal details
+    path = ~/.gitconfig.local
 
 [core]
     editor = nvim
     autocrlf = input
     safecrlf = true
-    pager = bat --style=plain
+    pager = less
 
 [init]
     defaultBranch = main
