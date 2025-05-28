@@ -21,16 +21,148 @@ error() { echo -e "${RED}[ERROR]${NC} $1"; }
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CONFIG_FILE="${DOTFILES_DIR}/config.yaml"
 
+# ===========================
+# CROSS-PLATFORM DETECTION
+# ===========================
+
+# Detect the operating system
+detect_os() {
+    case "$(uname -s)" in
+        Linux*)     echo "linux";;
+        Darwin*)    echo "macos";;
+        CYGWIN*)    echo "windows";;
+        MINGW*)     echo "windows";;
+        *)          echo "unknown";;
+    esac
+}
+
+# Get OS-specific information
+get_os_info() {
+    local os="$1"
+    case "$os" in
+        linux)
+            # Detect Linux distribution
+            if [[ -f /etc/os-release ]]; then
+                . /etc/os-release
+                echo "${ID:-unknown}"
+            elif [[ -f /etc/redhat-release ]]; then
+                echo "rhel"
+            elif [[ -f /etc/debian_version ]]; then
+                echo "debian"
+            else
+                echo "unknown"
+            fi
+            ;;
+        macos)
+            # Get macOS version
+            sw_vers -productVersion 2>/dev/null || echo "unknown"
+            ;;
+        *)
+            echo "unknown"
+            ;;
+    esac
+}
+
+# Check if running on Apple Silicon
+is_apple_silicon() {
+    [[ "$(uname -m)" == "arm64" ]] && [[ "$(detect_os)" == "macos" ]]
+}
+
+# ===========================
+# PACKAGE MANAGER ABSTRACTION
+# ===========================
+
+# Install package manager if not present
+install_package_manager() {
+    local os="$(detect_os)"
+    
+    case "$os" in
+        linux)
+            # APT is usually pre-installed on Debian-based systems
+            if ! command -v apt &> /dev/null; then
+                error "APT package manager not found. Please install it manually."
+                return 1
+            fi
+            ;;
+        macos)
+            # Install Homebrew if not present
+            if ! command -v brew &> /dev/null; then
+                info "Installing Homebrew package manager..."
+                /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                
+                # Add Homebrew to PATH
+                if is_apple_silicon; then
+                    eval "$(/opt/homebrew/bin/brew shellenv)"
+                else
+                    eval "$(/usr/local/bin/brew shellenv)"
+                fi
+                
+                success "Homebrew installed successfully"
+            else
+                success "Homebrew already installed"
+            fi
+            ;;
+        *)
+            error "Unsupported operating system: $os"
+            return 1
+            ;;
+    esac
+}
+
+# Update package manager
+update_package_manager() {
+    local os="$(detect_os)"
+    
+    case "$os" in
+        linux)
+            info "Updating APT package lists..."
+            sudo apt update -qq
+            ;;
+        macos)
+            info "Updating Homebrew..."
+            brew update
+            ;;
+    esac
+}
+
 # Install yq for YAML parsing if not present
 install_yq() {
+    local os="$(detect_os)"
+    
     if ! command -v yq &> /dev/null; then
         info "Installing yq for YAML parsing..."
-        sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
-        sudo chmod +x /usr/local/bin/yq
+        
+        case "$os" in
+            linux)
+                sudo wget -qO /usr/local/bin/yq https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+                sudo chmod +x /usr/local/bin/yq
+                ;;
+            macos)
+                brew install yq
+                ;;
+        esac
+        
+        success "yq installed successfully"
     fi
 }
 
-# Install package via APT
+# Install package via appropriate package manager
+install_package() {
+    local name="$1"
+    local package_info="$2"
+    local os="$(detect_os)"
+    
+    case "$os" in
+        linux)
+            install_apt_package "$name" "$package_info"
+            ;;
+        macos)
+            install_brew_package "$name" "$package_info"
+            ;;
+    esac
+}
+
+# Install package via APT (Linux)
 install_apt_package() {
     local name="$1"
     local package="$2"
@@ -50,12 +182,209 @@ install_apt_package() {
     sudo DEBIAN_FRONTEND=noninteractive apt install -y -qq "$package"
 }
 
-# Install package via snap
-install_snap_package() {
-    local package="$1"
-    # Install with silent flags
-    sudo snap install "$package" 2>/dev/null || true
+# ===========================
+# CROSS-PLATFORM PACKAGE INSTALLATION
+# ===========================
+
+# Enhanced macOS support functions
+install_brew_package() {
+    local name="$1"
+    local package="$2"
+    local is_cask="${3:-false}"
+    
+    info "Installing $name via Homebrew..."
+    
+    if [[ "$is_cask" == "true" ]]; then
+        # Install as Homebrew Cask (GUI applications)
+        brew install --cask "$package" 2>/dev/null || {
+            warning "Failed to install $package as cask, trying regular formula..."
+            brew install "$package"
+        }
+    else
+        # Install as regular Homebrew formula
+        brew install "$package"
+    fi
 }
+
+# Install Xcode Command Line Tools (macOS)
+install_xcode_tools() {
+    if ! xcode-select -p >/dev/null 2>&1; then
+        info "Installing Xcode Command Line Tools..."
+        xcode-select --install
+        
+        # Wait for installation to complete
+        echo "Please complete the Xcode Command Line Tools installation and press Enter to continue..."
+        read -r
+    else
+        success "Xcode Command Line Tools already installed"
+    fi
+}
+
+# Check and install Homebrew (macOS)
+ensure_homebrew() {
+    if ! command -v brew >/dev/null 2>&1; then
+        info "Installing Homebrew package manager..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        
+        # Add Homebrew to PATH for the session
+        eval "$(/opt/homebrew/bin/brew shellenv)" 2>/dev/null || eval "$(/usr/local/bin/brew shellenv)"
+        
+        success "Homebrew installed successfully"
+    else
+        success "Homebrew already installed"
+    fi
+}
+
+# Get appropriate config file for OS
+get_config_file() {
+    local os="$(detect_os)"
+    local base_dir="$(dirname "$CONFIG_FILE")"
+    
+    case "$os" in
+        linux)
+            echo "$CONFIG_FILE"
+            ;;
+        macos)
+            local macos_config="${base_dir}/config-macos.yaml"
+            if [[ -f "$macos_config" ]]; then
+                echo "$macos_config"
+            else
+                warning "macOS config not found, using Linux config as fallback"
+                echo "$CONFIG_FILE"
+            fi
+            ;;
+        *)
+            error "Unsupported operating system: $os"
+            exit 1
+            ;;
+    esac
+}
+
+# OS-specific package installation logic
+install_package_by_method() {
+    local name="$1"
+    local method="$2" 
+    local package_data="$3"
+    local os="$(detect_os)"
+    
+    case "$method" in
+        "brew"|"cask")
+            if [[ "$os" == "macos" ]]; then
+                local is_cask="false"
+                [[ "$method" == "cask" ]] && is_cask="true"
+                install_brew_package "$name" "$package_data" "$is_cask"
+            else
+                error "Homebrew not available on $os"
+                return 1
+            fi
+            ;;
+        "apt")
+            if [[ "$os" == "linux" ]]; then
+                install_apt_package "$name" "$package_data"
+            else
+                error "APT not available on $os"
+                return 1
+            fi
+            ;;
+        "snap")
+            if [[ "$os" == "linux" ]]; then
+                install_snap_package "$name" "$package_data"
+            else
+                warning "Snap not available on $os, skipping $name"
+                return 1
+            fi
+            ;;
+        "xcode")
+            if [[ "$os" == "macos" ]]; then
+                install_xcode_tools
+            else
+                warning "Xcode tools only available on macOS, skipping $name"
+                return 1
+            fi
+            ;;
+        "included")
+            info "$name is included with the operating system"
+            ;;
+        "script"|"binary"|"appimage"|"custom")
+            # These methods need OS-specific URLs - handle in existing functions
+            handle_special_installation "$name" "$method" "$package_data"
+            ;;
+        *)
+            error "Unknown installation method: $method"
+            return 1
+            ;;
+    esac
+}
+
+# Handle special installation methods with OS detection
+handle_special_installation() {
+    local name="$1"
+    local method="$2"
+    local package_data="$3"
+    local os="$(detect_os)"
+    
+    case "$method" in
+        "binary")
+            # Get OS-specific binary URL
+            local url=$(get_os_specific_url "$package_data" "$os")
+            install_binary_package "$url" "$package_data"
+            ;;
+        "script")
+            # Most scripts work cross-platform
+            install_script_package "$package_data"
+            ;;
+        "appimage")
+            if [[ "$os" == "linux" ]]; then
+                install_appimage_package "$package_data"
+            else
+                warning "AppImages not supported on $os, skipping $name"
+                return 1
+            fi
+            ;;
+        "custom")
+            # Handle custom installations per package
+            install_custom_package "$name" "$os"
+            ;;
+    esac
+}
+
+# Get OS-specific download URLs
+get_os_specific_url() {
+    local base_url="$1"
+    local os="$2"
+    
+    # Convert common Linux URLs to macOS equivalents
+    case "$os" in
+        macos)
+            echo "$base_url" | sed 's/linux_amd64/darwin_amd64/g' | sed 's/linux-amd64/darwin-amd64/g'
+            ;;
+        *)
+            echo "$base_url"
+            ;;
+    esac
+}
+
+# Platform-specific system preparation
+prepare_system() {
+    local os="$(detect_os)"
+    
+    case "$os" in
+        linux)
+            info "Preparing Linux system..."
+            sudo apt update -qq
+            sudo apt install -y curl wget software-properties-common apt-transport-https
+            ;;
+        macos)
+            info "Preparing macOS system..."
+            ensure_homebrew
+            install_xcode_tools
+            ;;
+    esac
+}
+
+# ===========================
+# EXISTING FUNCTIONS (updated for cross-platform)
+# ===========================
 
 # Install package via script with GUI prevention
 install_script_package() {
@@ -189,18 +518,24 @@ install_appimage_package() {
 
 # Process each package from config
 process_packages() {
+    local config_file="$(get_config_file)"
+    local os="$(detect_os)"
+    
     install_yq
+    prepare_system
 
-    # Set environment for silent installation
-    export DEBIAN_FRONTEND=noninteractive
-    export DISPLAY=""
-    export XDG_CURRENT_DESKTOP=""
+    # Set environment for silent installation (Linux only)
+    if [[ "$os" == "linux" ]]; then
+        export DEBIAN_FRONTEND=noninteractive
+        export DISPLAY=""
+        export XDG_CURRENT_DESKTOP=""
 
-    # Pre-configure packages to avoid interactive prompts
-    info "Pre-configuring packages for silent installation..."
+        # Pre-configure packages to avoid interactive prompts
+        info "Pre-configuring packages for silent installation..."
 
-    # Wireshark configuration
-    echo "wireshark-common wireshark-common/install-setuid boolean true" | sudo debconf-set-selections
+        # Wireshark configuration
+        echo "wireshark-common wireshark-common/install-setuid boolean true" | sudo debconf-set-selections
+    fi
 
     # MySQL configuration for development (empty root password)
     echo "mysql-server mysql-server/root_password password " | sudo debconf-set-selections

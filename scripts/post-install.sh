@@ -18,9 +18,34 @@ success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
+# ===========================
+# CROSS-PLATFORM DETECTION
+# ===========================
+
+# Detect the operating system
+detect_os() {
+    case "$(uname -s)" in
+        Linux*)     echo "linux";;
+        Darwin*)    echo "macos";;
+        CYGWIN*)    echo "windows";;
+        MINGW*)     echo "windows";;
+        *)          echo "unknown";;
+    esac
+}
+
+# Check if running on Apple Silicon
+is_apple_silicon() {
+    [[ "$(uname -m)" == "arm64" ]] && [[ "$(detect_os)" == "macos" ]]
+}
+
+# ===========================
+# DEVELOPMENT ENVIRONMENT SETUP
+# ===========================
+
 # Setup NVM for Node.js version management
 setup_nvm() {
     info "Setting up NVM (Node Version Manager)..."
+    local os="$(detect_os)"
 
     if [[ ! -d "${HOME}/.nvm" ]]; then
         curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
@@ -39,11 +64,43 @@ setup_nvm() {
 # Setup Rust environment
 setup_rust() {
     info "Setting up Rust environment..."
+    local os="$(detect_os)"
+
+    if ! command -v rustc &> /dev/null; then
+        info "Installing Rust..."
+        case "$os" in
+            linux|macos)
+                curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+                ;;
+            *)
+                warning "Manual Rust installation required for $os"
+                return 0
+                ;;
+        esac
+    fi
 
     # Source Rust environment if it exists
     if [[ -f "${HOME}/.cargo/env" ]]; then
         source "${HOME}/.cargo/env"
         success "Rust environment configured"
+    fi
+}
+
+# Setup Homebrew environment (macOS only)
+setup_homebrew_env() {
+    local os="$(detect_os)"
+    
+    if [[ "$os" == "macos" ]]; then
+        info "Configuring Homebrew environment..."
+        
+        # Add Homebrew to PATH based on architecture
+        if is_apple_silicon; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        else
+            eval "$(/usr/local/bin/brew shellenv)"
+        fi
+        
+        success "Homebrew environment configured"
     fi
 }
 
@@ -65,6 +122,23 @@ setup_git_config() {
 # Install Python packages for security and CTF
 install_python_packages() {
     info "Installing Python packages for development and security..."
+    local os="$(detect_os)"
+
+    # Ensure pip3 is available
+    case "$os" in
+        linux)
+            if ! command -v pip3 &> /dev/null; then
+                warning "pip3 not found, installing python3-pip..."
+                sudo apt install -y python3-pip
+            fi
+            ;;
+        macos)
+            if ! command -v pip3 &> /dev/null; then
+                warning "pip3 not found, installing python via Homebrew..."
+                brew install python
+            fi
+            ;;
+    esac
 
     if command -v pip3 &> /dev/null; then
         local packages=(
@@ -102,8 +176,30 @@ install_python_packages() {
 # Install VS Code extensions
 install_vscode_extensions() {
     info "Installing VS Code extensions..."
+    local os="$(detect_os)"
 
-    if command -v code &> /dev/null; then
+    # Check for VS Code installation with platform-specific commands
+    local vscode_cmd=""
+    case "$os" in
+        linux)
+            if command -v code &> /dev/null; then
+                vscode_cmd="code"
+            elif command -v code-insiders &> /dev/null; then
+                vscode_cmd="code-insiders"
+            fi
+            ;;
+        macos)
+            if command -v code &> /dev/null; then
+                vscode_cmd="code"
+            elif [[ -d "/Applications/Visual Studio Code.app" ]]; then
+                vscode_cmd="/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"
+            elif [[ -d "/Applications/Visual Studio Code - Insiders.app" ]]; then
+                vscode_cmd="/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin/code"
+            fi
+            ;;
+    esac
+
+    if [[ -n "$vscode_cmd" ]]; then
         # Essential extensions
         local extensions=(
             "ms-vscode.vscode-json"
@@ -194,6 +290,7 @@ main() {
 
     setup_nvm
     setup_rust
+    setup_homebrew_env
     setup_git_config
     install_vscode_extensions
     install_python_packages

@@ -198,3 +198,28 @@ apps:
   chromium:
     enabled: false
     description: "Chromium web browser"
+
+# === CROSS-PLATFORM TOOL SELECTION ===
+# Enable/disable tools based on your platform and preferences
+# This configuration works for both Linux and macOS
+
+# Automatically detect platform
+platform_detection:
+  auto_detect: true
+  supported_platforms:
+    - linux
+    - macos
+  
+# Platform-specific package preferences  
+platform_preferences:
+  linux:
+    prefer_snap: false      # Use APT over Snap when available
+    prefer_appimage: true   # Use AppImages for portable apps
+    gui_apps: true          # Install GUI applications
+    
+  macos:
+    prefer_cask: true       # Use Homebrew Cask for GUI apps
+    app_store: false        # Don't require Mac App Store apps
+    silicon_optimized: true # Use Apple Silicon optimized packages when available
+
+# === EXISTING TOOL CATEGORIES ===

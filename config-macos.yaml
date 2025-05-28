@@ -1,0 +1,405 @@
+# macOS-specific Software Package Configuration
+# =============================================
+# Enhanced setup for macOS Development + CTF/Security Research
+
+packages:
+  # Development Tools
+  docker:
+    name: "Docker Desktop"
+    install_method: "cask"
+    package: "docker"
+    verify_command: "docker --version"
+    post_install:
+      - "open -a Docker"  # Start Docker Desktop
+      - "echo 'Docker Desktop installed. Please complete setup through the GUI.'"
+
+  docker-compose:
+    name: "Docker Compose"
+    install_method: "brew"
+    package: "docker-compose"
+    verify_command: "docker-compose --version"
+
+  lazydocker:
+    name: "LazyDocker"
+    install_method: "brew"
+    package: "lazydocker"
+    verify_command: "lazydocker --version"
+
+  lazygit:
+    name: "LazyGit"
+    install_method: "brew"
+    package: "lazygit"
+    verify_command: "lazygit --version"
+
+  ghostty:
+    name: "Ghostty Terminal"
+    install_method: "cask"
+    package: "ghostty"
+    verify_command: "ghostty --version"
+
+  vscode:
+    name: "Visual Studio Code"
+    install_method: "cask"
+    package: "visual-studio-code"
+    verify_command: "code --version"
+
+  # === FULL-STACK DEVELOPMENT TOOLS ===
+
+  # API Development & Testing
+  postman:
+    name: "Postman API Platform"
+    install_method: "cask"
+    package: "postman"
+    verify_command: "command -v postman || test -d '/Applications/Postman.app'"
+
+  insomnia:
+    name: "Insomnia REST Client"
+    install_method: "cask"
+    package: "insomnia"
+    verify_command: "command -v insomnia || test -d '/Applications/Insomnia.app'"
+
+  # Database Tools
+  dbeaver:
+    name: "DBeaver Database Tool"
+    install_method: "cask"
+    package: "dbeaver-community"
+    verify_command: "command -v dbeaver || test -d '/Applications/DBeaver.app'"
+
+  mysql-client:
+    name: "MySQL Client"
+    install_method: "brew"
+    package: "mysql-client"
+    verify_command: "mysql --version"
+
+  postgresql-client:
+    name: "PostgreSQL Client"
+    install_method: "brew"
+    package: "postgresql@14"
+    verify_command: "psql --version"
+
+  redis:
+    name: "Redis"
+    install_method: "brew"
+    package: "redis"
+    verify_command: "redis-cli --version"
+
+  # Cloud Tools
+  aws-cli:
+    name: "AWS CLI"
+    install_method: "brew"
+    package: "awscli"
+    verify_command: "aws --version"
+
+  terraform:
+    name: "Terraform"
+    install_method: "brew"
+    package: "terraform"
+    verify_command: "terraform --version"
+
+  kubectl:
+    name: "Kubernetes CLI"
+    install_method: "brew"
+    package: "kubectl"
+    verify_command: "kubectl version --client"
+
+  # === SECURITY & CTF TOOLS ===
+
+  # Network Analysis
+  wireshark:
+    name: "Wireshark Network Analyzer"
+    install_method: "cask"
+    package: "wireshark"
+    verify_command: "command -v wireshark || test -d '/Applications/Wireshark.app'"
+
+  nmap:
+    name: "Nmap Network Scanner"
+    install_method: "brew"
+    package: "nmap"
+    verify_command: "nmap --version"
+
+  masscan:
+    name: "Masscan Port Scanner"
+    install_method: "brew"
+    package: "masscan"
+    verify_command: "command -v masscan"
+
+  # Web Security
+  burpsuite:
+    name: "Burp Suite Community"
+    install_method: "cask"
+    package: "burp-suite"
+    verify_command: "command -v burpsuite || test -d '/Applications/Burp Suite Community Edition.app'"
+
+  gobuster:
+    name: "Gobuster Directory Buster"
+    install_method: "brew"
+    package: "gobuster"
+    verify_command: "gobuster version"
+
+  dirb:
+    name: "DIRB Web Content Scanner"
+    install_method: "brew"
+    package: "dirb"
+    verify_command: "command -v dirb"
+
+  # Reverse Engineering
+  ghidra:
+    name: "Ghidra Reverse Engineering"
+    install_method: "cask"
+    package: "ghidra"
+    verify_command: "command -v ghidra || test -d '/Applications/ghidra.app'"
+
+  gdb:
+    name: "GNU Debugger"
+    install_method: "brew"
+    package: "gdb"
+    verify_command: "gdb --version"
+
+  radare2:
+    name: "Radare2 Reverse Engineering"
+    install_method: "brew"
+    package: "radare2"
+    verify_command: "r2 -version"
+
+  # Crypto & Forensics
+  hashcat:
+    name: "Hashcat Password Cracker"
+    install_method: "brew"
+    package: "hashcat"
+    verify_command: "hashcat --version"
+
+  john:
+    name: "John the Ripper"
+    install_method: "brew"
+    package: "john"
+    verify_command: "command -v john"
+
+  binwalk:
+    name: "Binwalk Firmware Analysis"
+    install_method: "brew"
+    package: "binwalk"
+    verify_command: "command -v binwalk"
+
+  steghide:
+    name: "Steghide Steganography"
+    install_method: "brew"
+    package: "steghide"
+    verify_command: "steghide --version"
+
+  # Python Security Tools
+  python3:
+    name: "Python 3"
+    install_method: "brew"
+    package: "python@3.11"
+    verify_command: "python3 --version"
+
+  pip3:
+    name: "Python 3 Pip"
+    install_method: "included"  # Comes with python3
+    verify_command: "pip3 --version"
+
+  # === MULTIMEDIA & PRODUCTIVITY ===
+
+  firefox:
+    name: "Firefox Browser"
+    install_method: "cask"
+    package: "firefox"
+    verify_command: "test -d '/Applications/Firefox.app'"
+
+  chromium:
+    name: "Chromium Browser"
+    install_method: "cask"
+    package: "chromium"
+    verify_command: "test -d '/Applications/Chromium.app'"
+
+  vlc:
+    name: "VLC Media Player"
+    install_method: "cask"
+    package: "vlc"
+    verify_command: "test -d '/Applications/VLC.app'"
+
+  gimp:
+    name: "GIMP Image Editor"
+    install_method: "cask"
+    package: "gimp"
+    verify_command: "test -d '/Applications/GIMP-2.10.app'"
+
+  # === SYSTEM TOOLS ===
+
+  neovim:
+    name: "Neovim"
+    install_method: "brew"
+    package: "neovim"
+    verify_command: "nvim --version"
+
+  zsh:
+    name: "Zsh Shell"
+    install_method: "brew"
+    package: "zsh"
+    verify_command: "zsh --version"
+    post_install:
+      - "chsh -s $(which zsh)"
+
+  stow:
+    name: "GNU Stow"
+    install_method: "brew"
+    package: "stow"
+    verify_command: "stow --version"
+
+  git:
+    name: "Git"
+    install_method: "brew"
+    package: "git"
+    verify_command: "git --version"
+
+  curl:
+    name: "cURL"
+    install_method: "brew"
+    package: "curl"
+    verify_command: "curl --version"
+
+  wget:
+    name: "Wget"
+    install_method: "brew"
+    package: "wget"
+    verify_command: "wget --version"
+
+  jq:
+    name: "jq JSON Processor"
+    install_method: "brew"
+    package: "jq"
+    verify_command: "jq --version"
+
+  yq:
+    name: "yq YAML Processor"
+    install_method: "brew"
+    package: "yq"
+    verify_command: "yq --version"
+
+  htop:
+    name: "htop Process Monitor"
+    install_method: "brew"
+    package: "htop"
+    verify_command: "htop --version"
+
+  tree:
+    name: "Tree Directory Listing"
+    install_method: "brew"
+    package: "tree"
+    verify_command: "tree --version"
+
+  unzip:
+    name: "Unzip Archive Tool"
+    install_method: "included"  # Built into macOS
+    verify_command: "unzip -v"
+
+  # Modern CLI Tools
+  lsd:
+    name: "LSDeluxe (modern ls)"
+    install_method: "brew"
+    package: "lsd"
+    verify_command: "lsd --version"
+
+  ripgrep:
+    name: "ripgrep (modern grep)"
+    install_method: "brew"
+    package: "ripgrep"
+    verify_command: "rg --version"
+
+  fd:
+    name: "fd (modern find)"
+    install_method: "brew"
+    package: "fd"
+    verify_command: "fd --version"
+
+  bat:
+    name: "bat (modern cat)"
+    install_method: "brew"
+    package: "bat"
+    verify_command: "bat --version"
+
+  fzf:
+    name: "fzf (fuzzy finder)"
+    install_method: "brew"
+    package: "fzf"
+    verify_command: "fzf --version"
+
+  # Development Dependencies
+  nodejs:
+    name: "Node.js"
+    install_method: "brew"
+    package: "node"
+    verify_command: "node --version"
+
+  golang:
+    name: "Go Programming Language"
+    install_method: "brew"
+    package: "go"
+    verify_command: "go version"
+
+  rust:
+    name: "Rust Programming Language"
+    install_method: "brew"
+    package: "rust"
+    verify_command: "rustc --version"
+
+  rbenv:
+    name: "Ruby Version Manager (rbenv)"
+    install_method: "brew"
+    package: "rbenv"
+    verify_command: "rbenv --version"
+    post_install:
+      - "echo 'eval \"$(rbenv init - zsh)\"' >> ~/.zshrc"
+
+  tmux:
+    name: "tmux"
+    install_method: "brew"
+    package: "tmux"
+    verify_command: "tmux -V"
+
+  # Build tools
+  build-essential:
+    name: "Build Essential (Xcode Command Line Tools)"
+    install_method: "xcode"
+    verify_command: "xcode-select -p"
+
+  cmake:
+    name: "CMake Build System"
+    install_method: "brew"
+    package: "cmake"
+    verify_command: "cmake --version"
+
+# Python packages for CTF/Security (same as Linux)
+python_packages:
+  - "pwntools"           # CTF exploitation library
+  - "requests"           # HTTP library
+  - "beautifulsoup4"     # Web scraping
+  - "scapy"              # Packet manipulation
+  - "cryptography"       # Crypto library
+  - "pycrypto"           # Crypto functions
+  - "pillow"             # Image processing
+  - "numpy"              # Numerical computing
+  - "pandas"             # Data analysis
+  - "matplotlib"         # Plotting
+  - "jupyter"            # Interactive notebooks
+  - "flask"              # Web framework
+  - "django"             # Web framework
+  - "sqlparse"           # SQL parsing
+  - "paramiko"           # SSH client
+  - "impacket"           # Network protocols
+  - "volatility3"        # Memory forensics
+
+# Oh My Zsh plugins to install (same as Linux)
+zsh_plugins:
+  - "zsh-autosuggestions"
+  - "zsh-syntax-highlighting"
+  - "powerlevel10k"
+
+# macOS-specific manual installations
+optional_tools:
+  - "VirtualBox - Download from https://www.virtualbox.org/wiki/Downloads"
+  - "OWASP ZAP - Available via Homebrew Cask: brew install --cask zap"
+  - "JetBrains IDEs - Available via Homebrew Cask or JetBrains Toolbox"
+  - "Metasploit Framework - via Homebrew or manual install"
+  - "Xcode - Install from Mac App Store for iOS/macOS development"
+  - "Homebrew - Package manager for macOS (required for this setup)"

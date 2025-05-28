@@ -24,7 +24,7 @@
       ]
     },
     "desktop-commander": {
-      "command": "npx",
+      "command": "npx", 
       "args": [
         "-y",
         "@wonderwhy-er/desktop-commander"
@@ -37,11 +37,16 @@
       ]
     },
     "git-mcp-server": {
-      // Use a descriptive name
       "type": "stdio",
-      "command": "node", // Use node to run the script
-      "args": ["~/mcp/git-mcp-server/dist/index.js"], // Relative path using home directory
+      "command": "node",
+      "args": ["~/mcp/git-mcp-server/dist/index.js"]
+    },
+    "platform-tools": {
+      "type": "stdio", 
+      "command": "node",
+      "args": ["~/mcp/platform-tools/dist/index.js"],
+      "description": "Cross-platform package management and system tools"
     }
-  },
+  }
 }
 
