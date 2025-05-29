@@ -24,7 +24,7 @@
       ]
     },
     "desktop-commander": {
-      "command": "npx", 
+      "command": "npx",
       "args": [
         "-y",
         "@wonderwhy-er/desktop-commander"
@@ -39,14 +39,27 @@
     "git-mcp-server": {
       "type": "stdio",
       "command": "node",
-      "args": ["~/mcp/git-mcp-server/dist/index.js"]
+      "args": [
+        "~/mcp/git-mcp-server/dist/index.js"
+      ]
     },
-    "platform-tools": {
-      "type": "stdio", 
-      "command": "node",
-      "args": ["~/mcp/platform-tools/dist/index.js"],
-      "description": "Cross-platform package management and system tools"
+    "postgres": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "mcp/postgres",
+        "postgresql://host.docker.internal:5432/mydb"
+      ]
+    },
+    "airbnb": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@openbnb/mcp-server-airbnb",
+        "--ignore-robots-txt"
+      ]
     }
   }
 }
-

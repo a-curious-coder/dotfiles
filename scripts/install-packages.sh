@@ -535,29 +535,29 @@ process_packages() {
 
         # Wireshark configuration
         echo "wireshark-common wireshark-common/install-setuid boolean true" | sudo debconf-set-selections
-    fi
+        
+        # MySQL configuration for development (empty root password)
+        echo "mysql-server mysql-server/root_password password " | sudo debconf-set-selections
+        echo "mysql-server mysql-server/root_password_again password " | sudo debconf-set-selections
 
-    # MySQL configuration for development (empty root password)
-    echo "mysql-server mysql-server/root_password password " | sudo debconf-set-selections
-    echo "mysql-server mysql-server/root_password_again password " | sudo debconf-set-selections
-
-    # Prevent services from auto-starting during installation
-    cat > /tmp/policy-rc.d << 'EOF'
+        # Prevent services from auto-starting during installation
+        cat > /tmp/policy-rc.d << 'EOF'
 #!/bin/sh
 exit 101
 EOF
-    sudo mv /tmp/policy-rc.d /usr/sbin/policy-rc.d
-    sudo chmod +x /usr/sbin/policy-rc.d
+        sudo mv /tmp/policy-rc.d /usr/sbin/policy-rc.d
+        sudo chmod +x /usr/sbin/policy-rc.d
+    fi
 
     # Get package names from config
-    local packages=$(yq eval '.packages | keys | .[]' "$CONFIG_FILE")
+    local packages=$(yq eval '.packages | keys | .[]' "$config_file")
 
     while IFS= read -r package; do
         if [[ -z "$package" ]]; then continue; fi
 
-        local name=$(yq eval ".packages.${package}.name" "$CONFIG_FILE")
-        local install_method=$(yq eval ".packages.${package}.install_method" "$CONFIG_FILE")
-        local verify_command=$(yq eval ".packages.${package}.verify_command" "$CONFIG_FILE")
+        local name=$(yq eval ".packages.${package}.name" "$config_file")
+        local install_method=$(yq eval ".packages.${package}.install_method" "$config_file")
+        local verify_command=$(yq eval ".packages.${package}.verify_command" "$config_file")
 
         # Check if already installed
         if eval "$verify_command" &> /dev/null; then
@@ -569,34 +569,78 @@ EOF
 
         case "$install_method" in
             "apt")
-                local pkg=$(yq eval ".packages.${package}.package" "$CONFIG_FILE")
-                local repo=$(yq eval ".packages.${package}.repository" "$CONFIG_FILE" 2>/dev/null || echo "")
-                local key=$(yq eval ".packages.${package}.key" "$CONFIG_FILE" 2>/dev/null || echo "")
-                # Filter out null values
-                [[ "$repo" == "null" ]] && repo=""
-                [[ "$key" == "null" ]] && key=""
-                install_apt_package "$package" "$pkg" "$repo" "$key"
+                if [[ "$os" == "linux" ]]; then
+                    local pkg=$(yq eval ".packages.${package}.package" "$config_file")
+                    local repo=$(yq eval ".packages.${package}.repository" "$config_file" 2>/dev/null || echo "")
+                    local key=$(yq eval ".packages.${package}.key" "$config_file" 2>/dev/null || echo "")
+                    # Filter out null values
+                    [[ "$repo" == "null" ]] && repo=""
+                    [[ "$key" == "null" ]] && key=""
+                    install_apt_package "$package" "$pkg" "$repo" "$key"
+                else
+                    warning "APT not available on $os, skipping $name"
+                    continue
+                fi
+                ;;
+            "brew")
+                if [[ "$os" == "macos" ]]; then
+                    local pkg=$(yq eval ".packages.${package}.package" "$config_file")
+                    install_brew_package "$name" "$pkg" "false"
+                else
+                    warning "Homebrew not available on $os, skipping $name"
+                    continue
+                fi
+                ;;
+            "cask")
+                if [[ "$os" == "macos" ]]; then
+                    local pkg=$(yq eval ".packages.${package}.package" "$config_file")
+                    install_brew_package "$name" "$pkg" "true"
+                else
+                    warning "Homebrew Cask not available on $os, skipping $name"
+                    continue
+                fi
+                ;;
+            "xcode")
+                if [[ "$os" == "macos" ]]; then
+                    install_xcode_tools
+                else
+                    warning "Xcode tools only available on macOS, skipping $name"
+                    continue
+                fi
+                ;;
+            "included")
+                info "$name is included with the operating system"
                 ;;
             "snap")
-                local pkg=$(yq eval ".packages.${package}.package" "$CONFIG_FILE")
-                install_snap_package "$pkg"
+                if [[ "$os" == "linux" ]]; then
+                    local pkg=$(yq eval ".packages.${package}.package" "$config_file")
+                    install_snap_package "$pkg"
+                else
+                    warning "Snap not available on $os, skipping $name"
+                    continue
+                fi
                 ;;
             "script")
-                local url=$(yq eval ".packages.${package}.url" "$CONFIG_FILE")
-                local script_args=$(yq eval ".packages.${package}.script_args" "$CONFIG_FILE" 2>/dev/null || echo "")
+                local url=$(yq eval ".packages.${package}.url" "$config_file")
+                local script_args=$(yq eval ".packages.${package}.script_args" "$config_file" 2>/dev/null || echo "")
                 install_script_package "$url" "$script_args"
                 ;;
             "binary")
-                local url=$(yq eval ".packages.${package}.url" "$CONFIG_FILE")
-                local extract_to=$(yq eval ".packages.${package}.extract_to" "$CONFIG_FILE")
-                local binary_name=$(yq eval ".packages.${package}.binary_name" "$CONFIG_FILE" 2>/dev/null || echo "")
-                local install_to=$(yq eval ".packages.${package}.install_to" "$CONFIG_FILE" 2>/dev/null || echo "/usr/local/bin/")
+                local url=$(yq eval ".packages.${package}.url" "$config_file")
+                local extract_to=$(yq eval ".packages.${package}.extract_to" "$config_file")
+                local binary_name=$(yq eval ".packages.${package}.binary_name" "$config_file" 2>/dev/null || echo "")
+                local install_to=$(yq eval ".packages.${package}.install_to" "$config_file" 2>/dev/null || echo "/usr/local/bin/")
                 install_binary_package "$url" "$extract_to" "$binary_name" "$install_to"
                 ;;
             "appimage")
-                local url=$(yq eval ".packages.${package}.url" "$CONFIG_FILE")
-                local install_to=$(yq eval ".packages.${package}.install_to" "$CONFIG_FILE")
-                install_appimage_package "$url" "$install_to"
+                if [[ "$os" == "linux" ]]; then
+                    local url=$(yq eval ".packages.${package}.url" "$config_file")
+                    local install_to=$(yq eval ".packages.${package}.install_to" "$config_file")
+                    install_appimage_package "$url" "$install_to"
+                else
+                    warning "AppImages not supported on $os, skipping $name"
+                    continue
+                fi
                 ;;
             "custom")
                 # Handle special cases like AWS CLI
@@ -615,7 +659,7 @@ EOF
         esac
 
         # Run post-install commands
-        local post_install_commands=$(yq eval ".packages.${package}.post_install[]?" "$CONFIG_FILE" 2>/dev/null || echo "")
+        local post_install_commands=$(yq eval ".packages.${package}.post_install[]?" "$config_file" 2>/dev/null || echo "")
         if [[ -n "$post_install_commands" && "$post_install_commands" != "null" ]]; then
             while IFS= read -r cmd; do
                 if [[ -n "$cmd" && "$cmd" != "null" ]]; then
@@ -633,10 +677,18 @@ EOF
         fi
 
     done <<< "$packages"
+
+    # Linux-specific cleanup
+    if [[ "$os" == "linux" ]]; then
+        # Cleanup: Remove policy file to allow services to start
+        sudo rm -f /usr/sbin/policy-rc.d
+    fi
 }
 
 # Install Oh My Zsh and plugins
 install_oh_my_zsh() {
+    local config_file="$(get_config_file)"
+    
     info "Installing Oh My Zsh..."
 
     # Install Oh My Zsh if not present
@@ -648,7 +700,7 @@ install_oh_my_zsh() {
     fi
 
     # Install plugins
-    local plugins=$(yq eval '.zsh_plugins[]' "$CONFIG_FILE")
+    local plugins=$(yq eval '.zsh_plugins[]' "$config_file")
     while IFS= read -r plugin; do
         if [[ -z "$plugin" ]]; then continue; fi
 
@@ -678,17 +730,36 @@ install_oh_my_zsh() {
 
 # Install AWS CLI with special handling
 install_aws_cli() {
+    local os="$(detect_os)"
     local temp_dir=$(mktemp -d)
     cd "$temp_dir"
 
     info "Downloading AWS CLI..."
-    curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-
-    info "Extracting AWS CLI..."
-    unzip -q awscliv2.zip
+    
+    case "$os" in
+        linux)
+            curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            ;;
+        macos)
+            if is_apple_silicon; then
+                curl -fsSL "https://awscli.amazonaws.com/AWSCLIV2-arm64.pkg" -o "awscliv2.pkg"
+            else
+                curl -fsSL "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "awscliv2.pkg"
+            fi
+            ;;
+    esac
 
     info "Installing AWS CLI..."
-    sudo ./aws/install
+    
+    case "$os" in
+        linux)
+            unzip -q awscliv2.zip
+            sudo ./aws/install
+            ;;
+        macos)
+            sudo installer -pkg awscliv2.pkg -target /
+            ;;
+    esac
 
     # Cleanup
     rm -rf "$temp_dir"
@@ -787,9 +858,6 @@ main() {
     info "Starting package installation..."
     process_packages
     install_oh_my_zsh
-
-    # Cleanup: Remove policy file to allow services to start
-    sudo rm -f /usr/sbin/policy-rc.d
 
     success "All packages installed successfully!"
 }
