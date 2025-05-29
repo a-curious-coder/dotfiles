@@ -1,3 +1,57 @@
+#!/usr/bin/env bash
+
+# Dotfiles Migration Script
+# =========================
+# Migrate from old structure to new unified approach
+
+set -euo pipefail
+
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Colors
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+
+# Files to remove (redundant/deprecated)
+remove_redundant_files() {
+    local files_to_remove=(
+        "config.yaml"
+        "config-macos.yaml"
+        "tool-selection.yaml"
+        "install.sh"
+        "install-cross-platform.sh"
+        "install-interactive.sh"
+        "validate-macos-support.sh"
+    )
+    
+    info "Removing redundant configuration files..."
+    
+    for file in "${files_to_remove[@]}"; do
+        if [[ -f "$DOTFILES_DIR/$file" ]]; then
+            warning "Removing: $file"
+            git mv "$DOTFILES_DIR/$file" "$DOTFILES_DIR/.archive/" 2>/dev/null || mv "$DOTFILES_DIR/$file" "$DOTFILES_DIR/.archive/"
+        fi
+    done
+}
+
+# Create archive directory for old files
+create_archive() {
+    if [[ ! -d "$DOTFILES_DIR/.archive" ]]; then
+        mkdir -p "$DOTFILES_DIR/.archive"
+        echo "# Archived Files" > "$DOTFILES_DIR/.archive/README.md"
+        echo "These files have been replaced by the new unified configuration system." >> "$DOTFILES_DIR/.archive/README.md"
+    fi
+}
+
+# Update README with new usage instructions
+update_readme() {
+    cat > "$DOTFILES_DIR/README.md" << 'EOF'
 # 🏠 Dotfiles
 
 Modern, cross-platform dotfiles with GNU Stow and unified package management.
@@ -103,3 +157,28 @@ stow -D ghostty git nvim tmux vscode zsh
 ## 📄 License
 
 MIT License - see LICENSE file for details.
+EOF
+
+    success "Updated README.md with new usage instructions"
+}
+
+# Main migration function
+main() {
+    info "Starting dotfiles migration to unified structure..."
+    
+    create_archive
+    remove_redundant_files
+    update_readme
+    
+    success "Migration completed!"
+    echo
+    info "New usage:"
+    echo "  ./setup                    # Auto-detect and install"
+    echo "  ./setup --interactive      # Interactive package selection"
+    echo "  ./setup --mode dotfiles    # Only setup dotfiles"
+    echo
+    warning "Old files moved to .archive/ directory"
+    info "You can safely remove .archive/ after testing the new system"
+}
+
+main "$@"
