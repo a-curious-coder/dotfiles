@@ -2,7 +2,7 @@
 # =============================
 
 # Appearance
-background = "#000000"
+background = "#0000000"
 font-family = "FiraCode Nerd Font"
 font-size = 14
 font-thicken = true

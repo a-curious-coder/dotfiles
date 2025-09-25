@@ -3,14 +3,17 @@
 
 # Appearance
 background = "#000000"
+background-opacity = 0.2
+background-blur = false
+window-decoration = none
 font-family = "FiraCode Nerd Font"
 font-size = 14
 font-thicken = true
 
 # Custom shaders for visual effects
-custom-shader = shaders/wiggle.glsl
-custom-shader = shaders/balatro.glsl
-custom-shader = shaders/tft.glsl
+#custom-shader = shaders/wiggle.glsl
+#custom-shader = shaders/balatro.glsl
+#custom-shader = shaders/tft.glsl
 
 # Performance and behavior
 window-padding-x = 8

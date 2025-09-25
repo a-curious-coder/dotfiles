@@ -1,84 +1,103 @@
-# Modern Zsh Configuration
-# =======================
+autoload -U add-zsh-hook
 
-# Oh My Zsh Configuration
+# =============================
+# Oh My Zsh Core Configuration
+# =============================
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="robbyrussell"
 
-# Oh My Zsh settings
+# General Zsh Options
 CASE_SENSITIVE="true"
 HYPHEN_INSENSITIVE="true"
 DISABLE_MAGIC_FUNCTIONS="true"
-ENABLE_CORRECTION="true"
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 HIST_STAMPS="yyyy-mm-dd"
 
-# Update behavior
+# Oh My Zsh Update Settings
 zstyle ':omz:update' mode auto
 zstyle ':omz:update' frequency 13
 
-# Plugin Configuration
+# =============================
+# Plugins
+# =============================
 plugins=(
-    git
-    docker
-    zsh-autosuggestions
-    zsh-syntax-highlighting
-    history-substring-search
-    web-search
+  git
+  docker
+  web-search
+  history-substring-search
+  zsh-autosuggestions
+  zsh-syntax-highlighting
 )
 
-# Load Oh My Zsh
 source $ZSH/oh-my-zsh.sh
 
-# Environment Variables
-export LANG=en_US.UTF-8
-export ARCHFLAGS="-arch $(uname -m)"
-export EDITOR='nvim'
-export GOPATH="$HOME/go"
-export GOROOT="/usr/local/go"
-export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+# =============================
+# PATH Setup
+# =============================
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$GOPATH/bin:$GOROOT/bin:/usr/local/bin:$PATH:/snap/bin:/opt/nvim-linux64/bin"
 
-# Path Configuration
-export PATH="$HOME/.local/bin:$PATH"
-export PATH="$HOME/.cargo/bin:$PATH"
-export PATH="$GOPATH/bin:$GOROOT/bin:$PATH"
-export PATH="/usr/local/bin:$PATH"
-export PATH="$PATH:/snap/bin"
-export PATH="$PATH:/opt/nvim-linux64/bin"
+# =============================
+# Language/Tool Environments
+# =============================
 
-# Load aliases and functions
-[[ -f ~/.zsh_aliases ]] && source ~/.zsh_aliases
-[[ -f ~/.zsh_functions ]] && source ~/.zsh_functions
-
-# Node Version Manager
+# Node Version Manager (NVM) - Lazy load for faster shell startup
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+autoload -U add-zsh-hook
+load_nvm() {
+  if [ -s "$NVM_DIR/nvm.sh" ]; then
+    source "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+    add-zsh-hook -d preexec load_nvm
+  fi
+}
+add-zsh-hook preexec load_nvm
 
 # Ruby Version Manager (rbenv)
-export PATH="$HOME/.rbenv/shims:$PATH"
 if command -v rbenv &> /dev/null; then
-    eval "$(rbenv init - zsh)"
+  eval "$(rbenv init - zsh)"
 fi
 
 # Rust environment
-if [[ -f "$HOME/.cargo/env" ]]; then
-    source "$HOME/.cargo/env"
-fi
+[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
-# History configuration
+# =============================
+# Aliases & Custom Functions
+# =============================
+
+# Load user aliases and functions if present
+[[ -f ~/.zsh_aliases ]] && source ~/.zsh_aliases
+[[ -f ~/.zsh_functions ]] && source ~/.zsh_functions
+
+# Docker Compose compatibility: allow 'docker-compose' to use 'docker compose' if available
+alias docker-compose='docker compose'
+
+# =============================
+# History Options
+# =============================
 HISTSIZE=10000
 SAVEHIST=10000
-setopt HIST_IGNORE_DUPS
-setopt HIST_IGNORE_ALL_DUPS
-setopt HIST_SAVE_NO_DUPS
-setopt HIST_FIND_NO_DUPS
+setopt inc_append_history
+setopt share_history
+setopt hist_ignore_dups
+setopt hist_ignore_all_dups
+setopt hist_save_no_dups
+setopt hist_find_no_dups
 
-# Auto-correction and completion
-setopt CORRECT
-setopt CORRECT_ALL
+# =============================
+# Completion & Correction
+# =============================
+# Uncomment to enable auto-correction
+# setopt CORRECT
+# setopt CORRECT_ALL
 
-# Better completion
-autoload -U compinit
-compinit
+# Fast and safe completion initialization
+autoload -Uz compinit
+compinit -C
+
+alias c='ssh -i ~/.ssh/vps-access root@2.58.82.20'
+eval "$(zoxide init zsh)"
+
+batdiff() {
+    git diff --name-only --relative --diff-filter=d -z | xargs -0 bat --diff
+}
