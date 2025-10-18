@@ -28,7 +28,6 @@ return {
 		"neovim/nvim-lspconfig",
 		event = { "BufReadPre", "BufNewFile" },
 		config = function()
-			local lspconfig = require("lspconfig")
 			local cmp_capabilities = require('cmp_nvim_lsp').default_capabilities()
 
 			-- Set up LSP attachments and keymaps for each buffer
@@ -37,14 +36,16 @@ return {
 				keymaps.setup(bufnr)
 			end
 
-			-- Configure each LSP server with common capabilities
-			for server_name, config in pairs(servers.server_configs) do
-				lspconfig[server_name].setup({
+			-- Configure each LSP server with modern vim.lsp.config API
+			for server_name, server_config in pairs(servers.server_configs) do
+				-- Merge server-specific settings with common capabilities
+				local config = vim.tbl_deep_extend("force", {
 					capabilities = cmp_capabilities,
 					on_attach = setup_buffer_lsp,
-					-- Merge server-specific settings
-					unpack(config)
-				})
+				}, server_config)
+				
+				-- Use new vim.lsp.config API (Neovim 0.11+)
+				vim.lsp.config(server_name, config)
 			end
 
 			-- Update statusline with active LSP info

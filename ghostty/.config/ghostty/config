@@ -2,9 +2,9 @@
 # =============================
 
 # Appearance
-background = "#000000"
-background-opacity = 0.2
-background-blur = false
+background = "#1a2332"
+background-opacity = 0.35
+background-blur = true
 window-decoration = none
 font-family = "FiraCode Nerd Font"
 font-size = 14

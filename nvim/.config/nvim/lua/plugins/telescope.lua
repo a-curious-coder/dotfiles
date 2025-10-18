@@ -1,17 +1,34 @@
+-- ┌─────────────────────────────────────────────────────────────┐
+-- │ Telescope - Fuzzy Finder                                    │
+-- │ Purpose: Fast file/text searching and navigation            │
+-- │ Dependencies: ripgrep (for grep), fd (for file search)      │
+-- └─────────────────────────────────────────────────────────────┘
+
 return {
+  -- Extension: Better UI for selections
   {
     "nvim-telescope/telescope-ui-select.nvim",
-    "smartpde/telescope-recent-files",
-    "nvim-telescope/telescope-fzf-native.nvim",
-    build = "make", -- For better performance
   },
+  
+  -- Extension: Recent files tracking
+  {
+    "smartpde/telescope-recent-files",
+  },
+  
+  -- Extension: FZF native for better performance
+  {
+    "nvim-telescope/telescope-fzf-native.nvim",
+    build = "make",
+  },
+  
+  -- Main Telescope plugin
   {
     "nvim-telescope/telescope.nvim",
     tag = "0.1.5",
+    event = "VeryLazy",
     dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-tree/nvim-web-devicons",
-      "nvim-telescope/telescope.nvim"
     },
     config = function()
       local telescope = require("telescope")
@@ -120,7 +137,7 @@ return {
         builtin.grep_string({ search = vim.fn.expand("<cWORD>"), additional_args = { "--hidden" } })
       end, { desc = "Grep current WORD (including hidden files)" })
 
-      vim.keymap.set("n", "<leader>pg", function()
+      vim.keymap.set("n", "<leader>pi", function()
         builtin.grep_string({ search = vim.fn.input("Grep > "), additional_args = { "--hidden" } })
       end, { desc = "Grep with input (including hidden files)" })
 

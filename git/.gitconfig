@@ -6,12 +6,17 @@
 [include]
     # Include local config for personal details
     path = ~/.gitconfig.local
+    # Include delta configuration (if installed)
+    path = ~/.gitconfig.delta
 
 [core]
     editor = nvim
     autocrlf = input
     safecrlf = true
-    pager = less
+    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only
 
 [init]
     defaultBranch = main
@@ -33,7 +38,14 @@
     conflictstyle = diff3
 
 [diff]
-    colorMoved = zebra
+    colorMoved = default
+
+[delta]
+    navigate = true
+    light = false
+    side-by-side = true
+    line-numbers = true
+    syntax-theme = Dracula
 
 [status]
     showUntrackedFiles = all

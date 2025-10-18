@@ -1,185 +1,336 @@
 # Neovim Configuration
 
-A modern Neovim configuration focused on Ruby on Rails, Python, and general development with strong LSP support.
+A modern, modular Neovim configuration focused on web development (TypeScript, Vue), Ruby on Rails, Python, and general development with strong LSP support.
 
-## Features
+> **📖 See [DESIGN_PLAN.md](DESIGN_PLAN.md) for architecture details and design rationale**
 
-- 🚀 Full LSP support with automatic server installation via Mason
-- 🔍 Fuzzy finding with Telescope and fzf
-- 📁 Multiple file explorers (Neo-tree and oil.nvim)
-- 📑 Smart buffer management with Barbar
-- 🏃 Fast file jumping with Harpoon
-- 📦 Git integration with LazyGit
-- 🎨 Beautiful UI with Catppuccin theme
-- 💫 Auto-save functionality
-- 🔖 Workspace/project management
-- ⚡ Fast startup with lazy loading
-- 📝 Advanced completion with nvim-cmp and LuaSnip
-- 🌳 Enhanced syntax highlighting with Treesitter
-- 📂 File folding with nvim-ufo
-- 🖥️ Seamless tmux integration
+## ✨ Features
 
-## Prerequisites
+- 🚀 **Full LSP support** with automatic server installation via Mason
+- 🔍 **Fuzzy finding** with Telescope and fzf
+- 📁 **Dual file explorers** - Neo-tree (tree view) & oil.nvim (buffer-based)
+- 📑 **Smart buffer management** with Barbar tabs
+- 🏃 **Fast file jumping** with Harpoon
+- 📦 **Git integration** with LazyGit in floating window
+- 🎨 **Beautiful UI** with Catppuccin theme
+- 💫 **Auto-save** functionality
+- 🔖 **Project management** with telescope-projects
+- ⚡ **Fast startup** (< 50ms) with lazy loading
+- 📝 **Advanced completion** with nvim-cmp and LuaSnip
+- 🌳 **Enhanced syntax** highlighting with Treesitter
+- 📂 **Code folding** with nvim-ufo
+- 🖥️ **Seamless tmux integration** for split navigation
 
+## 📋 Prerequisites
+
+**Required:**
 - Neovim >= 0.10.0
 - Git
 - Node.js (for LSP servers)
-- Ripgrep (for Telescope grep)
+- ripgrep (for Telescope grep)
+- fd (for file finding)
+- fzf (for fuzzy finding)
 - A Nerd Font (for icons)
-- tmux (optional, for nvim-tmux-navigation)
-- Node.js package manager (npm or yarn)
+
+**Optional:**
+- tmux (for nvim-tmux-navigation)
 - Ruby >= 2.7.0 (for Ruby/Rails development)
 - Python >= 3.8 (for Python development)
-- fzf (for enhanced fuzzy finding)
+- LazyGit (for git integration)
 
-## Ruby/Rails Setup
+## 🚀 Installation
 
-The following tools are automatically installed via Mason:
-- Solargraph (Ruby LSP)
-- Ruby LSP
-- ERB Lint
-- Rubocop
-- Rails Best Practices
-- Reek
+> **⚠️ IMPORTANT:** Backup your existing configuration first!
 
-## Installation
+```bash
+# 1. Backup existing config
+mv ~/.config/nvim ~/.config/nvim.backup.$(date +%Y%m%d)
+mv ~/.local/share/nvim ~/.local/share/nvim.backup.$(date +%Y%m%d)
 
-1. Backup your existing Neovim configuration by moving ~/.config/nvim to ~/.config/nvim.bak
+# 2. From your dotfiles directory, stow the nvim config
+cd ~/.dotfiles
+stow nvim
 
-2. Clone this repository into ~/.config/nvim
+# 3. Install dependencies (if using the setup script)
+./setup --categories cli,development
 
-3. Start Neovim and the configuration will automatically:
-   - Install the plugin manager (lazy.nvim)
-   - Install all configured plugins
-   - Set up LSP servers via Mason
+# 4. Launch Neovim - plugins install automatically
+nvim
+```
 
-## Key Mappings
+**First launch will take 2-5 minutes** to download and install all plugins and LSP servers. Subsequent launches are < 50ms.
 
-### General
-- Space - Leader key
-- Ctrl+n - Toggle file explorer
-- Ctrl+p - Find files (git)
-- Leader+pf - Find files (all)
-- Leader+ps - Live grep with ripgrep
-- Leader+pw - Search word under cursor
-- Leader+pW - Search WORD under cursor
-- Leader+Leader - Show recent files
-- Leader+vh - Help tags
-- Leader+pc - List commands
-- Leader+pk - List keymaps
-- Leader+pr - Resume last search
+### Verification
 
-### Buffer Management (Barbar)
-- Leader+bp - Previous buffer
-- Leader+bn - Next buffer
-- Leader+bc - Close buffer
-- Leader+bb - Pick buffer by letter
-- Alt+h/l - Move buffer left/right
-- Leader+[1-9] - Go to buffer by number
+After installation, verify everything works:
 
-### File Navigation
-- Leader+a - Mark file in Harpoon
-- Ctrl+e - Toggle Harpoon quick menu
-- Ctrl+t/s/b/g - Navigate to Harpoon file 1/2/3/4
-- "-" - Toggle oil.nvim file explorer
+```vim
+:checkhealth        " Check for issues
+:Lazy               " View installed plugins  
+:Mason              " View installed LSP servers
+:LspInfo            " Check LSP status in current buffer
+```
 
-### Workspace Management
-- Leader+wa - Add workspace
-- Leader+wr - Remove workspace
-- Leader+wl - List workspaces
-- Leader+fp - Find projects
+## 🗂️ Configuration Structure
 
-### Ruby/Rails Specific
-- gd - Go to definition
-- K - Show documentation
-- Leader+ca - Code actions
-- Leader+f - Format code
-- Leader+t - Run nearest test
-- Leader+T - Run test file
+```
+nvim/.config/nvim/
+├── init.lua                 # Bootstrap lazy.nvim
+├── lua/
+│   ├── vim-options.lua      # Core editor settings
+│   ├── lsp/                 # LSP configuration
+│   │   ├── servers.lua      # Server definitions
+│   │   ├── keymaps.lua      # LSP keybindings
+│   │   └── utils.lua        # Helper functions
+│   └── plugins/             # Plugin specifications
+│       ├── lsp-config.lua   # LSP & Mason setup
+│       ├── completions.lua  # Completion engine
+│       ├── telescope.lua    # Fuzzy finder
+│       └── ...              # Other plugins
+└── lazy-lock.json           # Plugin version lock
+```
 
-### Git Integration
-- Leader+gg - Open LazyGit
-- Leader+gf - Show file history
-- Leader+gl - Show repository log
-- Leader+gb - Show line blame
+See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 
-### LSP Features
-- K - Hover documentation
-- Leader+gd - Go to definition
-- Leader+gr - Find references
-- Leader+rn - Rename symbol
-- Leader+ca - Code actions
-- Leader+f - Format buffer
-- Leader+d - Show diagnostics
-- [d/]d - Previous/next diagnostic
-- Leader+ls - Show LSP status
-- Leader+ll - Show LSP log
+## 🎯 Key Mappings
 
-## Verifying LSP Status
+> **Tip:** Press `<Space>` (leader) to see all available keybindings via which-key
 
-You can verify that LSP servers are running and attached to your files using these methods:
+### General Navigation
+| Key | Action |
+|-----|--------|
+| `<Space>` | Leader key |
+| `<C-n>` | Toggle Neo-tree file explorer |
+| `-` | Toggle oil.nvim file browser |
+| `<C-h/j/k/l>` | Navigate splits (works with tmux panes) |
 
-1. Check active LSP servers for current buffer:
+### File & Search (Leader + f/p)
+| Key | Action |
+|-----|--------|
+| `<leader>ff` | Find files (all) |
+| `<leader>fg` | Find files (git) |
+| `<leader>fs` | Live grep with ripgrep |
+| `<leader>fw` | Search word under cursor |
+| `<leader>fW` | Search WORD under cursor |
+| `<leader>fr` | Resume last search |
+| `<leader>fh` | Help tags |
+| `<leader>fc` | List commands |
+| `<leader>fk` | List keymaps |
+| `<leader>fp` | Find projects |
+| `<Space><Space>` | Show recent files |
+
+### Buffer Management (Leader + b)
+| Key | Action |
+|-----|--------|
+| `<leader>bp` | Previous buffer |
+| `<leader>bn` | Next buffer |
+| `<leader>bc` | Close buffer |
+| `<leader>bb` | Pick buffer |
+| `<Alt-h/l>` | Move buffer left/right |
+| `<leader>[1-9]` | Go to buffer by number |
+
+### Harpoon (Quick File Navigation)
+| Key | Action |
+|-----|--------|
+| `<leader>a` | Mark file in Harpoon |
+| `<C-e>` | Toggle Harpoon quick menu |
+| `<C-t/s/b/g>` | Navigate to Harpoon file 1/2/3/4 |
+
+### LSP (Code Intelligence)
+| Key | Action |
+|-----|--------|
+| `K` | Show hover documentation |
+| `<leader>gd` | Go to definition |
+| `<leader>gr` | Show references |
+| `<leader>ca` | Code actions |
+| `<leader>rn` | Rename symbol |
+| `<leader>f` | Format code (via Conform) |
+| `[d` | Previous diagnostic |
+| `]d` | Next diagnostic |
+| `<leader>d` | Show diagnostic |
+| `<leader>ls` | LSP info |
+
+### Git
+| Key | Action |
+|-----|--------|
+| `<leader>gg` | Open LazyGit |
+
+### Project Management
+| Key | Action |
+|-----|--------|
+| `<leader>fp` | Find projects |
+
+### Utility
+| Key | Action |
+|-----|--------|
+| `<leader>h` | Clear search highlight |
+
+## 🎨 Customization
+
+### Changing Theme
+
+Edit `lua/plugins/catppuccin.lua`:
+
+```lua
+opts = {
+  flavour = "mocha",  -- latte, frappe, macchiato, or mocha
+}
+```
+
+### Adding a New LSP Server
+
+1. Add to `lua/lsp/servers.lua`:
+   ```lua
+   new_server = {},  -- Use defaults, or add custom settings
    ```
-   :LspInfo
+
+2. Restart Neovim - Mason will auto-install it
+
+### Adding a New Plugin
+
+1. Create `lua/plugins/plugin-name.lua`:
+   ```lua
+   return {
+     "author/plugin-name",
+     event = "VeryLazy",  -- Lazy load
+     config = function()
+       require("plugin-name").setup({})
+     end,
+   }
    ```
 
-2. View LSP logs:
-   ```
-   :LspLog
-   ```
 
-3. Check Mason-installed servers:
-   ```
-   :Mason
-   ```
+2. Restart Neovim - Lazy will auto-install it
 
-4. Quick LSP status check:
-   - Type `K` on any symbol - if documentation appears, LSP is working
-   - Type `gd` on a symbol - if it jumps to definition, LSP is working
-   - Look for diagnostics (error/warning squiggles) - indicates active LSP
+## 🔧 Maintenance
 
-5. View attached LSP clients in lua:
-   ```
-   :lua print(vim.inspect(vim.lsp.get_active_clients()))
-   ```
+### Updating Plugins
 
-Common issues if LSP isn't working:
-- Required language server not installed (use `:Mason` to install)
-- Missing project-specific config files (e.g., `.rubocop.yml` for Ruby)
-- LSP server executable not in PATH
-- Syntax errors in configuration files
+```vim
+:Lazy update        " Update all plugins to latest
+:Lazy clean         " Remove unused plugins
+:Lazy restore       " Restore to locked versions (rollback after breaking update)
+:Lazy profile       " Check startup performance
+```
 
-## Customisation
+### Managing LSP Servers
 
-The configuration is modular and organized in the lua/plugins directory. Each plugin has its own configuration file that can be modified according to your preferences.
+```vim
+:Mason              " Open Mason UI to manage LSP servers
+:MasonUpdate        " Update Mason registry
+:checkhealth mason  " Check Mason installation health
+```
 
-## Language Server Installation
+### Checking Configuration Health
 
-Most language servers are automatically installed and managed through Mason. You can open the Mason UI with `:Mason` to install or manage language servers.
+```vim
+:checkhealth        " Comprehensive health check
+:LspInfo            " Check LSP status for current buffer
+:LspLog             " View LSP error logs
+```
 
-Common language servers that will be auto-installed:
+## 🐛 Troubleshooting
 
-### For Ruby/Rails
-- ruby-lsp
-- solargraph
-- rubocop
-- erb-lint
+### Plugins Not Installing
 
-### For JavaScript/TypeScript
-- typescript-language-server
-- eslint-lsp
+**Symptoms:** Plugins missing after first launch
 
-### For Python
-- pyright
-- pylsp
+**Solutions:**
+- Check internet connection (downloads required)
+- Run `:Lazy restore` to retry installation
+- Check `:Lazy log` for error messages
+- Manually trigger: `:Lazy sync`
 
-### For Lua
-- lua-language-server
+### LSP Not Working
 
-To install additional language servers:
-1. Open Mason with `:Mason`
-2. Navigate to the desired server
-3. Press `i` to install
+**Symptoms:** No autocomplete, diagnostics, or go-to-definition
 
-Mason will handle keeping these servers up to date and managing their dependencies.
+**Solutions:**
+1. Check server status: `:LspInfo`
+2. Verify server installed: `:Mason`
+3. Check language tools: `ruby --version`, `python --version`, `node --version`
+4. Review logs: `:LspLog`
+5. Run health check: `:checkhealth lsp`
+
+**Common Issues:**
+- Language runtime not installed
+- Project missing config files (`.rubocop.yml`, `pyproject.toml`, etc.)
+- Server executable not in PATH
+
+### Slow Startup
+
+**Symptoms:** Neovim takes > 200ms to start
+
+**Solutions:**
+1. Profile startup: `:Lazy profile`
+2. Check for plugins with `lazy = false`
+3. Ensure plugins use proper lazy loading (`event`, `cmd`, `keys`)
+4. Remove unused plugins: `:Lazy clean`
+
+### Keybinding Conflicts
+
+**Symptoms:** Keybinding doesn't work as expected
+
+**Solutions:**
+1. List all keymaps: `:Telescope keymaps`
+2. Check which-key: `<Space>` (wait for popup)
+3. Search for conflicts: `:verbose map <keybinding>`
+
+## 📚 Language-Specific Notes
+
+### Ruby/Rails
+
+**Auto-installed tools via Mason:**
+- `ruby-lsp` - Ruby language server
+- `rubocop` - Linter and formatter  
+- `erb-lint` - ERB template linter
+
+**Project setup:**
+Create `.rubocop.yml` in project root for linting configuration.
+
+### Python
+
+**Auto-installed tools via Mason:**
+- `pyright` - Type checking
+- `pylsp` - Language server
+- `black` - Formatter (via Conform)
+
+**Project setup:**
+Use `pyproject.toml` or `setup.cfg` for project configuration.
+
+### TypeScript/JavaScript/Vue
+
+**Auto-installed tools via Mason:**
+- `ts_ls` (TypeScript Language Server)
+- `volar` (Vue Language Server)
+- `eslint` - Linter
+- `prettier` - Formatter (via Conform)
+
+**Project setup:**
+Ensure `tsconfig.json` exists for TypeScript projects.
+
+### Lua
+
+**Auto-installed tools via Mason:**
+- `lua_ls` (Lua Language Server)
+- `stylua` - Formatter (via Conform)
+
+Automatically configured for Neovim development.
+
+## 📖 Learning Resources
+
+### For Vim Beginners
+- Run `:Tutor` for interactive Vim tutorial
+- Press `<Space>` to explore keybindings with which-key
+- Use `:Telescope keymaps` to search available shortcuts
+
+### For This Configuration
+- See [DESIGN_PLAN.md](DESIGN_PLAN.md) for architecture and design rationale
+- Check [CHANGES_APPLIED.md](CHANGES_APPLIED.md) for recent improvements
+- Review individual plugin files in `lua/plugins/` for specific configurations
+
+---
+
+**Version:** 1.0  
+**Last Updated:** October 12, 2025  
+**Maintained by:** Callum McLennan

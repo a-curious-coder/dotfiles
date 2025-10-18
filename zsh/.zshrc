@@ -95,9 +95,34 @@ setopt hist_find_no_dups
 autoload -Uz compinit
 compinit -C
 
-alias c='ssh -i ~/.ssh/vps-access root@2.58.82.20'
-eval "$(zoxide init zsh)"
+# =============================
+# Modern CLI Tool Integrations
+# =============================
 
+# zoxide - smarter cd
+if command -v zoxide &> /dev/null; then
+    eval "$(zoxide init zsh)"
+fi
+
+# Starship prompt (comment out if using powerlevel10k)
+# Uncomment to use starship instead of powerlevel10k:
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+fi
+
+# fzf integration
+if command -v fzf &> /dev/null; then
+    [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+fi
+
+# =============================
+# Custom Functions
+# =============================
+
+# SSH alias
+alias c='ssh -i ~/.ssh/vps-access root@2.58.82.20'
+
+# Better git diff with bat
 batdiff() {
     git diff --name-only --relative --diff-filter=d -z | xargs -0 bat --diff
 }

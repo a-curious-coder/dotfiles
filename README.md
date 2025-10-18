@@ -34,8 +34,10 @@ cd ~/.dotfiles
 ├── setup                    # Main installer script
 ├── packages.yaml           # Unified package configuration
 ├── ghostty/                # Ghostty terminal config
-├── git/                    # Git configuration
-├── nvim/                   # Neovim configuration  
+├── git/                    # Git configuration (includes delta config)
+├── lazygit/                # Lazygit terminal UI for git
+├── nvim/                   # Neovim configuration (see nvim/INSTALL.md)
+├── starship/               # Starship prompt (alternative to powerlevel10k)
 ├── tmux/                   # Tmux configuration
 ├── vscode/                 # VS Code settings
 ├── zsh/                    # Zsh and Oh My Zsh config
@@ -44,15 +46,44 @@ cd ~/.dotfiles
     └── ...
 ```
 
+## 📝 Special Configurations
+
+### Neovim Setup
+
+The Neovim configuration is comprehensive and requires additional dependencies:
+
+**Quick Install:**
+```bash
+# Install Neovim and all dependencies
+./setup --categories development,cli,terminal
+
+# Stow the nvim configuration
+stow nvim
+```
+
+**📖 For detailed Neovim installation instructions, see [nvim/INSTALL.md](nvim/INSTALL.md)**
+
+**Neovim Prerequisites:**
+- Neovim >= 0.10.0
+- Node.js (for LSP servers)
+- ripgrep, fd, fzf (for search functionality)
+- A Nerd Font (for icons)
+
+**Documentation:**
+- Installation Guide: `nvim/INSTALL.md`
+- Quick Reference: `nvim/QUICKREF.md`
+- Full Documentation: `nvim/.config/nvim/README.md`
+- Design Document: `nvim/DESIGN_PLAN.md`
+
 ## 🛠 Configuration
 
 ### Package Categories
 
 - **development**: Core development tools (Docker, VS Code, Git)
-- **cli**: Modern CLI tools (bat, ripgrep, fd, fzf)
+- **cli**: Modern CLI tools (bat, ripgrep, fd, fzf, eza, zoxide, lazygit, delta, tldr, btop)
 - **security**: Security and CTF tools (nmap, wireshark, etc.)
 - **language**: Programming languages (Node.js, Go, Rust)
-- **terminal**: Terminal applications (Ghostty, tmux)
+- **terminal**: Terminal applications (Ghostty, tmux, starship)
 
 ### Customization
 

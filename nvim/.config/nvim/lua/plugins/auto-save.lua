@@ -1,3 +1,9 @@
+-- ┌─────────────────────────────────────────────────────────────┐
+-- │ Auto-Save                                                   │
+-- │ Purpose: Automatically save files on changes                │
+-- │ Trigger: InsertLeave, TextChanged, BufLeave, FocusLost      │
+-- └─────────────────────────────────────────────────────────────┘
+
 return {
     "pocco81/auto-save.nvim",
     event = { "InsertLeave", "TextChanged" },
@@ -8,12 +14,12 @@ return {
                 return ("AutoSave: saved at " .. vim.fn.strftime("%H:%M:%S"))
             end,
         },
-        trigger_events = { -- See :h events
-            immediate_save = { "BufLeave", "FocusLost" }, -- vim events that trigger an immediate save
-            defer_save = { "InsertLeave", "TextChanged" }, -- vim events that trigger a deferred save (saves after waiting for `debounce_delay`)
-            cancel_defered_save = { "InsertEnter" }, -- vim events that cancel a pending deferred save
+        trigger_events = {
+            immediate_save = { "BufLeave", "FocusLost" },
+            defer_save = { "InsertLeave", "TextChanged" },
+            cancel_defered_save = { "InsertEnter" },
         },
-        write_all_buffers = false, -- write all buffers when the current one meets `condition`
-        debounce_delay = 1000, -- delay after which a pending save is executed
+        write_all_buffers = false,
+        debounce_delay = 1000, -- Wait 1 second before saving
     }
 } 

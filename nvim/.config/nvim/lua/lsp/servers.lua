@@ -1,21 +1,18 @@
+-- ┌─────────────────────────────────────────────────────────────┐
+-- │ LSP Server Configurations                                   │
+-- │ Purpose: Define settings for each language server           │
+-- │ Note: Only include non-default settings here               │
+-- │ Servers are auto-installed by Mason                        │
+-- └─────────────────────────────────────────────────────────────┘
+
 local M = {}
 
+-- Server-specific configurations
+-- Empty tables ({}) use default settings from nvim-lspconfig
 M.server_configs = {
+  -- === WEB DEVELOPMENT ===
   html = {},
   jsonls = {},
-  lua_ls = {},
-  pyright = {},
-  pylsp = {},
-  ruby_lsp = {
-    cmd = { "ruby-lsp" },
-    settings = {
-      rubocop = {
-        enable = true,
-        lint = true,
-        format = true
-      }
-    }
-  },
   tailwindcss = {
     filetypes = {
       "html", "vue", "javascriptreact",
@@ -30,7 +27,8 @@ M.server_configs = {
       return require("lspconfig").util.root_pattern("tailwind.config.js", "tailwind.config.cjs")(fname)
     end
   },
-  -- Updated ts_ls config (remove vue from filetypes)
+  
+  -- === TYPESCRIPT/JAVASCRIPT ===
   ts_ls = {
     init_options = {
       plugins = {
@@ -59,7 +57,8 @@ M.server_configs = {
       },
     },
   },
-  -- Volar config (add takeover mode)
+  
+  -- === VUE ===
   volar = {
     init_options = {
       vue = {
@@ -93,6 +92,25 @@ M.server_configs = {
         },
       },
     },
+  },
+  
+  -- === LUA ===
+  lua_ls = {},
+  
+  -- === PYTHON ===
+  pyright = {},
+  pylsp = {},
+  
+  -- === RUBY ===
+  ruby_lsp = {
+    cmd = { "ruby-lsp" },
+    settings = {
+      rubocop = {
+        enable = true,
+        lint = true,
+        format = true
+      }
+    }
   },
 }
 
