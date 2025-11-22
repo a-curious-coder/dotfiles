@@ -23,8 +23,11 @@ M.server_configs = {
         vue = "html"
       }
     },
-    root_dir = function(fname)
-      return require("lspconfig").util.root_pattern("tailwind.config.js", "tailwind.config.cjs")(fname)
+    root_dir = function(bufnr, on_dir)
+      local root = vim.fs.root(bufnr, { "tailwind.config.js", "tailwind.config.cjs", "tailwind.config.ts" })
+      if root then
+        on_dir(root)
+      end
     end
   },
   

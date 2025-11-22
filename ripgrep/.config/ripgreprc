@@ -1,0 +1,45 @@
+# Ripgrep configuration
+
+# Search hidden files by default
+--hidden
+
+# Follow symlinks
+--follow
+
+# Smart case (case-insensitive unless uppercase used)
+--smart-case
+
+# Add line numbers
+--line-number
+
+# Show column numbers
+--column
+
+# Colors
+--colors=line:fg:yellow
+--colors=line:style:bold
+--colors=path:fg:green
+--colors=path:style:bold
+--colors=match:fg:red
+--colors=match:style:bold
+
+# Ignore patterns (common directories to skip)
+--glob=!.git/*
+--glob=!node_modules/*
+--glob=!vendor/*
+--glob=!.cache/*
+--glob=!target/*
+--glob=!dist/*
+--glob=!build/*
+--glob=!*.min.js
+--glob=!*.min.css
+--glob=!package-lock.json
+--glob=!yarn.lock
+--glob=!pnpm-lock.yaml
+--glob=!Cargo.lock
+
+# Max columns before truncating
+--max-columns=200
+
+# Show truncation marker
+--max-columns-preview

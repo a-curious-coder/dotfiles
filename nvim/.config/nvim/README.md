@@ -8,18 +8,17 @@ A modern, modular Neovim configuration focused on web development (TypeScript, V
 
 - 🚀 **Full LSP support** with automatic server installation via Mason
 - 🔍 **Fuzzy finding** with Telescope and fzf
-- 📁 **Dual file explorers** - Neo-tree (tree view) & oil.nvim (buffer-based)
+- 📁 **File explorer** with Neo-tree
 - 📑 **Smart buffer management** with Barbar tabs
-- 🏃 **Fast file jumping** with Harpoon
-- 📦 **Git integration** with LazyGit in floating window
+- 📦 **Git integration** with LazyGit
 - 🎨 **Beautiful UI** with Catppuccin theme
-- 💫 **Auto-save** functionality
-- 🔖 **Project management** with telescope-projects
-- ⚡ **Fast startup** (< 50ms) with lazy loading
+- 💫 **Auto-save** on file switch
+- ⚡ **Fast startup** with lazy loading
 - 📝 **Advanced completion** with nvim-cmp and LuaSnip
 - 🌳 **Enhanced syntax** highlighting with Treesitter
 - 📂 **Code folding** with nvim-ufo
 - 🖥️ **Seamless tmux integration** for split navigation
+- ❓ **Keybinding discovery** with which-key (press Space and wait)
 
 ## 📋 Prerequisites
 
@@ -80,8 +79,7 @@ nvim/.config/nvim/
 │   ├── vim-options.lua      # Core editor settings
 │   ├── lsp/                 # LSP configuration
 │   │   ├── servers.lua      # Server definitions
-│   │   ├── keymaps.lua      # LSP keybindings
-│   │   └── utils.lua        # Helper functions
+│   │   └── keymaps.lua      # LSP keybindings
 │   └── plugins/             # Plugin specifications
 │       ├── lsp-config.lua   # LSP & Mason setup
 │       ├── completions.lua  # Completion engine
@@ -99,42 +97,39 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 ### General Navigation
 | Key | Action |
 |-----|--------|
-| `<Space>` | Leader key |
+| `<Space>` | Leader key (wait for which-key popup) |
+| `<leader>?` | Show all keybindings |
 | `<C-n>` | Toggle Neo-tree file explorer |
-| `-` | Toggle oil.nvim file browser |
 | `<C-h/j/k/l>` | Navigate splits (works with tmux panes) |
 
-### File & Search (Leader + f/p)
+### File & Search (Leader + f)
 | Key | Action |
 |-----|--------|
 | `<leader>ff` | Find files (all) |
 | `<leader>fg` | Find files (git) |
-| `<leader>fs` | Live grep with ripgrep |
+| `<leader>fb` | Find buffers |
+| `<leader>fs` | Live grep |
 | `<leader>fw` | Search word under cursor |
 | `<leader>fW` | Search WORD under cursor |
 | `<leader>fr` | Resume last search |
 | `<leader>fh` | Help tags |
-| `<leader>fc` | List commands |
-| `<leader>fk` | List keymaps |
-| `<leader>fp` | Find projects |
-| `<Space><Space>` | Show recent files |
+| `<leader>fc` | Commands |
+| `<leader>fk` | Keymaps |
+| `<Space><Space>` | Recent files |
 
 ### Buffer Management (Leader + b)
 | Key | Action |
 |-----|--------|
 | `<leader>bp` | Previous buffer |
 | `<leader>bn` | Next buffer |
+| `<leader>bf` | First buffer |
+| `<leader>bl` | Last buffer |
+| `<leader>bb` | Pick buffer (by letter) |
 | `<leader>bc` | Close buffer |
-| `<leader>bb` | Pick buffer |
-| `<Alt-h/l>` | Move buffer left/right |
+| `<leader>bx` | Pick buffer to close |
 | `<leader>[1-9]` | Go to buffer by number |
-
-### Harpoon (Quick File Navigation)
-| Key | Action |
-|-----|--------|
-| `<leader>a` | Mark file in Harpoon |
-| `<C-e>` | Toggle Harpoon quick menu |
-| `<C-t/s/b/g>` | Navigate to Harpoon file 1/2/3/4 |
+| `<Alt-h/l>` | Move buffer left/right |
+| `<Alt-p>` | Pin/unpin buffer |
 
 ### LSP (Code Intelligence)
 | Key | Action |
@@ -154,11 +149,6 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 | Key | Action |
 |-----|--------|
 | `<leader>gg` | Open LazyGit |
-
-### Project Management
-| Key | Action |
-|-----|--------|
-| `<leader>fp` | Find projects |
 
 ### Utility
 | Key | Action |

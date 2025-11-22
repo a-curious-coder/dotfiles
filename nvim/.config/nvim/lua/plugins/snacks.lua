@@ -14,7 +14,7 @@ return {
     input = { enabled = true },
     notifier = { enabled = true },
     quickfile = { enabled = true },
-    picker = { enabled = true },
+    picker = { enabled = false },
     scroll = { enabled = false },
     statuscolumn = { enabled = false },
     words = { enabled = true },

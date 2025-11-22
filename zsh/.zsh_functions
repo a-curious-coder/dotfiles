@@ -125,21 +125,32 @@ killport() {
 
 # Update all the things
 update-all() {
-    echo "🔄 Updating system packages..."
-    sudo apt update && sudo apt upgrade -y
+    echo "Updating system packages..."
+    if command -v pacman &> /dev/null; then
+        sudo pacman -Syu
+        if command -v yay &> /dev/null; then
+            yay -Syu --aur
+        fi
+    elif command -v apt &> /dev/null; then
+        sudo apt update && sudo apt upgrade -y
+    elif command -v brew &> /dev/null; then
+        brew update && brew upgrade
+    fi
 
-    echo "🔄 Updating Oh My Zsh..."
+    echo "Updating Oh My Zsh..."
     omz update
 
-    echo "🔄 Updating Rust..."
-    rustup update
+    if command -v rustup &> /dev/null; then
+        echo "Updating Rust..."
+        rustup update
+    fi
 
-    echo "🔄 Updating Node.js packages..."
     if command -v npm &> /dev/null; then
+        echo "Updating Node.js packages..."
         npm update -g
     fi
 
-    echo "✅ All updates complete!"
+    echo "All updates complete!"
 }
 
 # === CTF & SECURITY FUNCTIONS ===
@@ -307,11 +318,16 @@ ctf-workspace() {
     echo "📁 Created directories: scripts, files, notes, exploits, wordlists"
 }
 
-# Show installed tools summary
+# Show installed CLI tools
 show-tools() {
-    if [[ -f "$HOME/.dotfiles/scripts/show-tools.sh" ]]; then
-        bash "$HOME/.dotfiles/scripts/show-tools.sh"
-    else
-        echo "Tools summary script not found"
-    fi
+    echo "CLI Tools Status:"
+    echo "================"
+    local tools=(nvim tmux zsh git lazygit btop eza zoxide fzf rg fd bat delta)
+    for tool in "${tools[@]}"; do
+        if command -v "$tool" &> /dev/null; then
+            printf "%-12s %s\n" "$tool" "$(command -v $tool)"
+        else
+            printf "%-12s %s\n" "$tool" "(not installed)"
+        fi
+    done
 }

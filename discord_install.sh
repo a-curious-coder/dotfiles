@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 # --- Configuration ---
 APP_NAME="Discord"
 INSTALL_DIR="/opt/$APP_NAME"
@@ -7,65 +9,63 @@ EXECUTABLE_LINK="/usr/bin/discord"
 DISCORD_URL="https://discord.com/api/download?platform=linux&format=tar.gz"
 TEMP_DIR="/tmp/discord_install"
 
-echo "Starting Discord update process (always installs latest version)..."
+echo "Starting Discord update process..."
 
 # --- 1. Terminate Discord if running ---
-echo "Checking for running Discord instances to terminate..."
-if pgrep -x "$APP_NAME" > /dev/null; then
-    echo "Discord is running. Attempting to close gracefully..."
-    killall "$APP_NAME"
-    sleep 3
-    if pgrep -x "$APP_NAME" > /dev/null; then
-        echo "Discord did not close gracefully. Forcing shutdown..."
-        killall -9 "$APP_NAME"
+if pgrep -xi "discord" > /dev/null; then
+    echo "Closing Discord..."
+    killall -q discord || true
+    sleep 2
+    if pgrep -xi "discord" > /dev/null; then
+        killall -9 discord 2>/dev/null || true
         sleep 1
     fi
+    echo "Discord closed."
 fi
-echo "Discord process terminated."
 
-# --- 2. Download and Extract Latest Version ---
-echo "Preparing temporary directory..."
+# --- 2. Download ---
+echo "Downloading latest Discord..."
 rm -rf "$TEMP_DIR"
 mkdir -p "$TEMP_DIR"
 
-echo "Downloading latest Discord archive..."
-curl -L "$DISCORD_URL" -o "$TEMP_DIR/discord.tar.gz"
+if ! curl -fSL "$DISCORD_URL" -o "$TEMP_DIR/discord.tar.gz"; then
+    echo "Error: Download failed"
+    exit 1
+fi
 
-echo "Extracting archive..."
+# --- 3. Extract ---
+echo "Extracting..."
 tar -xzf "$TEMP_DIR/discord.tar.gz" -C "$TEMP_DIR"
 
-# --- 3. Install Files and Set Permissions ---
-echo "Installing new version to $INSTALL_DIR..."
-# Remove the existing installation directory
-sudo rm -rf "$INSTALL_DIR"
-
-# Find the top-level directory in the extracted files (usually named 'Discord')
-EXTRACTED_DIR=$(find "$TEMP_DIR" -maxdepth 1 -type d -name "$APP_NAME" -print -quit)
-
-if [ -z "$EXTRACTED_DIR" ]; then
-    echo "❌ Critical Error: Could not find the top-level 'Discord' directory in the tarball."
+EXTRACTED_DIR="$TEMP_DIR/$APP_NAME"
+if [ ! -d "$EXTRACTED_DIR" ]; then
+    echo "Error: Extraction failed - Discord directory not found"
     rm -rf "$TEMP_DIR"
     exit 1
 fi
 
-# Move the new files into the installation directory
+# --- 4. Install ---
+echo "Installing to $INSTALL_DIR..."
+sudo rm -rf "$INSTALL_DIR"
 sudo mv "$EXTRACTED_DIR" "$INSTALL_DIR"
-# Set ownership back to the current user for normal operation
-sudo chown -R $USER:$USER "$INSTALL_DIR"
+sudo chown -R "$USER:$USER" "$INSTALL_DIR"
 
-# --- 4. Fix Command-Line Execution ---
-# The actual executable is always the file named 'Discord' inside the main directory.
+# --- 5. Create symlink ---
 EXECUTABLE_BIN="$INSTALL_DIR/$APP_NAME"
-
-if [ -f "$EXECUTABLE_BIN" ]; then
-    echo "Creating/refreshing system link: $EXECUTABLE_LINK -> $EXECUTABLE_BIN"
-    # Create a symbolic link from a PATH directory (/usr/bin) to the application executable
+if [ -x "$EXECUTABLE_BIN" ]; then
     sudo ln -sf "$EXECUTABLE_BIN" "$EXECUTABLE_LINK"
 else
-    echo "❌ CRITICAL: Could not find the main executable at $EXECUTABLE_BIN. Command execution may fail."
+    echo "Error: Executable not found at $EXECUTABLE_BIN"
+    exit 1
 fi
 
-# --- 5. Cleanup ---
+# --- 6. Cleanup ---
 rm -rf "$TEMP_DIR"
 
-echo "🎉 Discord installation complete. Run 'discord' to launch the new version."
+# --- 7. Launch Discord ---
+echo "Installation complete. Launching Discord..."
+sleep 1
+nohup "$EXECUTABLE_BIN" > /dev/null 2>&1 &
+disown
+
+echo "Done."

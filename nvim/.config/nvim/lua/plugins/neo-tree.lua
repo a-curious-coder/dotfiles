@@ -51,17 +51,7 @@ return {
 		},
 	},
 	config = function()
-		-- Keymaps for opening Neo-tree
-		vim.keymap.set("n", "<C-n>", ":Neotree filesystem reveal right<CR>", { desc = "Open Neo-tree file explorer" })
-		vim.keymap.set(
-			"n",
-			"<leader>bf",
-			":Neotree buffers reveal float<CR>",
-			{ desc = "Open Neo-tree buffer explorer in float" }
-		)
-
-		-- Additional keymaps for quick access
+		vim.keymap.set("n", "<C-n>", ":Neotree filesystem reveal right<CR>", { desc = "Neo-tree file explorer" })
 		vim.keymap.set("n", "<leader>e", ":Neotree toggle right<CR>", { desc = "Toggle Neo-tree" })
-		vim.keymap.set("n", "<leader>gs", ":Neotree git_status<CR>", { desc = "Open Neo-tree git status" })
 	end,
 }

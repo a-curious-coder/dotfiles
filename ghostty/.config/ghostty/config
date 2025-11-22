@@ -3,7 +3,7 @@
 
 # Appearance
 background = "#1a2332"
-background-opacity = 0.35
+background-opacity = 0.80
 background-blur = true
 window-decoration = none
 font-family = "FiraCode Nerd Font"

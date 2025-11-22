@@ -112,48 +112,34 @@ return {
       telescope.load_extension("recent_files")
       telescope.load_extension("fzf") -- Much faster fuzzy finding
 
-      -- Enhanced keymaps for productivity
-      -- File navigation
-      vim.keymap.set("n", "<leader>pf", function()
+      -- Keymaps: <leader>f = find/search operations
+      vim.keymap.set("n", "<leader>ff", function()
         builtin.find_files({ hidden = true, no_ignore = true })
-      end, { desc = "Find all files (including hidden)" })
+      end, { desc = "Find files (all)" })
 
-      vim.keymap.set("n", "<leader>pg", builtin.git_files, { desc = "Find files tracked by git" })
-      vim.keymap.set("n", "<C-p>", builtin.git_files, { desc = "Find files tracked by git" })
+      vim.keymap.set("n", "<leader>fg", builtin.git_files, { desc = "Find files (git)" })
+      vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find buffers" })
 
-      -- Buffer management
-      vim.keymap.set("n", "<leader>pb", builtin.buffers, { desc = "Find buffers" })
-
-      -- Text search
-      vim.keymap.set("n", "<leader>ps", function()
+      vim.keymap.set("n", "<leader>fs", function()
         builtin.live_grep({ additional_args = { "--hidden" } })
-      end, { desc = "Live grep (including hidden files)" })
+      end, { desc = "Live grep" })
 
-      vim.keymap.set("n", "<leader>pw", function()
+      vim.keymap.set("n", "<leader>fw", function()
         builtin.grep_string({ search = vim.fn.expand("<cword>"), additional_args = { "--hidden" } })
-      end, { desc = "Grep current word (including hidden files)" })
+      end, { desc = "Search word under cursor" })
 
-      vim.keymap.set("n", "<leader>pW", function()
+      vim.keymap.set("n", "<leader>fW", function()
         builtin.grep_string({ search = vim.fn.expand("<cWORD>"), additional_args = { "--hidden" } })
-      end, { desc = "Grep current WORD (including hidden files)" })
+      end, { desc = "Search WORD under cursor" })
 
-      vim.keymap.set("n", "<leader>pi", function()
-        builtin.grep_string({ search = vim.fn.input("Grep > "), additional_args = { "--hidden" } })
-      end, { desc = "Grep with input (including hidden files)" })
+      vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "Resume last search" })
+      vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Help tags" })
+      vim.keymap.set("n", "<leader>fc", builtin.commands, { desc = "Commands" })
+      vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "Keymaps" })
 
-      -- Recent files
       vim.keymap.set("n", "<leader><leader>", function()
         require('telescope').extensions.recent_files.pick()
-      end, { desc = "Recent files", noremap = true, silent = true })
-
-      -- Help and documentation
-      vim.keymap.set("n", "<leader>vh", builtin.help_tags, { desc = "Help tags" })
-
-      -- Additional useful pickers
-      vim.keymap.set("n", "<leader>pc", builtin.commands, { desc = "Commands" })
-      vim.keymap.set("n", "<leader>pk", builtin.keymaps, { desc = "Keymaps" })
-      vim.keymap.set("n", "<leader>pr", builtin.resume, { desc = "Resume last picker" })
-      vim.keymap.set("n", "<leader>po", builtin.oldfiles, { desc = "Recently opened files" })
+      end, { desc = "Recent files" })
     end,
   },
 }
