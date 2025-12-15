@@ -31,18 +31,19 @@ cd ~/.dotfiles
 
 ```
 .dotfiles/
-├── setup                    # Main installer script
-├── packages.yaml           # Unified package configuration
-├── ghostty/                # Ghostty terminal config
-├── git/                    # Git configuration (includes delta config)
-├── lazygit/                # Lazygit terminal UI for git
-├── nvim/                   # Neovim configuration (see nvim/INSTALL.md)
-├── starship/               # Starship prompt (alternative to powerlevel10k)
-├── tmux/                   # Tmux configuration
-├── vscode/                 # VS Code settings
-├── zsh/                    # Zsh and Oh My Zsh config
-└── scripts/                # Installation scripts
-    ├── lib/                # Shared libraries
+├── setup                           # Main installer script
+├── sync-dotfiles                   # Multi-machine sync script
+├── packages.yaml                   # Unified package configuration
+├── ghostty/                        # Ghostty terminal config
+├── git/                           # Git configuration (includes delta config)
+├── lazygit/                       # Lazygit terminal UI for git
+├── nvim/                          # Neovim configuration (see nvim/INSTALL.md)
+├── starship/                      # Starship prompt (alternative to powerlevel10k)
+├── tmux/                          # Tmux configuration
+├── vscode/                        # VS Code settings
+├── zsh/                           # Zsh and Oh My Zsh config
+└── scripts/                       # Installation scripts
+    ├── lib/                       # Shared libraries
     └── ...
 ```
 
@@ -111,6 +112,29 @@ Edit `packages.yaml` to:
 # Preview changes
 ./setup --dry-run
 ```
+
+## 🔄 Syncing Across Machines
+
+Use the `sync-dotfiles` script to keep your dotfiles synchronized across multiple machines:
+
+```bash
+# Push local changes to remote
+./sync-dotfiles push
+
+# Pull changes from remote
+./sync-dotfiles pull
+
+# Check sync status
+./sync-dotfiles status
+
+# View differences
+./sync-dotfiles diff
+
+# List all machines
+./sync-dotfiles list-machines
+```
+
+**See [SYNC-GUIDE.md](SYNC-GUIDE.md) for detailed sync instructions.**
 
 ## 🔧 Manual Operations
 
