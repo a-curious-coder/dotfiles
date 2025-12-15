@@ -3,7 +3,7 @@
 
 # Appearance
 background = "#1a2332"
-background-opacity = 0.80
+background-opacity = 0.35
 background-blur = true
 window-decoration = none
 font-family = "FiraCode Nerd Font"
@@ -18,7 +18,6 @@ font-thicken = true
 # Performance and behavior
 window-padding-x = 8
 window-padding-y = 8
-window-decoration = true
 window-theme = dark
 
 # Terminal behavior

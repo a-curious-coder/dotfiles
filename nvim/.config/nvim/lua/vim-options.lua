@@ -37,7 +37,7 @@ vim.opt.redrawtime = 1500      -- Allow more time for syntax highlighting on lar
 -- Note: timeoutlen is set by which-key plugin
 
 -- === FILE HANDLING ===
-vim.opt.swapfile = false       -- Disable swap files (use auto-save plugin instead)
+vim.opt.swapfile = false       -- Disable swap files (manual saves or :update)
 
 -- === SEARCH & HIGHLIGHT ===
 -- Clear search highlight with leader+h
@@ -55,4 +55,3 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 -- === WINDOW NAVIGATION ===
 -- Note: Window navigation (<C-h/j/k/l>) is handled by nvim-tmux-navigation plugin
 -- This allows seamless navigation between nvim splits and tmux panes
-

@@ -32,6 +32,7 @@ test_results.txt
 # User-specific files (these should be configured locally)
 .env
 .env.local
+.zshrc.env
 
 # Local git configuration (contains personal credentials)
 .gitconfig.local

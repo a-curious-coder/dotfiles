@@ -13,6 +13,7 @@ DISABLE_MAGIC_FUNCTIONS="true"
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
 HIST_STAMPS="yyyy-mm-dd"
+[[ -f "$HOME/.zshrc.env" ]] && source "$HOME/.zshrc.env"
 
 # Oh My Zsh Update Settings
 zstyle ':omz:update' mode auto
@@ -35,11 +36,7 @@ source $ZSH/oh-my-zsh.sh
 # =============================
 # PATH Setup
 # =============================
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$GOPATH/bin:$GOROOT/bin:/usr/local/bin:$PATH:/snap/bin:/opt/nvim-linux64/bin:/usr/lib/emscripten"
-
-# Ripgrep config
-export RIPGREP_CONFIG_PATH="$HOME/.config/ripgreprc"
-
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$GOPATH/bin:$GOROOT/bin:/usr/local/bin:$PATH:/snap/bin:/opt/nvim-linux64/bin"
 
 # =============================
 # Language/Tool Environments
@@ -103,16 +100,16 @@ compinit -C
 # Modern CLI Tool Integrations
 # =============================
 
-# zoxide - smarter cd (replaces cd command)
+# zoxide - smarter cd
 if command -v zoxide &> /dev/null; then
-    eval "$(zoxide init zsh --cmd cd)"
+    eval "$(zoxide init zsh)"
 fi
 
 # Starship prompt (comment out if using powerlevel10k)
 # Uncomment to use starship instead of powerlevel10k:
-# if command -v starship &> /dev/null; then
-#     eval "$(starship init zsh)"
-# fi
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+fi
 
 # fzf integration
 if command -v fzf &> /dev/null; then
@@ -125,7 +122,6 @@ fi
 
 # SSH alias
 alias c='ssh -i ~/.ssh/vps-access root@2.58.82.20'
-alias g='eval "$(ssh-agent -s)" | ssh-add ~/.ssh/github-key'
 
 # Better git diff with bat
 batdiff() {

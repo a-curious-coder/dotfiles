@@ -6,18 +6,12 @@ A modern, modular Neovim configuration focused on web development (TypeScript, V
 
 ## ✨ Features
 
-- 🚀 **Full LSP support** with automatic server installation via Mason
-- 🔍 **Fuzzy finding** with Telescope and fzf
-- 📁 **File explorer** with Neo-tree
-- 📑 **Smart buffer management** with Barbar tabs
-- 📦 **Git integration** with LazyGit
-- 🎨 **Beautiful UI** with Catppuccin theme
-- 💫 **Auto-save** on file switch
-- ⚡ **Fast startup** with lazy loading
-- 📝 **Advanced completion** with nvim-cmp and LuaSnip
-- 🌳 **Enhanced syntax** highlighting with Treesitter
-- 📂 **Code folding** with nvim-ufo
-- 🖥️ **Seamless tmux integration** for split navigation
+- 🚀 **LSP + completion** with Mason, nvim-lspconfig, nvim-cmp, and LuaSnip
+- 🔍 **Fuzzy finding** with Telescope (fzf native + recent-files)
+- 📁 **Tree file explorer** with Neo-tree
+- 🎨 **Catppuccin** theme + **mini.icons** for lightweight devicons
+- 📝 **Formatting** via Conform
+- 🖥️ **tmux-aware navigation** with nvim-tmux-navigation
 - ❓ **Keybinding discovery** with which-key (press Space and wait)
 
 ## 📋 Prerequisites
@@ -35,7 +29,6 @@ A modern, modular Neovim configuration focused on web development (TypeScript, V
 - tmux (for nvim-tmux-navigation)
 - Ruby >= 2.7.0 (for Ruby/Rails development)
 - Python >= 3.8 (for Python development)
-- LazyGit (for git integration)
 
 ## 🚀 Installation
 
@@ -92,17 +85,9 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 
 ## 🎯 Key Mappings
 
-> **Tip:** Press `<Space>` (leader) to see all available keybindings via which-key
+> **Tip:** Press `<Space>` (leader) to see available keybindings via which-key
 
-### General Navigation
-| Key | Action |
-|-----|--------|
-| `<Space>` | Leader key (wait for which-key popup) |
-| `<leader>?` | Show all keybindings |
-| `<C-n>` | Toggle Neo-tree file explorer |
-| `<C-h/j/k/l>` | Navigate splits (works with tmux panes) |
-
-### File & Search (Leader + f)
+### File & Search (`<leader>f`)
 | Key | Action |
 |-----|--------|
 | `<leader>ff` | Find files (all) |
@@ -117,38 +102,18 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 | `<leader>fk` | Keymaps |
 | `<Space><Space>` | Recent files |
 
-### Buffer Management (Leader + b)
-| Key | Action |
-|-----|--------|
-| `<leader>bp` | Previous buffer |
-| `<leader>bn` | Next buffer |
-| `<leader>bf` | First buffer |
-| `<leader>bl` | Last buffer |
-| `<leader>bb` | Pick buffer (by letter) |
-| `<leader>bc` | Close buffer |
-| `<leader>bx` | Pick buffer to close |
-| `<leader>[1-9]` | Go to buffer by number |
-| `<Alt-h/l>` | Move buffer left/right |
-| `<Alt-p>` | Pin/unpin buffer |
-
 ### LSP (Code Intelligence)
 | Key | Action |
 |-----|--------|
-| `K` | Show hover documentation |
+| `K` | Hover documentation |
 | `<leader>gd` | Go to definition |
 | `<leader>gr` | Show references |
 | `<leader>ca` | Code actions |
 | `<leader>rn` | Rename symbol |
-| `<leader>f` | Format code (via Conform) |
-| `[d` | Previous diagnostic |
-| `]d` | Next diagnostic |
-| `<leader>d` | Show diagnostic |
+| `<leader>f` | Format buffer (via Conform) |
+| `[d` / `]d` | Previous / next diagnostic |
+| `<leader>d` | Show diagnostic float |
 | `<leader>ls` | LSP info |
-
-### Git
-| Key | Action |
-|-----|--------|
-| `<leader>gg` | Open LazyGit |
 
 ### Utility
 | Key | Action |
