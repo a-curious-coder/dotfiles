@@ -127,3 +127,11 @@ alias c='ssh -i ~/.ssh/vps-access root@2.58.82.20'
 batdiff() {
     git diff --name-only --relative --diff-filter=d -z | xargs -0 bat --diff
 }
+
+# =============================
+# Neofetch
+# =============================
+# Display neofetch on terminal startup with custom ASCII art
+if command -v neofetch &> /dev/null; then
+    neofetch --ascii ~/.config/neofetch/ascii_art.txt --ascii_colors 4 6 2 3 5 1
+fi
