@@ -1,0 +1,2 @@
+# Don't stow the default config - it's managed by prompt-style function
+\.config/starship-default\.toml

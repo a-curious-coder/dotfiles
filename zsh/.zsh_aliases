@@ -2,29 +2,29 @@
 # ==================
 
 # Modern ls aliases (using eza or lsd)
-if command -v eza &> /dev/null; then
-    alias ls='eza --icons --group-directories-first'
-    alias l='eza -l --icons --group-directories-first'
-    alias la='eza -la --icons --group-directories-first'
-    alias ll='eza -l --icons --group-directories-first'
-    alias lla='eza -la --icons --group-directories-first'
-    alias lt='eza --tree --icons --group-directories-first'
-    alias tree='eza --tree --icons --group-directories-first'
-elif command -v lsd &> /dev/null; then
-    alias ls='lsd'
-    alias l='ls -l'
-    alias la='ls -a'
-    alias lla='ls -la'
-    alias lt='ls --tree'
-fi
+# if command -v eza &> /dev/null; then
+#     alias ls='eza --icons --group-directories-first'
+#     alias l='eza -l --icons --group-directories-first'
+#     alias la='eza -la --icons --group-directories-first'
+#     alias ll='eza -l --icons --group-directories-first'
+#     alias lla='eza -la --icons --group-directories-first'
+#     alias lt='eza --tree --icons --group-directories-first'
+#     alias tree='eza --tree --icons --group-directories-first'
+# elif command -v lsd &> /dev/null; then
+#     alias ls='lsd'
+#     alias l='ls -l'
+#     alias la='ls -a'
+#     alias lla='ls -la'
+#     alias lt='ls --tree'
+# fi
 
 # Modern cat with syntax highlighting
-if command -v batcat &> /dev/null; then
-    alias cat='batcat'
-    alias bat='batcat'
-elif command -v bat &> /dev/null; then
-    alias cat='bat'
-fi
+# if command -v batcat &> /dev/null; then
+#     alias cat='batcat'
+#     alias bat='batcat'
+# elif command -v bat &> /dev/null; then
+#     alias cat='bat'
+# fi
 
 # Modern grep
 if command -v rg &> /dev/null; then

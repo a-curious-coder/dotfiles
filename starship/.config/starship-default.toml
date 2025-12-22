@@ -1,0 +1,52 @@
+# Lambda Prompt - Programmer aesthetic
+# Format: λ command
+
+format = """$character"""
+
+add_newline = false
+
+[character]
+success_symbol = "[λ](bold cyan) "
+error_symbol = "[λ](bold red) "
+vimcmd_symbol = "[λ](bold green) "
+
+# Disable all other modules
+[username]
+disabled = true
+
+[hostname]
+disabled = true
+
+[directory]
+disabled = true
+
+[git_branch]
+disabled = true
+
+[git_status]
+disabled = true
+
+# Disable unnecessary modules for minimalism
+[package]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[python]
+disabled = true
+
+[rust]
+disabled = true
+
+[golang]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true

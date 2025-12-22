@@ -4,7 +4,7 @@ autoload -U add-zsh-hook
 # Oh My Zsh Core Configuration
 # =============================
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="robbyrussell"
+ZSH_THEME=""  # Disabled - using Starship prompt instead
 
 # General Zsh Options
 CASE_SENSITIVE="true"
@@ -103,11 +103,25 @@ compinit -C
 # zoxide - smarter cd
 if command -v zoxide &> /dev/null; then
     eval "$(zoxide init zsh)"
+
+    # Wrapper function for cd to use zoxide with helpful error messages
+    cd() {
+        # Check if user is trying to use unsupported cd flags
+        if [[ "$1" =~ ^-[^L]+ ]]; then
+            echo "⚠️  cd is aliased to zoxide. Use 'z' for zoxide or 'builtin cd' for native cd."
+            echo "Zoxide usage: z <directory> or just cd <directory> (without flags)"
+            return 1
+        fi
+
+        # Use zoxide for navigation
+        z "$@"
+    }
 fi
 
 # Starship prompt (comment out if using powerlevel10k)
 # Uncomment to use starship instead of powerlevel10k:
 if command -v starship &> /dev/null; then
+    export STARSHIP_CONFIG="$HOME/.config/starship.toml"
     eval "$(starship init zsh)"
 fi
 
@@ -123,15 +137,83 @@ fi
 # SSH alias
 alias c='ssh -i ~/.ssh/vps-access root@2.58.82.20'
 
+# Claude Code alias
+alias marc='claude'
+
 # Better git diff with bat
 batdiff() {
     git diff --name-only --relative --diff-filter=d -z | xargs -0 bat --diff
+}
+
+# Prompt style switcher
+prompt-style() {
+    local style="$1"
+    local config_dir="$HOME/.config"
+    local available_styles=("lambda" "zen" "context")
+
+    if [[ -z "$style" ]]; then
+        echo "Available prompt styles:"
+        echo "  lambda  - λ (programmer aesthetic)"
+        echo "  zen     - · (ultra minimal)"
+        echo "  context - λ locally, user@host on SSH"
+        echo ""
+        echo "Usage: prompt-style <style>"
+        echo "Current style:"
+        if [[ -L "$config_dir/starship.toml" ]]; then
+            readlink "$config_dir/starship.toml" | sed 's/.*starship-/  /' | sed 's/\.toml.*//'
+        else
+            echo "  (unknown)"
+        fi
+        return 0
+    fi
+
+    if [[ ! " ${available_styles[@]} " =~ " ${style} " ]]; then
+        echo "Error: Style '$style' not found."
+        echo "Available styles: ${available_styles[@]}"
+        return 1
+    fi
+
+    # Copy the selected style to the main config
+    cp "$config_dir/starship-${style}.toml" "$config_dir/starship.toml"
+
+    echo "Switched to prompt style: $style"
+    echo "Reload your shell with: source ~/.zshrc"
+}
+
+# Ghostty theme switcher
+ghostty-theme() {
+    local theme_name="$1"
+    local config_file="$HOME/.config/ghostty/config"
+    local available_themes=("current" "minimalist" "dracula" "nord")
+
+    if [[ -z "$theme_name" ]]; then
+        echo "Available themes: ${available_themes[@]}"
+        echo "Usage: ghostty-theme <theme-name>"
+        echo "Current theme:"
+        grep "^import.*theme-" "$config_file" | sed 's/.*theme-/  /' | sed 's/\.conf.*//'
+        return 0
+    fi
+
+    if [[ ! " ${available_themes[@]} " =~ " ${theme_name} " ]]; then
+        echo "Error: Theme '$theme_name' not found."
+        echo "Available themes: ${available_themes[@]}"
+        return 1
+    fi
+
+    # Comment out all theme imports
+    sed -i 's/^import = \(.*theme-.*\.conf\)/# import = \1/' "$config_file"
+
+    # Uncomment the selected theme
+    sed -i "s|^# import = \(.*theme-${theme_name}\.conf\)$|import = \1|" "$config_file"
+
+    echo "Switched to theme: $theme_name"
+    echo "Note: You may need to restart Ghostty or open a new window for changes to take effect."
 }
 
 # =============================
 # Neofetch
 # =============================
 # Display neofetch on terminal startup with custom ASCII art
-if command -v neofetch &> /dev/null; then
-    neofetch --ascii ~/.config/neofetch/ascii_art.txt --ascii_colors 4 6 2 3 5 1
-fi
+# if command -v neofetch &> /dev/null; then
+#     neofetch --ascii ~/.config/neofetch/ascii_art.txt --ascii_colors 4 6 2 3 5 1
+# fi

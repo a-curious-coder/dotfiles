@@ -1,0 +1,56 @@
+# Context-Aware Prompt - Smart minimalism
+# Shows user@host only on SSH, minimal locally
+
+format = """$username$hostname$character"""
+
+add_newline = false
+
+[username]
+show_always = false  # Only show on SSH
+format = "[$user]($style)"
+style_user = "bold cyan"
+style_root = "bold red"
+
+[hostname]
+ssh_only = true
+format = "[@$hostname]($style) "
+style = "bold green"
+
+[character]
+success_symbol = "[λ](bold cyan) "
+error_symbol = "[λ](bold red) "
+vimcmd_symbol = "[λ](bold green) "
+
+# Disable other modules
+[directory]
+disabled = true
+
+[git_branch]
+disabled = true
+
+[git_status]
+disabled = true
+
+[package]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[python]
+disabled = true
+
+[rust]
+disabled = true
+
+[golang]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true

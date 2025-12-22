@@ -1,58 +1,64 @@
-# Ghostty Terminal Configuration
-# =============================
+# Ghostty Configuration
+# Main configuration file
 
-# Appearance
-background = "#1a2332"
-background-opacity = 0.35
-background-blur = true
-window-decoration = none
-font-family = "FiraCode Nerd Font"
-font-size = 14
-font-thicken = true
+# Font configuration
+font-family = "JetBrainsMono Nerd Font"
+font-size = 12
 
-# Custom shaders for visual effects
-#custom-shader = shaders/wiggle.glsl
-#custom-shader = shaders/balatro.glsl
-#custom-shader = shaders/tft.glsl
+# Window settings
+window-padding-x = 10
+window-padding-y = 10
+window-decoration = true
 
-# Performance and behavior
-window-padding-x = 8
-window-padding-y = 8
-window-theme = dark
+# Performance
+window-vsync = true
 
-# Terminal behavior
+# Cursor
 cursor-style = block
-cursor-style-blink = false
+cursor-style-blink = true
+
+# Shell
+shell-integration = detect
+shell-integration-features = cursor,sudo,title
+
+# Theme colors (Catppuccin-inspired)
+# Background and foreground
+background = #1e1e2e
+foreground = #cdd6f4
+
+# Cursor colors
+cursor-color = #f5e0dc
+cursor-text = #1e1e2e
+
+# Normal colors
+palette = 0=#45475a
+palette = 1=#f38ba8
+palette = 2=#a6e3a1
+palette = 3=#f9e2af
+palette = 4=#89b4fa
+palette = 5=#f5c2e7
+palette = 6=#94e2d5
+palette = 7=#bac2de
+
+# Bright colors
+palette = 8=#585b70
+palette = 9=#f38ba8
+palette = 10=#a6e3a1
+palette = 11=#f9e2af
+palette = 12=#89b4fa
+palette = 13=#f5c2e7
+palette = 14=#94e2d5
+palette = 15=#a6adc8
+
+# Clipboard
+clipboard-read = allow
+clipboard-write = allow
+
+# Mouse
 mouse-hide-while-typing = true
+
+# Background
+background-opacity = 0.8
+
+# Terminal features
 confirm-close-surface = false
-
-# Shell integration
-shell-integration = zsh
-
-# Color scheme (Monokai-inspired)
-palette = 0=#272822
-palette = 1=#f92672
-palette = 2=#a6e22e
-palette = 3=#f4bf75
-palette = 4=#66d9ef
-palette = 5=#ae81ff
-palette = 6=#a1efe4
-palette = 7=#f8f8f2
-palette = 8=#75715e
-palette = 9=#f92672
-palette = 10=#a6e22e
-palette = 11=#f4bf75
-palette = 12=#66d9ef
-palette = 13=#ae81ff
-palette = 14=#a1efe4
-palette = 15=#f9f8f5
-
-# Key bindings
-keybind = ctrl+shift+c=copy_to_clipboard
-keybind = ctrl+shift+v=paste_from_clipboard
-keybind = ctrl+shift+t=new_tab
-keybind = ctrl+shift+w=close_surface
-keybind = ctrl+shift+n=new_window
-keybind = ctrl+plus=increase_font_size:1
-keybind = ctrl+minus=decrease_font_size:1
-keybind = ctrl+zero=reset_font_size

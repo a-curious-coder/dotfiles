@@ -1,0 +1,51 @@
+# Zen Minimalist Prompt - Ultra minimal
+# Format: · command
+
+format = """$character"""
+
+add_newline = false
+
+[character]
+success_symbol = "[·](bold white) "
+error_symbol = "[·](bold red) "
+vimcmd_symbol = "[·](bold green) "
+
+# Disable all other modules
+[username]
+disabled = true
+
+[hostname]
+disabled = true
+
+[directory]
+disabled = true
+
+[git_branch]
+disabled = true
+
+[git_status]
+disabled = true
+
+[package]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[python]
+disabled = true
+
+[rust]
+disabled = true
+
+[golang]
+disabled = true
+
+[docker_context]
+disabled = true
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
