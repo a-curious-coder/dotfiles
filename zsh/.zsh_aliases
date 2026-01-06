@@ -28,17 +28,17 @@
 
 alias v='nvim'
 # Modern grep
-if command -v rg &> /dev/null; then
-    alias grep='rg'
-fi
+# if command -v rg &> /dev/null; then
+#     alias grep='rg'
+# fi
 
 # Modern find
-if command -v fdfind &> /dev/null; then
-    alias find='fdfind'
-    alias fd='fdfind'
-elif command -v fd &> /dev/null; then
-    alias find='fd'
-fi
+# if command -v fdfind &> /dev/null; then
+#     alias find='fdfind'
+#     alias fd='fdfind'
+# elif command -v fd &> /dev/null; then
+#     alias find='fd'
+# fi
 
 # Git aliases
 alias g='git'
