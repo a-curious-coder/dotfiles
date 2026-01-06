@@ -26,6 +26,7 @@
 #     alias cat='bat'
 # fi
 
+alias v='nvim'
 # Modern grep
 if command -v rg &> /dev/null; then
     alias grep='rg'
