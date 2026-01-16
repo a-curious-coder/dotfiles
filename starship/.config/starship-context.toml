@@ -1,12 +1,10 @@
-# Context-Aware Prompt - Smart minimalism
-# Shows user@host only on SSH, minimal locally
-
-format = """$username$hostname$character"""
-
+# Context - shows user@host only on SSH (security awareness)
+# Locally identical to lambda
+format = "$username$hostname$character"
 add_newline = false
 
 [username]
-show_always = false  # Only show on SSH
+show_always = false
 format = "[$user]($style)"
 style_user = "bold cyan"
 style_root = "bold red"
@@ -20,37 +18,3 @@ style = "bold green"
 success_symbol = "[λ](bold cyan) "
 error_symbol = "[λ](bold red) "
 vimcmd_symbol = "[λ](bold green) "
-
-# Disable other modules
-[directory]
-disabled = true
-
-[git_branch]
-disabled = true
-
-[git_status]
-disabled = true
-
-[package]
-disabled = true
-
-[nodejs]
-disabled = true
-
-[python]
-disabled = true
-
-[rust]
-disabled = true
-
-[golang]
-disabled = true
-
-[docker_context]
-disabled = true
-
-[aws]
-disabled = true
-
-[gcloud]
-disabled = true

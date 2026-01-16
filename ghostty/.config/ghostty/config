@@ -20,6 +20,11 @@ cursor-style-blink = true
 # Shell
 shell-integration = detect
 shell-integration-features = cursor,sudo,title
+# Automatically fix the terminal info on every new server
+shell-integration-features = ssh-terminfo
+
+# Automatically forward your SSH environment
+shell-integration-features = ssh-env
 
 # Theme colors (Catppuccin-inspired)
 # Background and foreground

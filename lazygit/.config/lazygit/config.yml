@@ -1,147 +1,32 @@
-# Lazygit Configuration
-# Modern terminal UI for git commands
-# See: https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+# Customizations only - defaults inherited from lazygit
 
 gui:
-  # Theme
   theme:
-    activeBorderColor:
-      - green
-      - bold
-    inactiveBorderColor:
-      - white
-    selectedLineBgColor:
-      - blue
-    selectedRangeBgColor:
-      - blue
-  
-  # Show icons
-  showIcons: true
-  
-  # Show file tree
-  showFileTree: true
-  
-  # Show command log
-  showCommandLog: true
-  
-  # Mouse support
-  mouseEvents: true
+    activeBorderColor: [green, bold]
+    inactiveBorderColor: [white]
+    selectedLineBgColor: [blue]
+    selectedRangeBgColor: [blue]
 
-# Git settings
 git:
   paging:
     colorArg: always
-    pager: delta --dark --paging=never
-  
-  commit:
-    signOff: false
-    autoWrapCommitMessage: true
-    autoWrapWidth: 72
-  
-  merging:
-    # Use vimdiff as merge tool
-    manualCommit: false
-    args: ''
-  
-  skipHookPrefix: WIP
-  autoFetch: true
-  autoRefresh: true
-  branchLogCmd: 'git log --graph --color=always --abbrev-commit --decorate --date=relative --pretty=medium {{branchName}} --'
+    pager: delta --dark --paging=never  # syntax-highlighted diffs
 
-# OS specific settings
 os:
-  editCommand: 'nvim'
-  editCommandTemplate: '{{editor}} +{{line}} {{filename}}'
-  openCommand: 'open {{filename}}'
+  editCommand: nvim
 
-# Keybindings customization
-keybinding:
-  universal:
-    quit: 'q'
-    quit-alt1: '<c-c>'
-    return: '<esc>'
-    quitWithoutChangingDirectory: 'Q'
-    togglePanel: '<tab>'
-    prevItem: '<up>'
-    nextItem: '<down>'
-    prevItem-alt: 'k'
-    nextItem-alt: 'j'
-    prevPage: ','
-    nextPage: '.'
-    gotoTop: '<'
-    gotoBottom: '>'
-    scrollLeft: 'H'
-    scrollRight: 'L'
-    prevBlock: '<left>'
-    nextBlock: '<right>'
-    prevBlock-alt: 'h'
-    nextBlock-alt: 'l'
-    nextMatch: 'n'
-    prevMatch: 'N'
-    startSearch: '/'
-    optionMenu: 'x'
-    optionMenu-alt1: '?'
-    select: '<space>'
-    goInto: '<enter>'
-    remove: 'd'
-    new: 'n'
-    edit: 'e'
-    openFile: 'o'
-    scrollUpMain: '<pgup>'
-    scrollDownMain: '<pgdown>'
-    scrollUpMain-alt1: 'K'
-    scrollDownMain-alt1: 'J'
-    scrollUpMain-alt2: '<c-u>'
-    scrollDownMain-alt2: '<c-d>'
-    executeCustomCommand: ':'
-    createRebaseOptionsMenu: 'm'
-    pushFiles: 'P'
-    pullFiles: 'p'
-    refresh: 'R'
-    createPatchOptionsMenu: '<c-p>'
-    nextTab: ']'
-    prevTab: '['
-    nextScreenMode: '+'
-    prevScreenMode: '_'
-    undo: 'z'
-    redo: '<c-z>'
-    filteringMenu: '<c-s>'
-    diffingMenu: 'W'
-    diffingMenu-alt: '<c-e>'
-    copyToClipboard: '<c-o>'
-    submitEditorText: '<enter>'
-    appendNewline: '<a-enter>'
-    extrasMenu: '@'
-    toggleWhitespaceInDiffView: '<c-w>'
-    increaseContextInDiffView: '}'
-    decreaseContextInDiffView: '{'
-
-# Custom commands
 customCommands:
   - key: '<c-a>'
     command: 'git commit --amend --no-edit'
-    context: 'files'
-    description: 'Amend commit without editing message'
-    
+    context: files
+    description: Amend without editing message
+
   - key: '<c-r>'
     command: 'git reset --soft HEAD~1'
-    context: 'commits'
-    description: 'Soft reset to previous commit'
-    
-  - key: 'C'
+    context: commits
+    description: Soft reset to previous commit
+
+  - key: C
     command: 'git checkout {{.SelectedLocalCommit.Sha}}'
-    context: 'commits'
-    description: 'Checkout commit'
-
-# Update settings
-update:
-  method: prompt
-  days: 14
-
-# Confirmation prompts
-confirmOnQuit: false
-quitOnTopLevelReturn: false
-
-# UI settings
-disableStartupPopups: false
-notARepository: 'prompt'
+    context: commits
+    description: Checkout commit

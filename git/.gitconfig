@@ -1,13 +1,5 @@
-[user]
-    # Personal credentials are loaded from ~/.gitconfig.local
-    # This file is gitignored to keep your real details private
-    # Run: scripts/setup-git-user.sh to configure your credentials
-
 [include]
-    # Include local config for personal details
     path = ~/.gitconfig.local
-    # Include delta configuration (if installed)
-    path = ~/.gitconfig.delta
 
 [core]
     editor = nvim

