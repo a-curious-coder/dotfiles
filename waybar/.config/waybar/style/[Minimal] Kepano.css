@@ -1,0 +1,83 @@
+/* Waybar - Kepano Philosophy
+ * ---------------------------
+ * Flexoki: "An inky color scheme for prose and code"
+ * Colors from Steph Ango's actual Flexoki specification
+ *
+ * Design principles:
+ * - No borders, shadows, rounded corners, or gradients
+ * - No hover states or animations (they draw attention to UI, not content)
+ * - Color only when it communicates state
+ * - Typography: monospace, normal weight, adequate spacing
+ */
+
+/* Flexoki Dark palette - exact values */
+@define-color black   #100f0f;
+@define-color base600 #6f6e69;
+@define-color base200 #cecdc3;
+@define-color paper   #fffcf0;
+@define-color red     #d14d41;
+@define-color orange  #da702c;
+@define-color green   #879a39;
+
+* {
+  font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+  font-weight: normal;
+  font-size: 13px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  text-shadow: none;
+  background: transparent;
+}
+
+window#waybar {
+  background: @black;
+  color: @base200;
+}
+
+/* Workspaces: Dim by default, visible when active
+ * Numbers need adequate touch/click targets */
+#workspaces button {
+  color: @base600;
+  padding: 0 10px;
+  min-width: 20px;
+}
+
+#workspaces button.active {
+  color: @paper;
+}
+
+#workspaces button.urgent {
+  color: @red;
+}
+
+/* Empty workspace - even dimmer */
+#workspaces button.empty {
+  color: alpha(@base600, 0.5);
+}
+
+/* Clock: Primary information, full contrast */
+#clock {
+  color: @base200;
+  padding: 0 16px;
+}
+
+/* Tray: Background utility, should not compete for attention */
+#tray {
+  padding: 0 8px;
+}
+
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+
+#tray > .active {
+  -gtk-icon-effect: none;
+}
+
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+}

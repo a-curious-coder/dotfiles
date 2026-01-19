@@ -1,0 +1,10 @@
+/* Global rofi fonts
+ * Monospace for technical interfaces (Kepano principle) */
+
+configuration {
+  font: "JetBrainsMono Nerd Font 14";
+}
+
+element-text {
+  font: "JetBrainsMono Nerd Font 13";
+}

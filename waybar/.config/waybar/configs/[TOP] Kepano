@@ -1,0 +1,62 @@
+// Waybar - Kepano Philosophy
+// ---------------------------
+// "File Over App": Self-contained, no includes, readable in decades
+// "Radical Minimalism": Only what aids focus - workspace position, time
+// "Intentional Constraints": Everything else delegated to tray or keybinds
+// "Reducing Friction": Numbers over symbols (unambiguous), ISO dates
+//
+// This config is deliberately self-contained.
+// External includes create hidden dependencies - the opposite of longevity.
+
+{
+"layer": "top",
+"position": "top",
+"exclusive": true,
+"passthrough": false,
+"gtk-layer-shell": true,
+"height": 26,
+"margin-left": 0,
+"margin-right": 0,
+"margin-top": 0,
+
+"modules-left": [
+  "hyprland/workspaces"
+],
+
+"modules-center": [],
+
+"modules-right": [
+  "tray",
+  "clock"
+],
+
+// Workspaces: Show only what exists, per-monitor
+// No phantom placeholders - if it's not real, don't show it
+// Each monitor shows only its own workspaces (clarity)
+"hyprland/workspaces": {
+  "format": "{name}",
+  "on-click": "activate",
+  "on-scroll-up": "hyprctl dispatch workspace e+1",
+  "on-scroll-down": "hyprctl dispatch workspace e-1",
+  "all-outputs": false,
+  "active-only": false,
+  "show-special": false
+},
+
+// Clock: 24H, no seconds (seconds are anxiety)
+// Alt-click: ISO date (YYYY-MM-DD) - Ango's style guide
+"clock": {
+  "interval": 60,
+  "format": "{:%H:%M}",
+  "format-alt": "{:%Y-%m-%d}",
+  "tooltip-format": "{:%A, %Y-%m-%d}",
+  "tooltip": true
+},
+
+// Tray: Let system handle its own indicators
+// Network, bluetooth, etc. belong here - not as dedicated modules
+"tray": {
+  "icon-size": 16,
+  "spacing": 8
+}
+}

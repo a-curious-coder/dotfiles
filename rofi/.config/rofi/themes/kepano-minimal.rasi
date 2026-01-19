@@ -1,0 +1,72 @@
+/* Kepano-minimal: Flexoki dark, no chrome, solid background */
+
+configuration {
+    modi:                       "drun";
+    show-icons:                 true;
+    display-drun:               "";
+    drun-display-format:        "{name}";
+    hover-select:               false;
+}
+
+* {
+    bg:           #100f0f;
+    bg-dim:       #1c1b1a;
+    ui-dim:       #6f6e69;
+    tx:           #cecdc3;
+    tx-bright:    #fffcf0;
+}
+
+window {
+    width:            480px;
+    border:           1px solid;
+    border-color:     @ui-dim;
+    background-color: @bg;
+}
+
+mainbox {
+    background-color: @bg;
+}
+
+inputbar {
+    padding:          12px;
+    border:           0 0 1px 0;
+    border-color:     @ui-dim;
+    background-color: @bg-dim;
+    text-color:       @tx-bright;
+    children:         [ "entry" ];
+}
+
+entry {
+    text-color:        inherit;
+    background-color:  inherit;
+}
+
+listview {
+    lines:            8;
+    padding:          4px 0;
+    dynamic:          true;
+    fixed-height:     false;
+    background-color: @bg;
+}
+
+element {
+    padding:          8px 12px;
+    spacing:          8px;
+    background-color: @bg;
+    text-color:       @tx;
+}
+
+element selected.normal {
+    background-color: @bg-dim;
+    text-color:       @tx-bright;
+}
+
+element-icon {
+    size:             20px;
+    background-color: inherit;
+}
+
+element-text {
+    background-color: inherit;
+    text-color:       inherit;
+}

@@ -1,0 +1,33 @@
+/* Ultra Minimal Waybar - YAGNI/KISS Focused */
+// Only essential info, maximum productivity
+
+{
+"include": [
+  "$HOME/.config/waybar/Modules",
+  "$HOME/.config/waybar/ModulesWorkspaces",
+  "$HOME/.config/waybar/ModulesCustom",
+  ],
+"layer": "top",
+"position": "top",
+"exclusive": true,
+"passthrough": false,
+"gtk-layer-shell": true,
+"margin-left": 8,
+"margin-right": 8,
+"margin-top": 3,
+"height": 30,
+
+"modules-left": [
+	"hyprland/workspaces",
+	],
+
+"modules-center": [
+	"clock",
+	],
+
+"modules-right": [
+	"tray",
+	"battery",
+	"pulseaudio",
+	],
+}
