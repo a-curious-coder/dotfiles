@@ -1,4 +1,4 @@
-/* Kepano-minimal: Flexoki dark, no chrome, solid background */
+/* Kepano-minimal: Flexoki dark, functional depth, no chrome */
 
 configuration {
     modi:                       "drun";
@@ -10,63 +10,77 @@ configuration {
 
 * {
     bg:           #100f0f;
-    bg-dim:       #1c1b1a;
+    bg-alt:       #1c1b1a;
+    bg-hover:     #282726;
+    border:       #343331;
     ui-dim:       #6f6e69;
     tx:           #cecdc3;
     tx-bright:    #fffcf0;
+    accent:       #4385be;
 }
 
 window {
-    width:            480px;
+    width:            520px;
     border:           1px solid;
-    border-color:     @ui-dim;
+    border-color:     @border;
     background-color: @bg;
 }
 
 mainbox {
     background-color: @bg;
+    spacing:          0;
 }
 
 inputbar {
-    padding:          12px;
-    border:           0 0 1px 0;
-    border-color:     @ui-dim;
-    background-color: @bg-dim;
+    padding:          14px 16px;
+    background-color: @bg-alt;
     text-color:       @tx-bright;
     children:         [ "entry" ];
 }
 
 entry {
-    text-color:        inherit;
-    background-color:  inherit;
+    text-color:        @tx-bright;
+    background-color:  transparent;
+    placeholder:       "Search...";
+    placeholder-color: @ui-dim;
 }
 
 listview {
     lines:            8;
-    padding:          4px 0;
-    dynamic:          true;
-    fixed-height:     false;
+    padding:          8px 0;
     background-color: @bg;
+    scrollbar:        false;
 }
 
 element {
-    padding:          8px 12px;
-    spacing:          8px;
-    background-color: @bg;
+    padding:          10px 16px;
+    spacing:          12px;
+    background-color: transparent;
     text-color:       @tx;
 }
 
+element normal.normal {
+    background-color: transparent;
+}
+
+element alternate.normal {
+    background-color: transparent;
+}
+
 element selected.normal {
-    background-color: @bg-dim;
+    background-color: @bg-hover;
     text-color:       @tx-bright;
+    border:           0 0 0 3px solid;
+    border-color:     @accent;
 }
 
 element-icon {
-    size:             20px;
-    background-color: inherit;
+    size:             22px;
+    background-color: transparent;
 }
 
 element-text {
-    background-color: inherit;
+    background-color: transparent;
     text-color:       inherit;
+    vertical-align:   0.5;
 }
