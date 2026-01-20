@@ -20,18 +20,21 @@ dotfiles/
 ├── aerospace/      macOS tiling window manager
 ├── ags/            Aylur's GTK Shell (Hyprland widgets)
 ├── btop/           Resource monitor
+├── fastfetch/      System info (replaces neofetch)
 ├── ghostty/        Terminal emulator
 ├── git/            Git config with delta for diffs
 ├── hypr/           Hyprland compositor
-├── lazygit/        Terminal git UI
-├── neofetch/       System info display
+├── lazydocker/     Docker TUI
+├── lazygit/        Git TUI
 ├── nvim/           Neovim
 ├── ripgrep/        ripgrep config
 ├── rofi/           Application launcher
 ├── starship/       Shell prompt
+├── swaync/         Notification center (Hyprland)
 ├── tmux/           Terminal multiplexer
 ├── vscode/         VS Code settings
 ├── waybar/         Status bar (Wayland)
+├── wlogout/        Logout menu (Hyprland)
 └── zsh/            Shell config, aliases, functions
 ```
 
@@ -54,7 +57,7 @@ See [SETUP.md](SETUP.md) for package installation options.
 
 **Linux (Hyprland)**
 ```bash
-stow hypr waybar rofi ags
+stow hypr waybar rofi ags swaync wlogout
 ```
 
 **macOS**
@@ -64,7 +67,7 @@ stow aerospace
 
 **Common (both platforms)**
 ```bash
-stow git zsh starship tmux nvim ghostty btop lazygit ripgrep neofetch vscode
+stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep vscode
 ```
 
 ## Scripts
@@ -72,9 +75,8 @@ stow git zsh starship tmux nvim ghostty btop lazygit ripgrep neofetch vscode
 | File | Purpose |
 |------|---------|
 | `packages.yaml` | Unified package definitions for setup script |
-| `install-modern-tools.sh` | Install modern CLI replacements (bat, eza, fd, etc.) |
+| `install-modern-tools.sh` | Install CLI tools (glow, zellij, dust, navi, posting, etc.) |
 | `ubuntu_install.sh` | Ubuntu-specific package installation |
-| `discord_install.sh` | Discord installation helper |
 
 ## Neovim
 

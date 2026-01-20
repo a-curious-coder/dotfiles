@@ -188,6 +188,97 @@ packages:
         package: "btop"
     verify: "btop --version"
 
+  glow:
+    name: "glow"
+    description: "Render markdown in terminal"
+    category: "cli"
+    platforms:
+      linux:
+        method: "pacman"
+        package: "glow"
+      macos:
+        method: "brew"
+        package: "glow"
+    verify: "glow --version"
+
+  dust:
+    name: "dust"
+    description: "Intuitive disk usage viewer"
+    category: "cli"
+    platforms:
+      linux:
+        method: "pacman"
+        package: "dust"
+      macos:
+        method: "brew"
+        package: "dust"
+    verify: "dust --version"
+
+  navi:
+    name: "navi"
+    description: "Interactive cheatsheet navigator"
+    category: "cli"
+    platforms:
+      linux:
+        method: "pacman"
+        package: "navi"
+      macos:
+        method: "brew"
+        package: "navi"
+    verify: "navi --version"
+
+  zellij:
+    name: "zellij"
+    description: "Terminal multiplexer with sane defaults"
+    category: "terminal"
+    platforms:
+      linux:
+        method: "pacman"
+        package: "zellij"
+      macos:
+        method: "brew"
+        package: "zellij"
+    verify: "zellij --version"
+
+  posting:
+    name: "posting"
+    description: "TUI API client"
+    category: "cli"
+    platforms:
+      linux:
+        method: "pipx"
+        package: "posting"
+      macos:
+        method: "pipx"
+        package: "posting"
+    verify: "posting --version"
+
+  fastfetch:
+    name: "fastfetch"
+    description: "Fast system information tool"
+    category: "cli"
+    platforms:
+      linux:
+        method: "pacman"
+        package: "fastfetch"
+      macos:
+        method: "brew"
+        package: "fastfetch"
+    verify: "fastfetch --version"
+
+  lazydocker:
+    name: "lazydocker"
+    description: "Terminal UI for Docker"
+    category: "cli"
+    platforms:
+      linux:
+        method: "pacman"
+        package: "lazydocker"
+      macos:
+        method: "brew"
+        package: "lazydocker"
+    verify: "lazydocker --version"
+
   starship:
     name: "starship"
     description: "Fast, customizable shell prompt"

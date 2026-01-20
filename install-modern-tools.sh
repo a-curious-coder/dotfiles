@@ -1,151 +1,290 @@
 #!/usr/bin/env bash
-# Quick installer for new modern CLI tools
-# Run: ./install-modern-tools.sh
+# Modern CLI tools installer
+# Kepano: one script, logged output, no interactivity
 
-set -e
+set -euo pipefail
 
-# Colors
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+# Logging setup - all output timestamped to file and stdout
+LOG_FILE="${HOME}/.local/log/dotfiles-install-$(date +%Y%m%d-%H%M%S).log"
+mkdir -p "$(dirname "$LOG_FILE")"
 
-# Detect OS
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    OS="macos"
-elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    OS="linux"
-else
-    echo -e "${RED}Unsupported OS${NC}"
-    exit 1
-fi
-
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${BLUE}  Modern CLI Tools Installer${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-
-# Function to check if command exists
-command_exists() {
-    command -v "$1" &> /dev/null
+log() {
+    local level="$1"
+    shift
+    local msg="$*"
+    local timestamp
+    timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+    echo "[$timestamp] [$level] $msg" | tee -a "$LOG_FILE"
 }
 
-# Function to install with brew (macOS)
-install_brew() {
-    local package=$1
-    local name=$2
-    
-    if command_exists "$name"; then
-        echo -e "${GREEN}✓${NC} $name already installed"
-    else
-        echo -e "${YELLOW}→${NC} Installing $name..."
-        brew install "$package"
-        echo -e "${GREEN}✓${NC} $name installed"
-    fi
+log_info() { log "INFO" "$@"; }
+log_ok() { log " OK " "$@"; }
+log_skip() { log "SKIP" "$@"; }
+log_err() { log "ERR " "$@"; }
+
+# Detect platform
+detect_platform() {
+    case "$OSTYPE" in
+        darwin*) echo "macos" ;;
+        linux*) echo "linux" ;;
+        *) log_err "Unsupported OS: $OSTYPE"; exit 1 ;;
+    esac
 }
 
-# Function to install with apt (Linux)
-install_apt() {
-    local package=$1
-    local name=$2
-    
-    if command_exists "$name"; then
-        echo -e "${GREEN}✓${NC} $name already installed"
-    else
-        echo -e "${YELLOW}→${NC} Installing $name..."
-        sudo apt update -qq
-        sudo apt install -y "$package"
-        echo -e "${GREEN}✓${NC} $name installed"
+# Check if command exists
+has() { command -v "$1" &>/dev/null; }
+
+# Detect package manager
+detect_pkg_manager() {
+    if has pacman; then echo "pacman"
+    elif has apt; then echo "apt"
+    elif has dnf; then echo "dnf"
+    elif has brew; then echo "brew"
+    else log_err "No supported package manager found"; exit 1
     fi
 }
 
-echo -e "${BLUE}Installing tools for $OS...${NC}"
-echo ""
+# Install package via system package manager
+pkg_install() {
+    local pkg="$1"
+    local cmd="${2:-$1}"
 
-if [[ "$OS" == "macos" ]]; then
-    # Check if Homebrew is installed
-    if ! command_exists brew; then
-        echo -e "${RED}Homebrew not found. Installing...${NC}"
-        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    if has "$cmd"; then
+        log_skip "$pkg (already installed)"
+        return 0
     fi
-    
-    install_brew "zoxide" "zoxide"
-    install_brew "eza" "eza"
-    install_brew "lazygit" "lazygit"
-    install_brew "git-delta" "delta"
-    install_brew "tldr" "tldr"
-    install_brew "btop" "btop"
-    install_brew "starship" "starship"
-    
-elif [[ "$OS" == "linux" ]]; then
-    # zoxide (install script)
-    if ! command_exists zoxide; then
-        echo -e "${YELLOW}→${NC} Installing zoxide..."
-        curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
-        echo -e "${GREEN}✓${NC} zoxide installed"
-    else
-        echo -e "${GREEN}✓${NC} zoxide already installed"
-    fi
-    
-    install_apt "eza" "eza"
-    
-    # lazygit (from PPA)
-    if ! command_exists lazygit; then
-        echo -e "${YELLOW}→${NC} Installing lazygit..."
-        LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-        curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz"
-        tar xf lazygit.tar.gz lazygit
-        sudo install lazygit /usr/local/bin
-        rm lazygit lazygit.tar.gz
-        echo -e "${GREEN}✓${NC} lazygit installed"
-    else
-        echo -e "${GREEN}✓${NC} lazygit already installed"
-    fi
-    
-    # delta
-    if ! command_exists delta; then
-        echo -e "${YELLOW}→${NC} Installing delta..."
-        DELTA_VERSION="0.17.0"
-        curl -Lo delta.tar.gz "https://github.com/dandavison/delta/releases/download/${DELTA_VERSION}/delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu.tar.gz"
-        tar xf delta.tar.gz
-        sudo install "delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu/delta" /usr/local/bin/
-        rm -rf delta.tar.gz "delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu"
-        echo -e "${GREEN}✓${NC} delta installed"
-    else
-        echo -e "${GREEN}✓${NC} delta already installed"
-    fi
-    
-    install_apt "tldr" "tldr"
-    install_apt "btop" "btop"
-    
-    # starship (install script)
-    if ! command_exists starship; then
-        echo -e "${YELLOW}→${NC} Installing starship..."
-        curl -sS https://starship.rs/install.sh | sh -s -- -y
-        echo -e "${GREEN}✓${NC} starship installed"
-    else
-        echo -e "${GREEN}✓${NC} starship already installed"
-    fi
-fi
 
-echo ""
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo -e "${GREEN}Installation complete!${NC}"
-echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
-echo ""
-echo -e "${YELLOW}Next steps:${NC}"
-echo "1. Stow configurations:"
-echo "   cd ~/.dotfiles"
-echo "   stow git lazygit starship zsh"
-echo ""
-echo "2. Reload your shell:"
-echo "   source ~/.zshrc"
-echo ""
-echo "3. Update tldr cache:"
-echo "   tldr --update"
-echo ""
-echo "4. (Optional) Enable starship prompt:"
-echo "   Edit ~/.zshrc and uncomment starship init"
-echo ""
-echo -e "${BLUE}See docs/NEW-TOOLS.md for usage guide!${NC}"
+    log_info "Installing $pkg..."
+    case "$PKG_MGR" in
+        pacman) sudo pacman -S --noconfirm "$pkg" ;;
+        apt) sudo apt-get install -y "$pkg" ;;
+        dnf) sudo dnf install -y "$pkg" ;;
+        brew) brew install "$pkg" ;;
+    esac
+    log_ok "$pkg installed"
+}
+
+# Install from GitHub release binary
+github_install() {
+    local repo="$1"
+    local binary="$2"
+    local tarball_pattern="$3"
+
+    if has "$binary"; then
+        log_skip "$binary (already installed)"
+        return 0
+    fi
+
+    log_info "Installing $binary from $repo..."
+    local version
+    version=$(curl -sL "https://api.github.com/repos/$repo/releases/latest" | grep '"tag_name"' | cut -d'"' -f4)
+    local url="https://github.com/$repo/releases/download/$version/$tarball_pattern"
+    url="${url//\{version\}/$version}"
+    url="${url//\{version_num\}/${version#v}}"
+
+    local tmp_dir
+    tmp_dir=$(mktemp -d)
+    curl -sL "$url" -o "$tmp_dir/archive.tar.gz"
+    tar xzf "$tmp_dir/archive.tar.gz" -C "$tmp_dir"
+
+    # Find and install binary
+    local bin_path
+    bin_path=$(find "$tmp_dir" -name "$binary" -type f | head -1)
+    if [[ -n "$bin_path" ]]; then
+        sudo install -m 755 "$bin_path" /usr/local/bin/
+        log_ok "$binary installed"
+    else
+        log_err "Binary $binary not found in release"
+        return 1
+    fi
+    rm -rf "$tmp_dir"
+}
+
+# Install via install script
+script_install() {
+    local name="$1"
+    local cmd="$2"
+    local url="$3"
+    local args="${4:-}"
+
+    if has "$cmd"; then
+        log_skip "$name (already installed)"
+        return 0
+    fi
+
+    log_info "Installing $name..."
+    if [[ -n "$args" ]]; then
+        curl -sS "$url" | bash -s -- $args
+    else
+        curl -sS "$url" | bash
+    fi
+    log_ok "$name installed"
+}
+
+# Cargo install
+cargo_install() {
+    local pkg="$1"
+    local cmd="${2:-$1}"
+
+    if has "$cmd"; then
+        log_skip "$pkg (already installed)"
+        return 0
+    fi
+
+    if ! has cargo; then
+        log_info "Installing Rust toolchain first..."
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+        source "$HOME/.cargo/env"
+    fi
+
+    log_info "Installing $pkg via cargo..."
+    cargo install "$pkg"
+    log_ok "$pkg installed"
+}
+
+# Main installation
+main() {
+    log_info "Starting modern CLI tools installation"
+    log_info "Log file: $LOG_FILE"
+
+    PLATFORM=$(detect_platform)
+    PKG_MGR=$(detect_pkg_manager)
+    log_info "Platform: $PLATFORM, Package manager: $PKG_MGR"
+
+    echo ""
+    log_info "=== Core CLI Tools ==="
+
+    # Essentials (cross-platform via pkg manager)
+    pkg_install "ripgrep" "rg"
+    pkg_install "fzf" "fzf"
+    pkg_install "btop" "btop"
+    pkg_install "tmux" "tmux"
+
+    # bat (different names on some systems)
+    if ! has bat && ! has batcat; then
+        pkg_install "bat" "bat" || pkg_install "bat" "batcat"
+    else
+        log_skip "bat (already installed)"
+    fi
+
+    # eza (ls replacement)
+    pkg_install "eza" "eza"
+
+    echo ""
+    log_info "=== Git Tools ==="
+
+    # lazygit
+    if [[ "$PKG_MGR" == "pacman" ]]; then
+        pkg_install "lazygit" "lazygit"
+    else
+        github_install "jesseduffield/lazygit" "lazygit" "lazygit_{version_num}_Linux_x86_64.tar.gz"
+    fi
+
+    # delta (git pager)
+    if [[ "$PKG_MGR" == "pacman" ]]; then
+        pkg_install "git-delta" "delta"
+    elif [[ "$PKG_MGR" == "brew" ]]; then
+        pkg_install "git-delta" "delta"
+    else
+        github_install "dandavison/delta" "delta" "delta-{version_num}-x86_64-unknown-linux-gnu.tar.gz"
+    fi
+
+    echo ""
+    log_info "=== Docker Tools ==="
+
+    # lazydocker
+    if [[ "$PKG_MGR" == "pacman" ]]; then
+        pkg_install "lazydocker" "lazydocker"
+    else
+        github_install "jesseduffield/lazydocker" "lazydocker" "lazydocker_{version_num}_Linux_x86_64.tar.gz"
+    fi
+
+    echo ""
+    log_info "=== Navigation & Search ==="
+
+    # zoxide (smarter cd)
+    script_install "zoxide" "zoxide" "https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh"
+
+    # navi (cheatsheets)
+    if [[ "$PKG_MGR" == "pacman" ]]; then
+        pkg_install "navi" "navi"
+    elif [[ "$PKG_MGR" == "brew" ]]; then
+        pkg_install "navi" "navi"
+    else
+        cargo_install "navi"
+    fi
+
+    echo ""
+    log_info "=== Terminal UI Tools ==="
+
+    # zellij (terminal multiplexer)
+    if [[ "$PKG_MGR" == "pacman" ]]; then
+        pkg_install "zellij" "zellij"
+    elif [[ "$PKG_MGR" == "brew" ]]; then
+        pkg_install "zellij" "zellij"
+    else
+        cargo_install "zellij"
+    fi
+
+    # dust (disk usage)
+    if [[ "$PKG_MGR" == "pacman" ]]; then
+        pkg_install "dust" "dust"
+    elif [[ "$PKG_MGR" == "brew" ]]; then
+        pkg_install "dust" "dust"
+    else
+        cargo_install "du-dust" "dust"
+    fi
+
+    # glow (markdown viewer)
+    if [[ "$PKG_MGR" == "pacman" ]]; then
+        pkg_install "glow" "glow"
+    elif [[ "$PKG_MGR" == "brew" ]]; then
+        pkg_install "glow" "glow"
+    else
+        github_install "charmbracelet/glow" "glow" "glow_{version_num}_Linux_x86_64.tar.gz"
+    fi
+
+    echo ""
+    log_info "=== API & HTTP Tools ==="
+
+    # posting (API client TUI)
+    if ! has posting; then
+        if has pipx; then
+            log_info "Installing posting via pipx..."
+            pipx install posting
+            log_ok "posting installed"
+        elif has pip; then
+            log_info "Installing posting via pip..."
+            pip install --user posting
+            log_ok "posting installed"
+        else
+            log_err "posting requires pipx or pip"
+        fi
+    else
+        log_skip "posting (already installed)"
+    fi
+
+    echo ""
+    log_info "=== Shell & Prompt ==="
+
+    # starship prompt
+    script_install "starship" "starship" "https://starship.rs/install.sh" "-y"
+
+    # fastfetch (system info)
+    pkg_install "fastfetch" "fastfetch"
+
+    # tldr (simplified man pages)
+    pkg_install "tldr" "tldr"
+
+    echo ""
+    log_info "=== Installation Complete ==="
+    log_info "Log saved to: $LOG_FILE"
+
+    echo ""
+    echo "Next steps:"
+    echo "  1. Stow configs: cd ~/.dotfiles && stow fastfetch lazydocker zsh git"
+    echo "  2. Reload shell: exec zsh"
+    echo "  3. Update tldr:  tldr --update"
+}
+
+main "$@"

@@ -1,0 +1,20 @@
+# lazydocker config
+# Kepano: sensible defaults, keyboard-driven
+
+gui:
+  scrollHeight: 2
+  theme:
+    activeBorderColor:
+      - green
+      - bold
+    inactiveBorderColor:
+      - white
+  showAllContainers: false
+
+logs:
+  timestamps: true
+  since: "1h"
+
+commandTemplates:
+  restartService: docker-compose restart {{ .Service.Name }}
+  dockerCompose: docker-compose
