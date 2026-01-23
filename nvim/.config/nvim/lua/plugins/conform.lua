@@ -4,8 +4,8 @@ return {
   cmd = { "ConformInfo" },
   keys = {
     {
-      -- Customize or remove this keymap to your liking
-      "<leader>f",
+      -- Keep formatting under the Code prefix to avoid Find conflicts
+      "<leader>cf",
       function()
         require("conform").format({ async = true })
       end,

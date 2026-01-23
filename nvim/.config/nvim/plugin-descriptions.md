@@ -11,9 +11,10 @@
 ## Editing and Dev Tools
 - **Treesitter**: Syntax highlighting and parsing
 - **Conform**: Formatter orchestration
+- **Gitsigns**: Git hunks and blame info
 - **Which-key**: Keybinding hints
 - **nvim-tmux-navigation**: Move between Neovim and tmux splits
 
 ## Appearance
-- **Catppuccin**: Colorscheme
+- **Flexoki**: Colorscheme
 - **mini.icons**: Lightweight devicons replacement

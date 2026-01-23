@@ -9,7 +9,7 @@ A modern, modular Neovim configuration focused on web development (TypeScript, V
 - 🚀 **LSP + completion** with Mason, nvim-lspconfig, nvim-cmp, and LuaSnip
 - 🔍 **Fuzzy finding** with Telescope (fzf native + recent-files)
 - 📁 **Tree file explorer** with Neo-tree
-- 🎨 **Catppuccin** theme + **mini.icons** for lightweight devicons
+- 🎨 **Flexoki** theme + **mini.icons** for lightweight devicons
 - 📝 **Formatting** via Conform
 - 🖥️ **tmux-aware navigation** with nvim-tmux-navigation
 - ❓ **Keybinding discovery** with which-key (press Space and wait)
@@ -20,12 +20,12 @@ A modern, modular Neovim configuration focused on web development (TypeScript, V
 - Neovim >= 0.10.0
 - Git
 - Node.js (for LSP servers)
-- ripgrep (for Telescope grep)
-- fd (for file finding)
-- fzf (for fuzzy finding)
+- ripgrep (for Telescope live grep)
 - A Nerd Font (for icons)
 
 **Optional:**
+- fd (faster file finding)
+- make + C compiler (for telescope-fzf-native)
 - tmux (for nvim-tmux-navigation)
 - Ruby >= 2.7.0 (for Ruby/Rails development)
 - Python >= 3.8 (for Python development)
@@ -90,46 +90,47 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 ### File & Search (`<leader>f`)
 | Key | Action |
 |-----|--------|
-| `<leader>ff` | Find files (all) |
-| `<leader>fg` | Find files (git) |
+| `<leader>ff` | Find files |
 | `<leader>fb` | Find buffers |
 | `<leader>fs` | Live grep |
-| `<leader>fw` | Search word under cursor |
-| `<leader>fW` | Search WORD under cursor |
-| `<leader>fr` | Resume last search |
-| `<leader>fh` | Help tags |
-| `<leader>fc` | Commands |
-| `<leader>fk` | Keymaps |
 | `<Space><Space>` | Recent files |
+
+### Git
+| Key | Action |
+|-----|--------|
+| `<leader>gg` | LazyGit |
+| `<leader>gf` | LazyGit current file |
+| `<leader>gb` | Git blame line |
+| `<leader>gB` | Toggle line blame |
 
 ### LSP (Code Intelligence)
 | Key | Action |
 |-----|--------|
 | `K` | Hover documentation |
-| `<leader>gd` | Go to definition |
-| `<leader>gr` | Show references |
+| `gd` | Go to definition |
+| `gr` | Show references |
 | `<leader>ca` | Code actions |
 | `<leader>rn` | Rename symbol |
-| `<leader>f` | Format buffer (via Conform) |
+| `<leader>cf` | Format buffer (via Conform) |
 | `[d` / `]d` | Previous / next diagnostic |
-| `<leader>d` | Show diagnostic float |
-| `<leader>ls` | LSP info |
+| `gl` | Show diagnostic float |
 
 ### Utility
 | Key | Action |
 |-----|--------|
 | `<leader>h` | Clear search highlight |
+| `<leader>e` | Toggle Neo-tree |
+| `<leader>ud` | Toggle diagnostics |
 
 ## 🎨 Customization
 
 ### Changing Theme
 
-Edit `lua/plugins/catppuccin.lua`:
+Edit `lua/plugins/flexoki.lua` and/or `lua/vim-options.lua`:
 
 ```lua
-opts = {
-  flavour = "mocha",  -- latte, frappe, macchiato, or mocha
-}
+vim.opt.background = "dark" -- or "light"
+vim.cmd.colorscheme("flexoki-dark") -- or "flexoki-light"
 ```
 
 ### Adding a New LSP Server
@@ -257,7 +258,7 @@ Use `pyproject.toml` or `setup.cfg` for project configuration.
 
 **Auto-installed tools via Mason:**
 - `ts_ls` (TypeScript Language Server)
-- `volar` (Vue Language Server)
+- `vue-language-server` (Vue Language Server, `vue_ls`)
 - `eslint` - Linter
 - `prettier` - Formatter (via Conform)
 
@@ -287,5 +288,5 @@ Automatically configured for Neovim development.
 ---
 
 **Version:** 1.0  
-**Last Updated:** October 12, 2025  
+**Last Updated:** January 23, 2026  
 **Maintained by:** Callum McLennan

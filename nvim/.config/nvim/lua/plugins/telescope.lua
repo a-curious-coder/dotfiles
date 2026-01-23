@@ -36,7 +36,6 @@ return {
       local builtin = require("telescope.builtin")
 
       local fd_cmd = nil
-      local fd_no_ignore_cmd = nil
       local fd_bin = nil
 
       if vim.fn.executable("fd") == 1 then
@@ -47,12 +46,20 @@ return {
 
       if fd_bin then
         fd_cmd = { fd_bin, "--type", "f", "--hidden", "--exclude", ".git" }
-        fd_no_ignore_cmd = { fd_bin, "--type", "f", "--hidden", "--no-ignore", "--exclude", ".git" }
       else
         if not vim.g._telescope_fd_notice then
           vim.g._telescope_fd_notice = true
           vim.schedule(function()
             vim.notify("Telescope: install `fd` for faster file searching.", vim.log.levels.INFO)
+          end)
+        end
+      end
+
+      if vim.fn.executable("rg") == 0 then
+        if not vim.g._telescope_rg_notice then
+          vim.g._telescope_rg_notice = true
+          vim.schedule(function()
+            vim.notify("Telescope: install `rg` (ripgrep) for live grep.", vim.log.levels.WARN)
           end)
         end
       end
@@ -142,38 +149,16 @@ return {
       -- Keymaps: <leader>f = find/search operations
       vim.keymap.set("n", "<leader>ff", function()
         builtin.find_files({ hidden = true })
-      end, { desc = "Find files (fast)" })
+      end, { desc = "Find files" })
 
-      vim.keymap.set("n", "<leader>fF", function()
-        local opts = { hidden = true, no_ignore = true }
-        if fd_no_ignore_cmd then
-          opts.find_command = fd_no_ignore_cmd
-        end
-        builtin.find_files(opts)
-      end, { desc = "Find files (all)" })
-
-      vim.keymap.set("n", "<leader>fg", builtin.git_files, { desc = "Find files (git)" })
       vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find buffers" })
 
       vim.keymap.set("n", "<leader>fs", function()
         builtin.live_grep({ additional_args = { "--hidden" } })
       end, { desc = "Live grep" })
 
-      vim.keymap.set("n", "<leader>fw", function()
-        builtin.grep_string({ search = vim.fn.expand("<cword>"), additional_args = { "--hidden" } })
-      end, { desc = "Search word under cursor" })
-
-      vim.keymap.set("n", "<leader>fW", function()
-        builtin.grep_string({ search = vim.fn.expand("<cWORD>"), additional_args = { "--hidden" } })
-      end, { desc = "Search WORD under cursor" })
-
-      vim.keymap.set("n", "<leader>fr", builtin.resume, { desc = "Resume last search" })
-      vim.keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "Help tags" })
-      vim.keymap.set("n", "<leader>fc", builtin.commands, { desc = "Commands" })
-      vim.keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "Keymaps" })
-
       vim.keymap.set("n", "<leader><leader>", function()
-        require('telescope').extensions.recent_files.pick()
+        require("telescope").extensions.recent_files.pick()
       end, { desc = "Recent files" })
     end,
   },

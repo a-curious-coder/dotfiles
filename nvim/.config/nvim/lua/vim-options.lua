@@ -52,6 +52,19 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 	desc = "Highlight yanked text briefly"
 })
 
+-- === UI TOGGLES ===
+vim.g.diagnostics_enabled = true
+vim.keymap.set("n", "<leader>ud", function()
+	vim.g.diagnostics_enabled = not vim.g.diagnostics_enabled
+	if vim.g.diagnostics_enabled then
+		vim.diagnostic.enable()
+		vim.notify("Diagnostics enabled", vim.log.levels.INFO)
+	else
+		vim.diagnostic.disable()
+		vim.notify("Diagnostics disabled", vim.log.levels.WARN)
+	end
+end, { desc = "Toggle diagnostics" })
+
 -- === WINDOW NAVIGATION ===
 -- Note: Window navigation (<C-h/j/k/l>) is handled by nvim-tmux-navigation plugin
 -- This allows seamless navigation between nvim splits and tmux panes

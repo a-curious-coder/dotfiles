@@ -16,9 +16,11 @@ return {
 		-- Filesystem options
 		filesystem = {
 			filtered_items = {
-				visible = true, -- Show hidden files
-				hide_dotfiles = false,
-				hide_gitignored = false,
+				visible = false, -- Hide filtered items by default
+				show_hidden_count = false,
+				hide_dotfiles = true,
+				hide_gitignored = true,
+				hide_ignored = true,
 			},
 			follow_current_file = true, -- Highlight the current file in the tree
 			use_libuv_file_watcher = true, -- Use more efficient file watching
@@ -37,6 +39,7 @@ return {
 				["C"] = "close_node",
 				["z"] = "close_all_nodes",
 				["R"] = "refresh",
+				["H"] = "toggle_hidden",
 			},
 		},
 
@@ -51,7 +54,6 @@ return {
 		},
 	},
 	config = function()
-		vim.keymap.set("n", "<C-n>", ":Neotree filesystem reveal right<CR>", { desc = "Neo-tree file explorer" })
 		vim.keymap.set("n", "<leader>e", ":Neotree toggle right<CR>", { desc = "Toggle Neo-tree" })
 	end,
 }

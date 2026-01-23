@@ -28,13 +28,11 @@ return {
 
     -- Register key groups for discoverability
     wk.add({
-      { "<leader>b", group = "Buffers" },
       { "<leader>c", group = "Code" },
       { "<leader>f", group = "Find" },
       { "<leader>g", group = "Git" },
       { "<leader>u", group = "UI Toggles" },
       { "g", group = "Go/LSP" },
-      { "gc", group = "Comments" },
       { "z", group = "Folds" },
     })
 
