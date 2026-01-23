@@ -1,7 +1,7 @@
 -- ┌─────────────────────────────────────────────────────────────┐
 -- │ Telescope - Fuzzy Finder                                    │
 -- │ Purpose: Fast file/text searching and navigation            │
--- │ Dependencies: ripgrep (for grep), fd (for file search)      │
+-- │ Dependencies: ripgrep (for grep), fd (optional for speed)    │
 -- └─────────────────────────────────────────────────────────────┘
 
 return {
@@ -35,40 +35,67 @@ return {
       local actions = require("telescope.actions")
       local builtin = require("telescope.builtin")
 
-      telescope.setup({
-        defaults = {
-          file_ignore_patterns = {
-            "%.git/", -- Still ignore .git directory to avoid clutter
-            "node_modules/",
-            "%.DS_Store"
+      local fd_cmd = nil
+      local fd_no_ignore_cmd = nil
+      local fd_bin = nil
+
+      if vim.fn.executable("fd") == 1 then
+        fd_bin = "fd"
+      elseif vim.fn.executable("fdfind") == 1 then
+        fd_bin = "fdfind"
+      end
+
+      if fd_bin then
+        fd_cmd = { fd_bin, "--type", "f", "--hidden", "--exclude", ".git" }
+        fd_no_ignore_cmd = { fd_bin, "--type", "f", "--hidden", "--no-ignore", "--exclude", ".git" }
+      else
+        if not vim.g._telescope_fd_notice then
+          vim.g._telescope_fd_notice = true
+          vim.schedule(function()
+            vim.notify("Telescope: install `fd` for faster file searching.", vim.log.levels.INFO)
+          end)
+        end
+      end
+
+      local defaults = {
+        file_ignore_patterns = {
+          "%.git/", -- Still ignore .git directory to avoid clutter
+          "node_modules/",
+          "%.DS_Store"
+        },
+        mappings = {
+          i = {
+            ["<C-k>"] = actions.move_selection_previous,
+            ["<C-j>"] = actions.move_selection_next,
+            ["<C-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
+            ["<Esc>"] = actions.close, -- Close with single Escape
+            ["<C-u>"] = false,         -- Disable default scroll up to allow history navigation
+            ["<C-d>"] = false,         -- Disable default scroll down
           },
-          mappings = {
-            i = {
-              ["<C-k>"] = actions.move_selection_previous,
-              ["<C-j>"] = actions.move_selection_next,
-              ["<C-q>"] = actions.send_selected_to_qflist + actions.open_qflist,
-              ["<Esc>"] = actions.close, -- Close with single Escape
-              ["<C-u>"] = false,         -- Disable default scroll up to allow history navigation
-              ["<C-d>"] = false,         -- Disable default scroll down
-            },
-            n = {
-              ["q"] = actions.close, -- Close with q in normal mode
-            },
-          },
-          path_display = { "truncate" },  -- Better path display
-          sorting_strategy = "ascending", -- Show results from top to bottom
-          layout_config = {
-            horizontal = {
-              prompt_position = "top", -- Prompt at the top
-              preview_width = 0.55,    -- Wider preview
-            },
+          n = {
+            ["q"] = actions.close, -- Close with q in normal mode
           },
         },
+        path_display = { "truncate" },  -- Better path display
+        sorting_strategy = "ascending", -- Show results from top to bottom
+        layout_config = {
+          horizontal = {
+            prompt_position = "top", -- Prompt at the top
+            preview_width = 0.55,    -- Wider preview
+          },
+        },
+      }
+
+      if fd_cmd then
+        defaults.find_command = fd_cmd
+      end
+
+      telescope.setup({
+        defaults = defaults,
         pickers = {
           find_files = {
             theme = "dropdown",
             hidden = true,    -- Show hidden files
-            no_ignore = true, -- Don't respect .gitignore
           },
           live_grep = {
             additional_args = function()
@@ -114,7 +141,15 @@ return {
 
       -- Keymaps: <leader>f = find/search operations
       vim.keymap.set("n", "<leader>ff", function()
-        builtin.find_files({ hidden = true, no_ignore = true })
+        builtin.find_files({ hidden = true })
+      end, { desc = "Find files (fast)" })
+
+      vim.keymap.set("n", "<leader>fF", function()
+        local opts = { hidden = true, no_ignore = true }
+        if fd_no_ignore_cmd then
+          opts.find_command = fd_no_ignore_cmd
+        end
+        builtin.find_files(opts)
       end, { desc = "Find files (all)" })
 
       vim.keymap.set("n", "<leader>fg", builtin.git_files, { desc = "Find files (git)" })
@@ -143,4 +178,3 @@ return {
     end,
   },
 }
-

@@ -24,7 +24,7 @@ vim.opt.signcolumn = "yes"     -- Always show sign column (prevents text shift)
 vim.opt.cursorline = true      -- Highlight current line
 vim.opt.showtabline = 2        -- Always show tab line
 vim.opt.laststatus = 3         -- Global statusline (for better plugin support)
-vim.g.background = "light"     -- Set background mode
+vim.opt.background = "dark"    -- Set background mode
 
 -- Cursor styling and colors
 vim.cmd([[highlight Cursor guifg=yellow guibg=yellow]])
