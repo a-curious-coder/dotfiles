@@ -22,11 +22,25 @@ vim.opt.signcolumn = "yes" -- Always show sign column (prevents text shift)
 
 -- === UI & APPEARANCE ===
 vim.opt.cursorline = true -- Highlight current line
-vim.opt.showtabline = 2 -- Always show tab line
+vim.opt.showtabline = 0 -- Hide tabline until multiple buffers are open
 vim.opt.laststatus = 3 -- Global statusline (for better plugin support)
 vim.opt.background = "dark" -- Set background mode
 vim.opt.showmode = false -- Hide mode text (statusline already shows it)
-vim.opt.shortmess:append("I") -- Disable the intro screen
+vim.opt.cmdheight = 0 -- Hide the command line unless needed
+vim.opt.shortmess:append({ I = true, W = true, c = true }) -- Reduce message noise (intro/write/completion)
+
+local function update_tabline_visibility()
+	local listed_buffers = #vim.fn.getbufinfo({ buflisted = 1 })
+	vim.opt.showtabline = listed_buffers > 1 and 2 or 0
+end
+
+vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete", "BufEnter" }, {
+	group = vim.api.nvim_create_augroup("tabline-visibility", { clear = true }),
+	callback = update_tabline_visibility,
+	desc = "Show tabline only when multiple buffers are listed",
+})
+
+update_tabline_visibility()
 
 -- === CLIPBOARD ===
 vim.opt.clipboard = "unnamedplus"
@@ -42,12 +56,24 @@ vim.opt.redrawtime = 1500 -- Allow more time for syntax highlighting on large fi
 -- Note: timeoutlen is set by which-key plugin
 
 -- === FILE HANDLING ===
-vim.opt.swapfile = false -- Disable swap files (manual saves or :update)
+local state_dir = vim.fn.stdpath("state")
+local undo_dir = state_dir .. "/undo"
+local backup_dir = state_dir .. "/backup"
+vim.fn.mkdir(undo_dir, "p")
+vim.fn.mkdir(backup_dir, "p")
+vim.opt.undodir = undo_dir .. "//" -- Keep undo files in a stable state dir
 vim.opt.undofile = true -- Persistent undo history
+vim.opt.backup = true
+vim.opt.writebackup = true
+vim.opt.backupdir = backup_dir .. "//"
+vim.opt.swapfile = false -- Disable swap files (manual saves or :update)
 
 -- === SEARCH & HIGHLIGHT ===
--- Clear search highlight with leader+h
-vim.keymap.set("n", "<leader>h", ":nohlsearch<CR>", { desc = "Clear search highlight" })
+vim.opt.ignorecase = true -- Case-insensitive search by default
+vim.opt.smartcase = true -- Use case-sensitive search if uppercase appears
+vim.opt.incsearch = true -- Show matches as you type
+-- Clear search highlight with leader+f+h
+vim.keymap.set("n", "<leader>fh", ":nohlsearch<CR>", { desc = "Clear search highlight" })
 
 -- Highlight on yank for visual feedback
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -71,6 +97,8 @@ vim.diagnostic.config({
 	float = {
 		border = "rounded",
 		source = "if_many",
+		scope = "cursor",
+		focusable = false,
 	},
 })
 
