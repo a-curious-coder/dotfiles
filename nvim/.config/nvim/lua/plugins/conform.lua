@@ -1,3 +1,5 @@
+local prettier = { "prettierd", "prettier", stop_after_first = true }
+
 return {
   "stevearc/conform.nvim",
   event = { "BufWritePre" },
@@ -21,14 +23,28 @@ return {
     formatters_by_ft = {
       lua = { "stylua" },
       python = { "isort", "black" },
-      javascript = { "prettierd", "prettier", stop_after_first = true },
+      javascript = prettier,
+      javascriptreact = prettier,
+      typescript = prettier,
+      typescriptreact = prettier,
+      vue = prettier,
+      html = prettier,
+      css = prettier,
+      scss = prettier,
+      json = prettier,
+      jsonc = prettier,
+      yaml = prettier,
+      markdown = prettier,
     },
     -- Set default options
     default_format_opts = {
       lsp_format = "fallback",
     },
     -- Set up format-on-save
-    format_on_save = { timeout_ms = 500 },
+    format_on_save = {
+      timeout_ms = 500,
+      lsp_format = "fallback",
+    },
     -- Customize formatters
     formatters = {
       shfmt = {

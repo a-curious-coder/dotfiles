@@ -20,6 +20,14 @@ vim.opt.number = true -- Show line numbers
 vim.opt.relativenumber = false -- Disable relative line numbers
 vim.opt.signcolumn = "yes" -- Always show sign column (prevents text shift)
 
+-- === FOLDING ===
+vim.opt.foldmethod = "expr" -- Use Tree-sitter for folds
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
+vim.opt.foldlevel = 99 -- Keep folds open by default
+vim.opt.foldlevelstart = 99
+vim.opt.foldenable = true
+vim.opt.foldcolumn = "1"
+
 -- === UI & APPEARANCE ===
 vim.opt.cursorline = true -- Highlight current line
 vim.opt.showtabline = 0 -- Hide tabline until multiple buffers are open
