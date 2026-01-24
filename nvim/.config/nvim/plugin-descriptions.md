@@ -6,6 +6,7 @@
 
 ## Navigation and File Management
 - **Telescope**: Fuzzy finder for files, buffers, grep
+- **Bufferline**: Buffer tabs with diagnostics
 - **Neo-tree**: Tree-style file explorer with git info
 
 ## Editing and Dev Tools

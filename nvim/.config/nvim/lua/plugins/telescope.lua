@@ -148,7 +148,10 @@ return {
 
       -- Keymaps: <leader>f = find/search operations
       vim.keymap.set("n", "<leader>ff", function()
-        builtin.find_files({ hidden = true })
+        local ok, git_files = pcall(builtin.git_files, { show_untracked = true })
+        if not ok then
+          builtin.find_files({ hidden = true })
+        end
       end, { desc = "Find files" })
 
       vim.keymap.set("n", "<leader>fb", builtin.buffers, { desc = "Find buffers" })

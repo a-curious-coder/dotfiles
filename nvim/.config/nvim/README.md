@@ -95,6 +95,12 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 | `<leader>fs` | Live grep |
 | `<Space><Space>` | Recent files |
 
+### Buffers
+| Key | Action |
+|-----|--------|
+| `[b` / `]b` | Previous / next buffer |
+| `<leader>1`…`<leader>9` | Jump to buffer by position |
+
 ### Git
 | Key | Action |
 |-----|--------|
@@ -110,6 +116,7 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 | `gd` | Go to definition |
 | `gr` | Show references |
 | `<leader>ca` | Code actions |
+| `<leader>cd` | Branch diagnostics |
 | `<leader>rn` | Rename symbol |
 | `<leader>cf` | Format buffer (via Conform) |
 | `[d` / `]d` | Previous / next diagnostic |
@@ -121,6 +128,13 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 | `<leader>h` | Clear search highlight |
 | `<leader>e` | Toggle Neo-tree |
 | `<leader>ud` | Toggle diagnostics |
+| `<leader>y` | Copy relative file path |
+
+### UX Defaults
+- Persistent undo enabled
+- System clipboard enabled
+- Intro screen hidden
+- Buffer tabs hidden when only one file is open
 
 ## 🎨 Customization
 
@@ -183,6 +197,7 @@ vim.cmd.colorscheme("flexoki-dark") -- or "flexoki-light"
 :checkhealth        " Comprehensive health check
 :LspInfo            " Check LSP status for current buffer
 :LspLog             " View LSP error logs
+:BranchDiagnostics  " Diagnostics for files changed on the branch
 ```
 
 ## 🐛 Troubleshooting

@@ -22,7 +22,10 @@ return {
 				hide_gitignored = true,
 				hide_ignored = true,
 			},
-			follow_current_file = true, -- Highlight the current file in the tree
+			follow_current_file = {
+				enabled = true,
+				leave_dirs_open = true,
+			},
 			use_libuv_file_watcher = true, -- Use more efficient file watching
 		},
 
@@ -54,6 +57,12 @@ return {
 		},
 	},
 	config = function()
-		vim.keymap.set("n", "<leader>e", ":Neotree toggle right<CR>", { desc = "Toggle Neo-tree" })
+		vim.keymap.set("n", "<leader>e", function()
+			require("neo-tree.command").execute({
+				toggle = true,
+				reveal = true,
+				position = "right",
+			})
+		end, { desc = "Toggle Neo-tree" })
 	end,
 }
