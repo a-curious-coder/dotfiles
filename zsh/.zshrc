@@ -1,5 +1,10 @@
 autoload -U add-zsh-hook
 
+# Suppress login banner and mail notifications
+[[ -f "$HOME/.hushlogin" ]] || touch "$HOME/.hushlogin"
+MAILCHECK=0
+unset MAIL MAILPATH
+
 # Oh My Zsh
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME=""  # using Starship instead

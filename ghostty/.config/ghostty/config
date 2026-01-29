@@ -2,13 +2,16 @@
 # Main configuration file
 
 # Font configuration
-font-family = "JetBrainsMono Nerd Font"
-font-size = 12
+font-family = "SF Mono"
+font-size = 16
 
 # Window settings
 window-padding-x = 10
 window-padding-y = 10
 window-decoration = true
+macos-titlebar-style = hidden
+macos-window-buttons = hidden
+macos-non-native-fullscreen = true
 
 # Performance
 window-vsync = true
@@ -26,34 +29,36 @@ shell-integration-features = ssh-terminfo
 # Automatically forward your SSH environment
 shell-integration-features = ssh-env
 
-# Theme colors (Catppuccin-inspired)
+# Theme colors (Flexoki Dark)
 # Background and foreground
-background = #1e1e2e
-foreground = #cdd6f4
+background = #100f0f
+foreground = #fffcf0
+selection-foreground = #fffcf0
+selection-background = #403e3c
 
 # Cursor colors
-cursor-color = #f5e0dc
-cursor-text = #1e1e2e
+cursor-color = #fffcf0
+cursor-text = #100f0f
 
 # Normal colors
-palette = 0=#45475a
-palette = 1=#f38ba8
-palette = 2=#a6e3a1
-palette = 3=#f9e2af
-palette = 4=#89b4fa
-palette = 5=#f5c2e7
-palette = 6=#94e2d5
-palette = 7=#bac2de
+palette = 0=#100f0f
+palette = 1=#b94943
+palette = 2=#788f28
+palette = 3=#b7921f
+palette = 4=#3b71b1
+palette = 5=#ab4880
+palette = 6=#3e928b
+palette = 7=#f4f2e8
 
 # Bright colors
-palette = 8=#585b70
-palette = 9=#f38ba8
-palette = 10=#a6e3a1
-palette = 11=#f9e2af
-palette = 12=#89b4fa
-palette = 13=#f5c2e7
-palette = 14=#94e2d5
-palette = 15=#a6adc8
+palette = 8=#807f7b
+palette = 9=#d76258
+palette = 10=#95a651
+palette = 11=#d6ad31
+palette = 12=#5a94c6
+palette = 13=#d470a3
+palette = 14=#52b3ab
+palette = 15=#fffcf0
 
 # Clipboard
 clipboard-read = allow
@@ -63,7 +68,8 @@ clipboard-write = allow
 mouse-hide-while-typing = true
 
 # Background
-background-opacity = 0.8
+background-opacity = 1.0
 
 # Terminal features
 confirm-close-surface = false
+quit-after-last-window-closed = true
