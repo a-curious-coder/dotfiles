@@ -7,6 +7,22 @@
 
 local M = {}
 
+local vue_language_server_path = vim.fn.stdpath("data")
+  .. "/mason/packages/vue-language-server/node_modules/@vue/language-server"
+local tsserver_filetypes = {
+  "javascript",
+  "javascriptreact",
+  "typescript",
+  "typescriptreact",
+  "vue",
+}
+local vue_plugin = {
+  name = "@vue/typescript-plugin",
+  location = vue_language_server_path,
+  languages = { "vue" },
+  configNamespace = "typescript",
+}
+
 -- Server-specific configurations
 -- Empty tables ({}) use default settings from nvim-lspconfig
 M.server_configs = {
@@ -32,23 +48,20 @@ M.server_configs = {
   },
   
   -- === TYPESCRIPT/JAVASCRIPT ===
-  ts_ls = {
-    init_options = {
-      plugins = {
-        {
-          name = '@vue/typescript-plugin',
-          location = vim.fn.stdpath 'data' .. '/mason/packages/vue-language-server/node_modules/@vue/language-server',
-          languages = { 'vue' },
+  vtsls = {
+    filetypes = tsserver_filetypes,
+    settings = {
+      vtsls = {
+        tsserver = {
+          globalPlugins = { vue_plugin },
         },
       },
-    },
-    settings = {
       typescript = {
         tsserver = {
           useSyntaxServer = false,
         },
         inlayHints = {
-          includeInlayParameterNameHints = 'all',
+          includeInlayParameterNameHints = "all",
           includeInlayParameterNameHintsWhenArgumentMatchesName = true,
           includeInlayFunctionParameterTypeHints = true,
           includeInlayVariableTypeHints = true,
@@ -63,11 +76,7 @@ M.server_configs = {
   
   -- === VUE ===
   vue_ls = {
-    init_options = {
-      vue = {
-        hybridMode = false,
-      },
-    },
+    filetypes = { "vue" },
     settings = {
       typescript = {
         inlayHints = {

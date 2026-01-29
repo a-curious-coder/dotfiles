@@ -3,6 +3,7 @@
 # Organized by domain. Prefer explicit over clever.
 
 alias v='nvim'
+alias t='tmux attach'
 
 # Git aliases
 alias g='git'

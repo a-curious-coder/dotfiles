@@ -21,7 +21,7 @@ return {
     end,
   },
 
-  -- nvim-lspconfig: Server configurations (Neovim 0.11+ API)
+  -- nvim-lspconfig: Server configurations (use vim.lsp.config on Nvim 0.11+)
   {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
@@ -32,7 +32,7 @@ return {
     config = function()
       local cmp_capabilities = require("cmp_nvim_lsp").default_capabilities()
 
-      -- Configure each server with vim.lsp.config (Neovim 0.11+ API)
+      -- Configure each server with vim.lsp.config
       for server_name, server_config in pairs(servers.server_configs) do
         local config = vim.tbl_deep_extend("force", {
           capabilities = cmp_capabilities,

@@ -58,6 +58,7 @@ cmd-enter = 'exec-and-forget open -na Ghostty'
 cmd-b = "exec-and-forget osascript -e 'tell application \"Brave Browser\" to make new window'"
 
 cmd-shift-f = 'fullscreen'
+cmd-ctrl-f = 'fullscreen'
 cmd-slash = 'layout tiles horizontal vertical'
 cmd-comma = 'layout accordion horizontal vertical'
 

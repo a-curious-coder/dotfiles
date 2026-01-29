@@ -1,5 +1,3 @@
-local prettier = { "prettierd", "prettier", stop_after_first = true }
-
 return {
   "stevearc/conform.nvim",
   event = { "BufWritePre" },
@@ -22,19 +20,6 @@ return {
     -- Define your formatters
     formatters_by_ft = {
       lua = { "stylua" },
-      python = { "isort", "black" },
-      javascript = prettier,
-      javascriptreact = prettier,
-      typescript = prettier,
-      typescriptreact = prettier,
-      vue = prettier,
-      html = prettier,
-      css = prettier,
-      scss = prettier,
-      json = prettier,
-      jsonc = prettier,
-      yaml = prettier,
-      markdown = prettier,
     },
     -- Set default options
     default_format_opts = {

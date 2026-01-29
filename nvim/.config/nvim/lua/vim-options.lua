@@ -9,6 +9,18 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- Ensure Mason binaries are available for LSP servers
+do
+	local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
+	if vim.fn.isdirectory(mason_bin) == 1 then
+		local sep = vim.fn.has("win32") == 1 and ";" or ":"
+		local path = vim.env.PATH or ""
+		if not string.find(path, mason_bin, 1, true) then
+			vim.env.PATH = mason_bin .. sep .. path
+		end
+	end
+end
+
 -- === INDENTATION & TABS ===
 vim.opt.expandtab = true -- Use spaces instead of tabs
 vim.opt.tabstop = 2 -- Tab width in spaces
@@ -80,8 +92,9 @@ vim.opt.swapfile = false -- Disable swap files (manual saves or :update)
 vim.opt.ignorecase = true -- Case-insensitive search by default
 vim.opt.smartcase = true -- Use case-sensitive search if uppercase appears
 vim.opt.incsearch = true -- Show matches as you type
--- Clear search highlight with leader+f+h
+-- Clear search highlight
 vim.keymap.set("n", "<leader>fh", ":nohlsearch<CR>", { desc = "Clear search highlight" })
+vim.keymap.set("n", "<Esc><Esc>", ":nohlsearch<CR>", { desc = "Clear search highlight" })
 
 -- Highlight on yank for visual feedback
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -190,6 +203,8 @@ vim.keymap.set("n", "<leader>ud", function()
 		vim.notify("Diagnostics disabled", vim.log.levels.WARN)
 	end
 end, { desc = "Toggle diagnostics" })
+
+vim.keymap.set("n", "<leader>x", ":close<CR>", { desc = "Close window" })
 
 local function copy_to_clipboard(text)
 	vim.fn.setreg("+", text)

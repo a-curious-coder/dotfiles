@@ -85,15 +85,16 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 
 ## 🎯 Key Mappings
 
-> **Tip:** Press `<Space>` (leader) to see available keybindings via which-key
+> **Tip:** Press `<Space>` (leader) to see available keybindings via which-key, or `<leader>?` for the full list.
 
 ### File & Search (`<leader>f`)
 | Key | Action |
 |-----|--------|
-| `<leader>ff` | Find files |
+| `<leader>ff` | Find files (git-aware, falls back to all files) |
 | `<leader>fb` | Find buffers |
-| `<leader>fs` | Live grep |
-| `<Space><Space>` | Recent files |
+| `<leader>fs` | Live grep (includes hidden files) |
+| `<leader>fr` | Recent files |
+| `<leader>fh` | Clear search highlight |
 
 ### Buffers
 | Key | Action |
@@ -109,7 +110,7 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 | `<leader>gb` | Git blame line |
 | `<leader>gB` | Toggle line blame |
 
-### LSP (Code Intelligence)
+### Code & LSP
 | Key | Action |
 |-----|--------|
 | `K` | Hover documentation |
@@ -117,24 +118,38 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 | `gr` | Show references |
 | `<leader>ca` | Code actions |
 | `<leader>cd` | Branch diagnostics |
-| `<leader>rn` | Rename symbol |
+| `<leader>cr` | Rename symbol |
 | `<leader>cf` | Format buffer (via Conform) |
 | `[d` / `]d` | Previous / next diagnostic |
 | `gl` | Show diagnostic float |
 
+### UI Toggles (`<leader>u`)
+| Key | Action |
+|-----|--------|
+| `<leader>ue` | Toggle Neo-tree |
+| `<leader>ud` | Toggle diagnostics |
+
 ### Utility
 | Key | Action |
 |-----|--------|
-| `<leader>h` | Clear search highlight |
-| `<leader>e` | Toggle Neo-tree |
-| `<leader>ud` | Toggle diagnostics |
 | `<leader>y` | Copy relative file path |
+| `<leader>?` | Show all keybindings |
 
 ### UX Defaults
 - Persistent undo enabled
 - System clipboard enabled
-- Intro screen hidden
+- Intro screen and mode text hidden
+- Inline diagnostics enabled (details on demand with `gl`)
+- Inline git blame enabled (toggle with `<leader>gB`)
 - Buffer tabs hidden when only one file is open
+
+## 🧭 Daily Workflow
+- Jump to a file with `<leader>ff` or reopen with `<leader>fr`.
+- Search across the repo with `<leader>fs`, then clear highlights with `<leader>fh`.
+- Toggle the tree with `<leader>ue`, hop buffers with `<leader>fb` and `[b` / `]b`.
+- Navigate code with `gd`/`gr`, inspect docs with `K`, use `<leader>ca`/`<leader>cr` for edits.
+- Review diagnostics with `[d`/`]d` and `gl`, or use `<leader>cd` for branch-only checks.
+- Open git context with `<leader>gg`, one-shot blame with `<leader>gb`, toggle inline blame with `<leader>gB`.
 
 ## 🎨 Customization
 
