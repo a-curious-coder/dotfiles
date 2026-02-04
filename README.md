@@ -18,6 +18,7 @@ Each directory is a stow package. Run `stow <package>` to symlink.
 ```
 dotfiles/
 ├── aerospace/      macOS tiling window manager
+├── sketchybar/     Status bar (macOS)
 ├── ags/            Aylur's GTK Shell (Hyprland widgets)
 ├── btop/           Resource monitor
 ├── fastfetch/      System info (replaces neofetch)
@@ -62,7 +63,7 @@ stow hypr waybar rofi ags swaync wlogout
 
 **macOS**
 ```bash
-stow aerospace
+stow aerospace sketchybar
 ```
 
 **Common (both platforms)**

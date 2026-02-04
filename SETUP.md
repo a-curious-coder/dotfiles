@@ -17,6 +17,9 @@ stow starship
 
 # Install Ghostty configuration
 stow ghostty
+
+# Install SketchyBar configuration (macOS)
+stow sketchybar
 ```
 
 ### Manual Installation
@@ -140,6 +143,20 @@ After installing, reload your shell:
 source ~/.zshrc
 
 # Or simply open a new terminal
+```
+
+### 4. SketchyBar (macOS)
+
+```bash
+# Install SketchyBar (Homebrew)
+brew tap FelixKratz/formulae
+brew install sketchybar
+
+# Start the service
+brew services start sketchybar
+
+# Reload after config changes
+sketchybar --reload
 ```
 
 ## 📝 Customization

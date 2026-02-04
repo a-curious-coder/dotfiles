@@ -1,0 +1,117 @@
+#!/usr/bin/env sh
+
+# Minimal, legible bar aligned with kepano-philosophy.md:
+# - no decoration or animation
+# - fixed workspace set to reduce decision fatigue
+# - full date + 24h time
+# - Flexoki palette for long sessions
+
+CONFIG_DIR="${CONFIG_DIR:-$HOME/.config/sketchybar}"
+PLUGIN_DIR="$CONFIG_DIR/plugins"
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+export SB_COLOR_BG=0xff100f0f
+export SB_COLOR_FG=0xffcecdc3
+export SB_COLOR_FG_BRIGHT=0xfffffcf0
+export SB_COLOR_DIM=0xff6f6e69
+export SB_COLOR_RED=0xffd14d41
+export SB_COLOR_GREEN=0xff879a39
+
+export SB_FONT="JetBrainsMono NFM:Regular:12.0"
+export SB_FONT_STRONG="JetBrainsMono NFM:Medium:12.0"
+
+sketchybar --bar position=top height=26 display=all topmost=window color="$SB_COLOR_BG" \
+                     border_width=0 corner_radius=0 blur_radius=0 \
+                     shadow=off padding_left=6 padding_right=6
+
+default=(
+  icon.drawing=off
+  label.font="$SB_FONT"
+  label.color="$SB_COLOR_FG"
+  label.padding_left=4
+  label.padding_right=4
+  padding_left=2
+  padding_right=2
+  background.drawing=off
+)
+sketchybar --default "${default[@]}"
+
+AEROSPACE_BIN=""
+if command -v aerospace >/dev/null 2>&1; then
+  AEROSPACE_BIN="aerospace"
+elif [ -x "/Applications/AeroSpace.app/Contents/MacOS/AeroSpace" ]; then
+  AEROSPACE_BIN="/Applications/AeroSpace.app/Contents/MacOS/AeroSpace"
+fi
+export AEROSPACE_BIN
+
+WORKSPACES=""
+if [ -n "$AEROSPACE_BIN" ]; then
+  WORKSPACES="$($AEROSPACE_BIN list-workspaces --all --format '%{workspace}')"
+fi
+if [ -z "$WORKSPACES" ]; then
+  WORKSPACES="1 2 3 4 5 6 7 8 9"
+fi
+
+for ws in $WORKSPACES; do
+  if [ -n "$AEROSPACE_BIN" ]; then
+    CLICK_SCRIPT="$AEROSPACE_BIN workspace $ws"
+  else
+    CLICK_SCRIPT="/usr/bin/true"
+  fi
+
+  sketchybar --add item "workspace.$ws" left \
+             --set "workspace.$ws" label="$ws" \
+                 label.padding_left=6 label.padding_right=6 \
+                 click_script="$CLICK_SCRIPT"
+done
+
+# Hidden updater to keep workspace state accurate without animation.
+sketchybar --add item workspace_updater left \
+           --set workspace_updater drawing=off \
+                script="$PLUGIN_DIR/workspaces.sh" update_freq=1 \
+           --subscribe workspace_updater space_change display_change system_woke
+
+# Front app (left)
+sketchybar --add item front_app left \
+           --set front_app script="$PLUGIN_DIR/front_app.sh" \
+                label.max_chars=32 scroll_texts=off \
+           --subscribe front_app front_app_switched
+
+# Center: clock (date + time)
+if [ -n "$AEROSPACE_BIN" ]; then
+  $AEROSPACE_BIN list-monitors --format '%{monitor-appkit-nsscreen-screens-id} %{monitor-name}' |
+  while read -r sid mname; do
+    clock_pos="center"
+    battery_pos="right"
+    case "$mname" in
+      *Built-in*|*Retina*)
+        clock_pos="e"   # right of notch
+        battery_pos="q" # left of notch
+        ;;
+    esac
+    sketchybar --add item "clock.$sid" "$clock_pos" \
+               --set "clock.$sid" display="$sid" update_freq=60 script="$PLUGIN_DIR/clock.sh" \
+                    label.font="$SB_FONT_STRONG" label.color="$SB_COLOR_FG_BRIGHT" \
+                    label.align=center label.width=220
+    sketchybar --add item "battery.$sid" "$battery_pos" \
+               --set "battery.$sid" display="$sid" update_freq=120 script="$PLUGIN_DIR/battery.sh" \
+                    icon.drawing=on icon="BAT" icon.font="$SB_FONT_STRONG" \
+                    icon.color="$SB_COLOR_DIM" \
+                    label.font="$SB_FONT_STRONG" \
+               --subscribe "battery.$sid" power_source_change system_woke
+  done
+else
+  sketchybar --add item clock center \
+             --set clock update_freq=60 script="$PLUGIN_DIR/clock.sh" \
+                  label.font="$SB_FONT_STRONG" label.color="$SB_COLOR_FG_BRIGHT" \
+                  label.align=center label.width=220
+  sketchybar --add item battery right \
+             --set battery update_freq=120 script="$PLUGIN_DIR/battery.sh" \
+                  icon.drawing=on icon="BAT" icon.font="$SB_FONT_STRONG" \
+                  icon.color="$SB_COLOR_DIM" \
+                  label.font="$SB_FONT_STRONG" \
+             --subscribe battery power_source_change system_woke
+fi
+
+"$PLUGIN_DIR/workspaces.sh"
+sketchybar --update

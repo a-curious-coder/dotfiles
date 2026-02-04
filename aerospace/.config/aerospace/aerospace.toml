@@ -23,7 +23,11 @@ inner.horizontal = 0
 inner.vertical = 0
 outer.left = 0
 outer.bottom = 0
-outer.top = 0
+outer.top = [
+  { monitor."built-in" = 0 },  # No gap on MacBook display (case-insensitive regex)
+  { monitor."dell" = 26 },     # External display
+  26                           # Fallback for other externals
+]
 outer.right = 0
 
 # --- 2. WINDOW RULES (Must be in the middle) ---
@@ -109,6 +113,8 @@ cmd-shift-e = 'move-node-to-workspace E'
 cmd-shift-r = 'reload-config'
 cmd-tab = 'workspace-back-and-forth'
 alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
+cmd-backtick = 'exec-and-forget ~/.config/aerospace/scripts/cycle-app-windows.sh'
+cmd-shift-backtick = 'exec-and-forget ~/.config/aerospace/scripts/cycle-app-windows.sh prev'
 cmd-shift-semicolon = 'mode service'
 
 [mode.service.binding]
