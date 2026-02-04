@@ -10,6 +10,7 @@ These configs follow [Kepano's principles](kepano-philosophy.md):
 - **Radical minimalism** - Only what serves a purpose
 - **Reduced friction** - Consistent keybinds, one font stack, one color palette
 - **Intentional constraints** - Start vanilla, add only when friction is unbearable
+- **Clarity over cleverness** - Prefer deletion over addition; avoid abstractions unless they remove real duplication
 
 ## Structure
 
@@ -85,6 +86,11 @@ The nvim config has its own documentation:
 
 - `nvim/.config/nvim/README.md` - Full documentation
 - Requires: Neovim >= 0.10, Node.js, ripgrep, fd, Nerd Font
+- Telescope: repo-scoped pickers by default, toggle with `<leader>fT`, display `filename — relative/path`
+
+## Workflow
+
+- `docs/workflow-checklist.md` - Minimal checklist to reduce complexity and keep focus
 
 ## Removing Configs
 
