@@ -204,7 +204,7 @@ vim.keymap.set("n", "<leader>ud", function()
 	end
 end, { desc = "Toggle diagnostics" })
 
-vim.keymap.set("n", "<leader>x", ":close<CR>", { desc = "Close window" })
+vim.keymap.set("n", "<leader>x", ":bdelete<CR>", { desc = "Close buffer" })
 
 local function copy_to_clipboard(text)
 	vim.fn.setreg("+", text)

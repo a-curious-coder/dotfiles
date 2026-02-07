@@ -17,8 +17,18 @@ return {
     vim.keymap.set("n", "[b", "<cmd>BufferLineCyclePrev<CR>", { desc = "Previous buffer" })
     vim.keymap.set("n", "]b", "<cmd>BufferLineCycleNext<CR>", { desc = "Next buffer" })
 
+    local function goto_visible_buffer(index)
+      local state = require("bufferline.state")
+      if index < 1 or index > #state.visible_components then
+        return
+      end
+      vim.cmd("BufferLineGoToBuffer " .. index)
+    end
+
     for i = 1, 9 do
-      vim.keymap.set("n", "<leader>" .. i, "<cmd>BufferLineGoToBuffer " .. i .. "<CR>", {
+      vim.keymap.set("n", "<leader>" .. i, function()
+        goto_visible_buffer(i)
+      end, {
         desc = "Go to buffer " .. i,
       })
     end
