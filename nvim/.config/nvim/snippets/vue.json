@@ -1,0 +1,80 @@
+{
+  "Vue SFC (script setup)": {
+    "prefix": "vuesfc",
+    "body": [
+      "<template>",
+      "  <div class=\"${1:component}\">",
+      "    ${0}",
+      "  </div>",
+      "</template>",
+      "",
+      "<script setup lang=\"ts\">",
+      "</script>",
+      "",
+      "<style scoped>",
+      "</style>"
+    ],
+    "description": "Vue 3 SFC with <script setup> (TypeScript)"
+  },
+  "Vue <script setup> block": {
+    "prefix": "vsetup",
+    "body": [
+      "<script setup lang=\"ts\">",
+      "  ${0}",
+      "</script>"
+    ],
+    "description": "Script setup block"
+  },
+  "Vue defineProps": {
+    "prefix": "vprops",
+    "body": [
+      "const props = defineProps<{",
+      "  ${1}",
+      "}>()"
+    ],
+    "description": "defineProps with TypeScript"
+  },
+  "Vue defineEmits": {
+    "prefix": "vemits",
+    "body": [
+      "const emit = defineEmits<{",
+      "  (e: \"${1:event}\", ${2:payload}): void",
+      "}>()"
+    ],
+    "description": "defineEmits with TypeScript"
+  },
+  "Vue ref": {
+    "prefix": "vref",
+    "body": [
+      "const ${1:name} = ref<${2:type}>(${3:null})"
+    ],
+    "description": "ref() with type"
+  },
+  "Vue computed": {
+    "prefix": "vcomputed",
+    "body": [
+      "const ${1:name} = computed(() => {",
+      "  return ${2}",
+      "})"
+    ],
+    "description": "computed()"
+  },
+  "Vue watch": {
+    "prefix": "vwatch",
+    "body": [
+      "watch(() => ${1:source}, (${2:value}, ${3:prev}) => {",
+      "  ${0}",
+      "})"
+    ],
+    "description": "watch()"
+  },
+  "Vue onMounted": {
+    "prefix": "vonm",
+    "body": [
+      "onMounted(() => {",
+      "  ${0}",
+      "})"
+    ],
+    "description": "onMounted()"
+  }
+}

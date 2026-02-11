@@ -34,6 +34,14 @@ detect_platform() {
 # Check if command exists
 has() { command -v "$1" &>/dev/null; }
 
+has_noto_serif() {
+    if has fc-list; then
+        fc-list 2>/dev/null | grep -qi "Noto Serif"
+        return $?
+    fi
+    return 1
+}
+
 # Detect package manager
 detect_pkg_manager() {
     if has pacman; then echo "pacman"
@@ -140,6 +148,35 @@ cargo_install() {
     log_info "Installing $pkg via cargo..."
     cargo install "$pkg"
     log_ok "$pkg installed"
+}
+
+install_noto_serif() {
+    if has_noto_serif; then
+        log_skip "Noto Serif font (already installed)"
+        return 0
+    fi
+
+    log_info "Installing Noto Serif font..."
+    case "$PLATFORM:$PKG_MGR" in
+        macos:brew|linux:brew)
+            brew tap homebrew/cask-fonts >/dev/null 2>&1 || true
+            brew install --cask font-noto-serif
+            ;;
+        linux:apt)
+            sudo apt-get install -y fonts-noto-core
+            ;;
+        linux:pacman)
+            sudo pacman -S --noconfirm noto-fonts
+            ;;
+        linux:dnf)
+            sudo dnf install -y google-noto-serif-fonts
+            ;;
+        *)
+            log_skip "No supported Noto Serif installer for $PLATFORM/$PKG_MGR"
+            return 0
+            ;;
+    esac
+    log_ok "Noto Serif font installed"
 }
 
 # Main installation
@@ -275,6 +312,10 @@ main() {
 
     # tldr (simplified man pages)
     pkg_install "tldr" "tldr"
+
+    echo ""
+    log_info "=== Fonts ==="
+    install_noto_serif
 
     echo ""
     log_info "=== Installation Complete ==="

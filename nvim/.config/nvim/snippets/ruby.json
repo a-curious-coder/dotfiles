@@ -1,0 +1,98 @@
+{
+  "RSpec describe": {
+    "prefix": "rspec",
+    "body": [
+      "RSpec.describe ${1:ClassName}, type: :${2:model} do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "RSpec describe block"
+  },
+  "RSpec it": {
+    "prefix": "rit",
+    "body": [
+      "it \"${1:does something}\" do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "RSpec it block"
+  },
+  "RSpec controller spec": {
+    "prefix": "rspecctl",
+    "body": [
+      "RSpec.describe ${1:Controller}Controller, type: :controller do",
+      "  describe \"${2:GET #index}\" do",
+      "    it \"${3:returns success}\" do",
+      "      ${0}",
+      "    end",
+      "  end",
+      "end"
+    ],
+    "description": "RSpec controller spec skeleton"
+  },
+  "RSpec request spec": {
+    "prefix": "rspecreq",
+    "body": [
+      "RSpec.describe \"${1:Resource}\", type: :request do",
+      "  describe \"${2:GET /path}\" do",
+      "    it \"${3:returns success}\" do",
+      "      ${0}",
+      "    end",
+      "  end",
+      "end"
+    ],
+    "description": "RSpec request spec skeleton"
+  },
+  "RSpec model spec": {
+    "prefix": "rspecmodel",
+    "body": [
+      "RSpec.describe ${1:Model}, type: :model do",
+      "  ${0}",
+      "end"
+    ],
+    "description": "RSpec model spec skeleton"
+  },
+  "Rails model": {
+    "prefix": "rmodel",
+    "body": [
+      "class ${1:Model} < ApplicationRecord",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Rails model"
+  },
+  "Rails controller": {
+    "prefix": "rctrl",
+    "body": [
+      "class ${1:Controller}Controller < ApplicationController",
+      "  ${0}",
+      "end"
+    ],
+    "description": "Rails controller"
+  },
+  "Rails migration": {
+    "prefix": "rmig",
+    "body": [
+      "class ${1:MigrationName} < ActiveRecord::Migration[${2:7.1}]",
+      "  def change",
+      "    ${0}",
+      "  end",
+      "end"
+    ],
+    "description": "Rails migration skeleton"
+  },
+  "Rails validation": {
+    "prefix": "rval",
+    "body": [
+      "validates :${1:field}, ${2:presence}: true"
+    ],
+    "description": "Rails validation"
+  },
+  "Rails association": {
+    "prefix": "rassoc",
+    "body": [
+      "${1:has_many} :${2:items}"
+    ],
+    "description": "Rails association"
+  }
+}

@@ -25,6 +25,14 @@ for pkg in btop tldr; do
     fi
 done
 
+# 2b. Noto Serif font (for Calibre reader consistency)
+if command -v fc-list &> /dev/null && fc-list | grep -qi "Noto Serif"; then
+    skip_msg "Noto Serif font"
+else
+    install_msg "Installing Noto Serif font (fonts-noto-core)"
+    sudo apt install -y fonts-noto-core
+fi
+
 # 3. Zoxide (Smarter cd)
 if ! command -v zoxide &> /dev/null; then
     install_msg "zoxide"

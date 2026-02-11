@@ -22,6 +22,8 @@ dotfiles/
 ├── sketchybar/     Status bar (macOS)
 ├── ags/            Aylur's GTK Shell (Hyprland widgets)
 ├── btop/           Resource monitor
+├── calibre-linux/  Calibre config for Linux (~/.config/calibre)
+├── calibre-macos/  Calibre config for macOS (~/Library/Preferences/calibre)
 ├── fastfetch/      System info (replaces neofetch)
 ├── ghostty/        Terminal emulator
 ├── git/            Git config with delta for diffs
@@ -43,28 +45,30 @@ dotfiles/
 ## Install
 
 ```bash
-git clone https://github.com/yourusername/dotfiles.git ~/.dotfiles
+git clone git@github.com:a-curious-coder/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 
 # Symlink what you need
 stow git zsh starship tmux nvim ghostty
 
-# Or use the setup script
-./setup --mode dotfiles
+# Optional: install modern CLI tools
+./install-modern-tools.sh
 ```
 
 See [SETUP.md](SETUP.md) for package installation options.
+
+Tip: if you use zoxide, `z dotfiles` is the quickest way back to this repo.
 
 ## Platform Notes
 
 **Linux (Hyprland)**
 ```bash
-stow hypr waybar rofi ags swaync wlogout
+stow hypr waybar rofi ags swaync wlogout calibre-linux
 ```
 
 **macOS**
 ```bash
-stow aerospace sketchybar
+stow aerospace sketchybar calibre-macos
 ```
 
 **Common (both platforms)**
@@ -72,20 +76,41 @@ stow aerospace sketchybar
 stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep vscode
 ```
 
+**Calibre (auto-select package by OS)**
+```bash
+./stow-calibre.sh
+
+# Re-apply reader style after Calibre runtime rewrites
+./apply-calibre-reader-style.sh
+
+# Validate symlinks + key settings
+./calibre-check.sh
+```
+
 ## Scripts
 
 | File | Purpose |
 |------|---------|
 | `packages.yaml` | Unified package definitions for setup script |
+| `stow-calibre.sh` | Stow the correct Calibre package for current OS |
+| `apply-calibre-reader-style.sh` | Idempotently patch Calibre reader settings |
+| `calibre-check.sh` | Validate Calibre symlinks and expected settings |
 | `install-modern-tools.sh` | Install CLI tools (glow, zellij, dust, navi, posting, etc.) |
 | `ubuntu_install.sh` | Ubuntu-specific package installation |
+
+Calibre-specific notes: `docs/calibre.md`
 
 ## Neovim
 
 The nvim config has its own documentation:
 
 - `nvim/.config/nvim/README.md` - Full documentation
-- Requires: Neovim >= 0.10, Node.js, ripgrep, fd, Nerd Font
+- Requires: Neovim >= 0.11, Node.js, ripgrep, fd, Nerd Font
+- Keymap convention: find/search on `<leader>f*`, UI toggles on `<leader>u*`
+- Markdown workflow: `gf` follows `[[wikilinks]]` (including `[[note#heading]]`)
+- Markdown reading: `<leader>um` toggles read view, `<leader>uM` opens split preview
+- Terminal: `<leader>tt` toggles a floating terminal
+- Autosave: modified files save on change and on leave/focus changes
 - Telescope: repo-scoped pickers by default, toggle with `<leader>fT`, display `filename — relative/path`
 
 ## Workflow

@@ -18,5 +18,8 @@ assert_contains("lua/vim-options.lua", "vim.opt.undofile = true")
 assert_contains("lua/vim-options.lua", "vim.opt.backup = true")
 assert_contains("lua/vim-options.lua", "vim.opt.writebackup = true")
 assert_contains("lua/vim-options.lua", "vim.opt.backupdir = backup_dir .. \"//\"")
+assert_contains("lua/vim-options.lua", "autosave-on-edit")
+assert_contains("lua/vim-options.lua", "silent! update")
+assert_contains("lua/vim-options.lua", "CursorHoldI")
 
 print("file persistence: ok")

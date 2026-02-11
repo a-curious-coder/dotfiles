@@ -11,13 +11,16 @@ A modern, modular Neovim configuration focused on web development (TypeScript, V
 - 📁 **Tree file explorer** with Neo-tree
 - 🎨 **Flexoki** theme + **mini.icons** for lightweight devicons
 - 📝 **Formatting** via Conform
+- ✂️ **Snippets** with LuaSnip + nvim-scissors (local, editable library)
 - 🖥️ **tmux-aware navigation** with nvim-tmux-navigation
 - ❓ **Keybinding discovery** with which-key (press Space and wait)
+- 📚 **Markdown read view** with render-markdown (toggle inline or preview split)
+- 💾 **Autosave on edit** with save-on-change + save-on-leave/focus-loss
 
 ## 📋 Prerequisites
 
 **Required:**
-- Neovim >= 0.10.0
+- Neovim >= 0.11.0
 - Git
 - Node.js (for LSP servers)
 - ripgrep (for Telescope live grep)
@@ -128,12 +131,25 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 |-----|--------|
 | `<leader>ue` | Toggle Neo-tree |
 | `<leader>ud` | Toggle diagnostics |
+| `<leader>um` | Toggle markdown read view |
+| `<leader>uM` | Open markdown preview split |
 
 ### Utility
 | Key | Action |
 |-----|--------|
 | `<leader>y` | Copy relative file path |
 | `<leader>?` | Show all keybindings |
+| `<leader>ct` | Create/open Vue test (prefers co-located, searches repo if missing) |
+| `gf` (markdown) | Follow file links and Obsidian-style `[[wikilinks]]` |
+| `<leader>tt` | Toggle floating terminal |
+
+### Snippets (`<leader>s`)
+| Key | Action |
+|-----|--------|
+| `<leader>sa` | Add snippet (normal/visual) |
+| `<leader>se` | Edit snippet |
+| `<leader>ss` | Insert snippet (searchable picker) |
+| `<leader>sE` | Edit any snippet (all filetypes) |
 
 ### UX Defaults
 - Persistent undo enabled
@@ -142,11 +158,30 @@ See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
 - Inline diagnostics enabled (details on demand with `gl`)
 - Inline git blame enabled (toggle with `<leader>gB`)
 - Buffer tabs hidden when only one file is open
+- Modified files autosave after edits and when changing focus/buffers
+
+## Handbook
+
+File over app.
+
+Notes live as plain markdown files in your filesystem.
+
+Links are the interface.
+
+Use `[[wikilinks]]` while drafting and follow them with `gf`. If note names collide, use explicit paths in the link.
+
+Prefer durable files.
+
+Keep links and filenames readable, and use markdown links when you need maximum interoperability outside Obsidian.
 
 ## 🧭 Daily Workflow
 - Jump to a file with `<leader>ff` or reopen with `<leader>fr`.
 - Search across the repo with `<leader>fs`, then clear highlights with `<leader>fh`.
 - Toggle the tree with `<leader>ue`, hop buffers with `<leader>fb` and `[b` / `]b`.
+- Use `<leader>um` in markdown files for a readable render, or `<leader>uM` for side-by-side preview.
+- Use `gf` in markdown files to open `[[wikilinks]]` (including `[[note#heading]]`).
+- Use `<leader>tt` for quick shell commands without leaving Neovim.
+- Rely on autosave while writing; files are persisted on edit and when leaving buffers/focus.
 - Navigate code with `gd`/`gr`, inspect docs with `K`, use `<leader>ca`/`<leader>cr` for edits.
 - Review diagnostics with `[d`/`]d` and `gl`, or use `<leader>cd` for branch-only checks.
 - Open git context with `<leader>gg`, one-shot blame with `<leader>gb`, toggle inline blame with `<leader>gB`.
@@ -170,6 +205,14 @@ vim.cmd.colorscheme("flexoki-dark") -- or "flexoki-light"
    ```
 
 2. Restart Neovim - Mason will auto-install it
+
+### Snippets
+
+- Global snippets live in `nvim/.config/nvim/snippets` (VS Code snippet format).
+- Vue, Rails/RSpec, and Pytest starter snippets are included and editable.
+- Use `<leader>ss` to search snippets and insert directly at the cursor.
+- Use `<leader>sE` to search and edit snippets across all filetypes.
+- Use `<leader>sa` to add new snippets and `<leader>se` to edit existing ones.
 
 ### Adding a New Plugin
 

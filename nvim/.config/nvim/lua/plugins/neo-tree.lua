@@ -57,7 +57,7 @@ return {
 		},
 	},
 	config = function()
-		vim.keymap.set("n", "<leader>e", function()
+		vim.keymap.set("n", "<leader>ue", function()
 			require("neo-tree.command").execute({
 				toggle = true,
 				reveal = true,

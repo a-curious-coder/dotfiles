@@ -20,6 +20,15 @@ stow ghostty
 
 # Install SketchyBar configuration (macOS)
 stow sketchybar
+
+# Install Calibre configuration for your OS
+./stow-calibre.sh
+
+# Re-apply the Steph-style reader profile (safe to run repeatedly)
+./apply-calibre-reader-style.sh
+
+# Validate Calibre symlinks and key settings
+./calibre-check.sh
 ```
 
 ### Manual Installation
@@ -36,6 +45,24 @@ ln -sf ~/Projects/dotfiles/starship/starship.toml ~/.config/starship.toml
 mkdir -p ~/.config/ghostty/themes
 ln -sf ~/Projects/dotfiles/ghostty/config ~/.config/ghostty/config
 ln -sf ~/Projects/dotfiles/ghostty/themes/* ~/.config/ghostty/themes/
+
+# Calibre (macOS)
+mkdir -p ~/Library/Preferences/calibre
+ln -sf ~/Projects/dotfiles/calibre-macos/Library/Preferences/calibre/* ~/Library/Preferences/calibre/
+
+# Calibre (Linux)
+mkdir -p ~/.config/calibre
+ln -sf ~/Projects/dotfiles/calibre-linux/.config/calibre/* ~/.config/calibre/
+```
+
+### Calibre Reader Consistency
+
+```bash
+# Ensure Noto Serif is installed
+./install-modern-tools.sh
+
+# If Calibre rewrites viewer-webengine.json, re-apply the profile
+./apply-calibre-reader-style.sh
 ```
 
 ## 📦 Features

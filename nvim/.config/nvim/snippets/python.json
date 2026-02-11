@@ -1,0 +1,47 @@
+{
+  "Pytest test": {
+    "prefix": "pytest",
+    "body": [
+      "def test_${1:behavior}():",
+      "    ${0}"
+    ],
+    "description": "Pytest test function"
+  },
+  "Pytest fixture": {
+    "prefix": "pfixture",
+    "body": [
+      "@pytest.fixture",
+      "def ${1:name}():",
+      "    ${0}"
+    ],
+    "description": "Pytest fixture"
+  },
+  "Pytest parametrize": {
+    "prefix": "pparam",
+    "body": [
+      "@pytest.mark.parametrize(\"${1:arg}\", [",
+      "    ${2:values}",
+      "])",
+      "def test_${3:behavior}(${1:arg}):",
+      "    ${0}"
+    ],
+    "description": "Pytest parametrize"
+  },
+  "Dataclass": {
+    "prefix": "pdataclass",
+    "body": [
+      "@dataclass",
+      "class ${1:Name}:",
+      "    ${0}"
+    ],
+    "description": "Python dataclass"
+  },
+  "Main guard": {
+    "prefix": "pmain",
+    "body": [
+      "if __name__ == \"__main__\":",
+      "    ${0}"
+    ],
+    "description": "Python main guard"
+  }
+}

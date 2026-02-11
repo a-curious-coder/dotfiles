@@ -15,6 +15,7 @@
 - **Gitsigns**: Git hunks and blame info
 - **Which-key**: Keybinding hints
 - **nvim-tmux-navigation**: Move between Neovim and tmux splits
+- **render-markdown**: Markdown read-mode rendering and preview split
 
 ## Appearance
 - **Flexoki**: Colorscheme

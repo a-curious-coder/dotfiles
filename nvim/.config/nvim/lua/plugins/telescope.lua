@@ -324,10 +324,7 @@ return {
           entry_maker = file_entry_maker(opts),
         }))
         if not ok then
-          builtin.find_files(vim.tbl_extend("force", opts, {
-            hidden = true,
-            entry_maker = file_entry_maker(opts),
-          }))
+          builtin.find_files({ hidden = true })
         end
       end, { desc = "Find files" })
 
@@ -341,9 +338,7 @@ return {
         }))
       end, { desc = "Live grep" })
 
-      vim.keymap.set("n", "<leader><leader>", function()
-        recent_files_picker()
-      end, { desc = "Recent files" })
+      vim.keymap.set("n", "<leader>fr", recent_files_picker, { desc = "Recent files" })
 
       vim.keymap.set("n", "<leader>fT", toggle_scope, { desc = "Toggle find scope (repo/global)" })
     end,

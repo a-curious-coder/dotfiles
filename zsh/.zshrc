@@ -18,6 +18,12 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"  # faster git status in large repos
 HIST_STAMPS="yyyy-mm-dd"  # ISO 8601
 [[ -f "$HOME/.zshrc.env" ]] && source "$HOME/.zshrc.env"
 
+# Codex MCP secrets (only if codex exists on this machine)
+if command -v codex &> /dev/null && [[ -f "$HOME/.secrets/load_codex_secrets.zsh" ]]; then
+    # shellcheck disable=SC1090
+    source "$HOME/.secrets/load_codex_secrets.zsh"
+fi
+
 zstyle ':omz:update' mode auto
 zstyle ':omz:update' frequency 13
 
@@ -165,3 +171,6 @@ ghostty-theme() {
     echo "Switched to theme: $theme_name"
     echo "Note: You may need to restart Ghostty or open a new window for changes to take effect."
 }
+if command -v pyenv 1>/dev/null 2>&1; then
+    eval "$(pyenv init -)"
+fi

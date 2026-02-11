@@ -15,14 +15,20 @@ return {
 		"L3MON4D3/LuaSnip",
 		dependencies = {
 			"saadparwaiz1/cmp_luasnip",
-			"rafamadriz/friendly-snippets",
 		},
 	},
 	{
 		"hrsh7th/nvim-cmp",
 		config = function()
 			local cmp = require("cmp")
-			require("luasnip.loaders.from_vscode").lazy_load()
+			local luasnip = require("luasnip")
+			local vscode_loader = require("luasnip.loaders.from_vscode")
+			vscode_loader.lazy_load({
+				paths = {
+					vim.fn.stdpath("config") .. "/snippets",
+				},
+			})
+			luasnip.filetype_extend("vue", { "typescript", "javascript" })
 
 			cmp.setup({
 				snippet = {

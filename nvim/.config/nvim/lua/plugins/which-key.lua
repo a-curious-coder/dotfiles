@@ -31,6 +31,7 @@ return {
       { "<leader>c", group = "Code" },
       { "<leader>f", group = "Find" },
       { "<leader>g", group = "Git" },
+      { "<leader>s", group = "Snippets" },
       { "<leader>u", group = "UI Toggles" },
       { "g", group = "Go/LSP" },
       { "z", group = "Folds" },

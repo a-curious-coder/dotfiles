@@ -11,4 +11,8 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 require("vim-options")
+require("file-templates").setup()
+require("snippet-picker").setup()
+require("snippet-edit-all").setup()
+require("test-files").setup()
 require("lazy").setup("plugins")

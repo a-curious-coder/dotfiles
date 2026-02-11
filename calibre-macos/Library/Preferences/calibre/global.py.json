@@ -1,0 +1,20 @@
+{
+  "add_formats_to_existing": true,
+  "check_for_dupes_on_ctl": true,
+  "language": "en",
+  "limit_search_columns": true,
+  "limit_search_columns_to": [
+    "title",
+    "authors",
+    "tags",
+    "series",
+    "publisher"
+  ],
+  "manage_device_metadata": "manual",
+  "mark_new_books": false,
+  "output_format": "epub",
+  "read_file_metadata": true,
+  "swap_author_names": false,
+  "use_primary_find_in_search": true,
+  "worker_process_priority": "normal"
+}

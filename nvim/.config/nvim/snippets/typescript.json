@@ -1,0 +1,69 @@
+{
+  "Jest test": {
+    "prefix": "jest",
+    "body": [
+      "describe(\"${1:Thing}\", () => {",
+      "  it(\"${2:does something}\", () => {",
+      "    ${0}",
+      "  })",
+      "})"
+    ],
+    "description": "Jest describe/it skeleton"
+  },
+  "Jest mock": {
+    "prefix": "jmock",
+    "body": [
+      "const ${1:fn} = jest.fn()"
+    ],
+    "description": "jest.fn()"
+  },
+  "Vue test (Jest + VTU)": {
+    "prefix": "vtest",
+    "body": [
+      "import { mount } from \"@vue/test-utils\"",
+      "import ${1:Component} from \"./${1:Component}.vue\"",
+      "",
+      "describe(\"${1:Component}\", () => {",
+      "  it(\"${2:renders}\", () => {",
+      "    const wrapper = mount(${1:Component})",
+      "    expect(wrapper.exists()).toBe(true)",
+      "  })",
+      "})"
+    ],
+    "description": "Vue component test (Jest + Vue Test Utils)"
+  },
+  "TypeScript function": {
+    "prefix": "tsfn",
+    "body": [
+      "export function ${1:name}(${2:args}): ${3:void} {",
+      "  ${0}",
+      "}"
+    ],
+    "description": "TypeScript function"
+  },
+  "TypeScript interface": {
+    "prefix": "tsiface",
+    "body": [
+      "interface ${1:Name} {",
+      "  ${0}",
+      "}"
+    ],
+    "description": "TypeScript interface"
+  },
+  "TypeScript type": {
+    "prefix": "tstype",
+    "body": [
+      "type ${1:Name} = ${0}"
+    ],
+    "description": "TypeScript type alias"
+  },
+  "TypeScript enum": {
+    "prefix": "tsenum",
+    "body": [
+      "enum ${1:Name} {",
+      "  ${2:Value} = \"${2:Value}\",",
+      "}"
+    ],
+    "description": "TypeScript enum"
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "old_prefs_migrated": true,
+  "session_data": {
+    "base_font_size": 16,
+    "book_scrollbar": false,
+    "current_color_scheme": "sepia-light",
+    "hide_tooltips": true,
+    "margin_bottom": 20,
+    "margin_left": 24,
+    "margin_right": 24,
+    "margin_top": 20,
+    "max_text_width": 760,
+    "override_book_colors": "always",
+    "read_mode": "flow",
+    "standalone_font_settings": {
+      "minimum_font_size": 8,
+      "serif_family": "Noto Serif",
+      "standard_font": "serif",
+      "zoom_step_size": 20
+    },
+    "standalone_misc_settings": {
+      "auto_hide_mouse": true,
+      "remember_last_read": true,
+      "remember_window_geometry": false,
+      "restore_docks": true,
+      "save_annotations_in_ebook": true,
+      "show_actions_toolbar": false,
+      "show_actions_toolbar_in_fullscreen": false,
+      "singleinstance": false
+    }
+  }
+}
