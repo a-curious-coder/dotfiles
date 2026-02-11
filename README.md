@@ -53,6 +53,9 @@ stow git zsh starship tmux nvim ghostty
 
 # Optional: install modern CLI tools
 ./install-modern-tools.sh
+
+# Optional: bootstrap tmux + TPM plugins
+./setup-tmux.sh
 ```
 
 See [SETUP.md](SETUP.md) for package installation options.
@@ -96,9 +99,12 @@ stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgre
 | `apply-calibre-reader-style.sh` | Idempotently patch Calibre reader settings |
 | `calibre-check.sh` | Validate Calibre symlinks and expected settings |
 | `install-modern-tools.sh` | Install CLI tools (glow, zellij, dust, navi, posting, etc.) |
+| `setup-tmux.sh` | Stow tmux config, install/update TPM, and install plugins |
 | `ubuntu_install.sh` | Ubuntu-specific package installation |
 
-Calibre-specific notes: `docs/calibre.md`
+Docs:
+- `docs/calibre.md` (Calibre profile and validation)
+- `docs/CTF-GUIDE.md` (security/CTF command reference)
 
 ## Neovim
 
@@ -112,10 +118,6 @@ The nvim config has its own documentation:
 - Terminal: `<leader>tt` toggles a floating terminal
 - Autosave: modified files save on change and on leave/focus changes
 - Telescope: repo-scoped pickers by default, toggle with `<leader>fT`, display `filename — relative/path`
-
-## Workflow
-
-- `docs/workflow-checklist.md` - Minimal checklist to reduce complexity and keep focus
 
 ## Removing Configs
 

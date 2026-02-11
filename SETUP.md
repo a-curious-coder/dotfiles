@@ -1,235 +1,110 @@
-# Dotfiles Setup Guide
+# Dotfiles Setup
 
-This guide covers the new configurations for zoxide cd aliasing, minimalist prompt, and Ghostty themes.
+This repo is managed with GNU Stow. Keep setup simple: install tools, stow only the packages you use, then validate.
 
-## 🔧 Installation
+## Prerequisites
 
-### Using GNU Stow
+- `git`
+- `stow`
+- `zsh` (recommended shell)
+
+Install platform packages however you prefer, then continue below.
+
+## Quick Start
 
 ```bash
-cd ~/Projects/dotfiles
+git clone git@github.com:a-curious-coder/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+```
 
-# Install zsh configuration
-stow zsh
+### Core packages (both macOS and Linux)
 
-# Install starship configuration
-stow starship
+```bash
+stow git zsh starship tmux nvim ghostty
+```
 
-# Install Ghostty configuration
-stow ghostty
+### Linux desktop (Hyprland stack)
 
-# Install SketchyBar configuration (macOS)
-stow sketchybar
+```bash
+stow hypr waybar rofi ags swaync wlogout calibre-linux
+```
 
-# Install Calibre configuration for your OS
+### macOS desktop
+
+```bash
+stow aerospace sketchybar calibre-macos
+```
+
+### Common optional tools
+
+```bash
+stow btop lazygit lazydocker fastfetch ripgrep vscode
+```
+
+## Calibre Setup
+
+Use the helper scripts to keep platform differences and runtime rewrites manageable:
+
+```bash
 ./stow-calibre.sh
-
-# Re-apply the Steph-style reader profile (safe to run repeatedly)
 ./apply-calibre-reader-style.sh
-
-# Validate Calibre symlinks and key settings
 ./calibre-check.sh
 ```
 
-### Manual Installation
+Details: `docs/calibre.md`.
+
+## Install Modern CLI Tools
+
+Cross-platform installer:
 
 ```bash
-# Link zsh config
-ln -sf ~/Projects/dotfiles/zsh/.zshrc ~/.zshrc
-
-# Link starship config
-mkdir -p ~/.config
-ln -sf ~/Projects/dotfiles/starship/starship.toml ~/.config/starship.toml
-
-# Link Ghostty config
-mkdir -p ~/.config/ghostty/themes
-ln -sf ~/Projects/dotfiles/ghostty/config ~/.config/ghostty/config
-ln -sf ~/Projects/dotfiles/ghostty/themes/* ~/.config/ghostty/themes/
-
-# Calibre (macOS)
-mkdir -p ~/Library/Preferences/calibre
-ln -sf ~/Projects/dotfiles/calibre-macos/Library/Preferences/calibre/* ~/Library/Preferences/calibre/
-
-# Calibre (Linux)
-mkdir -p ~/.config/calibre
-ln -sf ~/Projects/dotfiles/calibre-linux/.config/calibre/* ~/.config/calibre/
-```
-
-### Calibre Reader Consistency
-
-```bash
-# Ensure Noto Serif is installed
 ./install-modern-tools.sh
-
-# If Calibre rewrites viewer-webengine.json, re-apply the profile
-./apply-calibre-reader-style.sh
 ```
 
-## 📦 Features
-
-### 1. Zoxide CD Alias
-
-The `cd` command now uses zoxide for smart directory navigation:
+Ubuntu-specific installer:
 
 ```bash
-# Works like normal cd, but smarter
-cd projects          # Jump to ~/Projects even from anywhere
-cd ..                # Still works
-cd -                 # Still works (go back)
-
-# If you use unsupported flags:
-cd -P /some/path     # Shows helpful error message
-# ⚠️  cd is aliased to zoxide. Use 'z' for zoxide or 'builtin cd' for native cd.
-
-# Use native cd if needed:
-builtin cd /some/path
+./ubuntu_install.sh
 ```
 
-**How it helps AI tools**: When AI tools try to use `cd` with incompatible flags, they'll see a clear message explaining that `cd` is aliased to zoxide.
+## tmux + TPM Setup
 
-### 2. Minimalist Prompt Styles
-
-Three ultra-minimal prompt styles available:
-
-**Lambda (λ)** - Programmer aesthetic
-```
-λ your command
-```
-
-**Zen (·)** - Ultra minimal
-```
-· your command
-```
-
-**Context-Aware** - Smart minimalism
-```
-λ your command         # Local
-user@host λ your command   # SSH
-```
-
-#### Switching Prompt Styles
+One-command bootstrap:
 
 ```bash
-# List available styles
-prompt-style
-
-# Switch to lambda
-prompt-style lambda
-
-# Switch to zen
-prompt-style zen
-
-# Switch to context-aware
-prompt-style context
-
-# Reload shell
-source ~/.zshrc
+./setup-tmux.sh
 ```
 
-### 3. Ghostty Themes
+This script:
+- stows the `tmux` package
+- installs or updates TPM at `~/.tmux/plugins/tpm`
+- installs declared tmux plugins
+- reloads `~/.tmux.conf`
 
-Four themes are available:
-- **current**: Your existing color scheme (Catppuccin-style)
-- **minimalist**: Clean, light theme for focused work
-- **dracula**: Popular vibrant dark theme
-- **nord**: Arctic-inspired cool color palette
+## Shell + Theme Helpers
 
-#### Switching Themes
+After `stow zsh starship ghostty`, open a new shell and use:
 
 ```bash
-# List available themes
-ghostty-theme
+prompt-style          # list prompt styles
+prompt-style context  # switch style
 
-# Switch to a theme
-ghostty-theme dracula
-ghostty-theme minimalist
-ghostty-theme nord
-ghostty-theme current
-
-# Restart Ghostty or open a new window to see changes
+ghostty-theme         # list Ghostty themes
+ghostty-theme nord    # switch theme
 ```
 
-#### Manual Theme Switching
-
-Edit `~/.config/ghostty/config` and change the import line:
-
-```conf
-# Comment out current theme
-# import = ~/.config/ghostty/themes/theme-current.conf
-
-# Uncomment desired theme
-import = ~/.config/ghostty/themes/theme-dracula.conf
-```
-
-## 🚀 Apply Changes
-
-After installing, reload your shell:
+## Validate
 
 ```bash
-# Reload zsh configuration
-source ~/.zshrc
+# Confirm symlinks exist
+stow -nvt "$HOME" git zsh starship tmux nvim ghostty
 
-# Or simply open a new terminal
+# Neovim health
+nvim +checkhealth +qa
 ```
 
-### 4. SketchyBar (macOS)
+## Remove a package
 
 ```bash
-# Install SketchyBar (Homebrew)
-brew tap FelixKratz/formulae
-brew install sketchybar
-
-# Start the service
-brew services start sketchybar
-
-# Reload after config changes
-sketchybar --reload
+stow -D <package>
 ```
-
-## 📝 Customization
-
-### Starship Prompt
-
-Edit `~/Projects/dotfiles/starship/starship.toml` to customize your prompt:
-- Change colors in the `style` fields
-- Modify the format string
-- Enable/disable git information
-- Add language version indicators (nodejs, python, rust, etc.)
-
-### Ghostty Themes
-
-Create custom themes in `~/Projects/dotfiles/ghostty/themes/`:
-
-```conf
-# theme-mycustom.conf
-background = #yourcolor
-foreground = #yourcolor
-palette = 0=#color1
-# ... etc
-```
-
-Then update the theme list in `.zshrc` function `ghostty-theme()`.
-
-## 🐛 Troubleshooting
-
-### Prompt not changing
-- Ensure starship is installed: `command -v starship`
-- Check config path: `echo $STARSHIP_CONFIG`
-- Reload shell: `source ~/.zshrc`
-
-### CD not using zoxide
-- Ensure zoxide is installed: `command -v zoxide`
-- Check if initialized: `type cd` should show it's a function
-- Reload shell: `source ~/.zshrc`
-
-### Ghostty theme not changing
-- Ensure config path is correct: `~/.config/ghostty/config`
-- Check theme files exist in: `~/.config/ghostty/themes/`
-- Restart Ghostty completely
-- Check for syntax errors in config: `ghostty --validate-config`
-
-## 📚 Additional Resources
-
-- [Zoxide Documentation](https://github.com/ajeetdsouza/zoxide)
-- [Starship Documentation](https://starship.rs/)
-- [Ghostty Documentation](https://ghostty.org/)
