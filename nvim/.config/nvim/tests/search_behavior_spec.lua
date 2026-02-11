@@ -15,6 +15,7 @@ assert_contains("lua/vim-options.lua", "vim.opt.smartcase = true")
 assert_contains("lua/vim-options.lua", "vim.opt.incsearch = true")
 
 assert_contains("lua/plugins/telescope.lua", "pcall(builtin.git_files")
-assert_contains("lua/plugins/telescope.lua", "builtin.find_files({ hidden = true })")
+assert_contains("lua/plugins/telescope.lua", "builtin.find_files(vim.tbl_extend(\"force\", opts, {")
+assert_contains("lua/plugins/telescope.lua", "hidden = true")
 
 print("search behavior: ok")

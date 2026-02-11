@@ -39,6 +39,7 @@ return {
       local finders = require("telescope.finders")
       local make_entry = require("telescope.make_entry")
       local conf = require("telescope.config").values
+      local uv = vim.uv or vim.loop
 
       local fd_cmd = nil
       local fd_bin = nil
@@ -146,10 +147,26 @@ return {
         },
       })
 
+      local function load_extension_if_available(name)
+        local ok = pcall(telescope.load_extension, name)
+        if ok then
+          return
+        end
+
+        local key = "_telescope_extension_notice_" .. name
+        if vim.g[key] then
+          return
+        end
+        vim.g[key] = true
+        vim.schedule(function()
+          vim.notify("Telescope extension unavailable: " .. name, vim.log.levels.DEBUG)
+        end)
+      end
+
       -- Load extensions
-      telescope.load_extension("ui-select")
-      telescope.load_extension("recent_files")
-      telescope.load_extension("fzf") -- Much faster fuzzy finding
+      load_extension_if_available("ui-select")
+      load_extension_if_available("recent_files")
+      load_extension_if_available("fzf") -- Much faster fuzzy finding
 
       local function project_root()
         local buf = vim.api.nvim_buf_get_name(0)
@@ -286,7 +303,7 @@ return {
           if seen[path] then
             return
           end
-          if vim.loop.fs_stat(path) == nil then
+          if uv.fs_stat(path) == nil then
             return
           end
           seen[path] = true
@@ -324,7 +341,10 @@ return {
           entry_maker = file_entry_maker(opts),
         }))
         if not ok then
-          builtin.find_files({ hidden = true })
+          builtin.find_files(vim.tbl_extend("force", opts, {
+            hidden = true,
+            entry_maker = file_entry_maker(opts),
+          }))
         end
       end, { desc = "Find files" })
 

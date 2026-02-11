@@ -9,12 +9,7 @@ return {
 		{
 			"<leader>tt",
 			"<cmd>ToggleTerm direction=float<CR>",
-			desc = "Toggle terminal",
-		},
-		{
-			"<leader>tt",
-			"<cmd>ToggleTerm direction=float<CR>",
-			mode = "t",
+			mode = { "n", "t" },
 			desc = "Toggle terminal",
 		},
 	},

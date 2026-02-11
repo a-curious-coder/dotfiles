@@ -2,7 +2,7 @@
 
 A modern, modular Neovim configuration focused on web development (TypeScript, Vue), Ruby on Rails, Python, and general development with strong LSP support.
 
-> **📖 See [DESIGN_PLAN.md](DESIGN_PLAN.md) for architecture details and design rationale**
+This README is the source of truth for this Neovim setup.
 
 ## ✨ Features
 
@@ -46,8 +46,8 @@ mv ~/.local/share/nvim ~/.local/share/nvim.backup.$(date +%Y%m%d)
 cd ~/.dotfiles
 stow nvim
 
-# 3. Install dependencies (if using the setup script)
-./setup --categories cli,development
+# 3. Install dependencies (recommended)
+./install-modern-tools.sh
 
 # 4. Launch Neovim - plugins install automatically
 nvim
@@ -84,7 +84,7 @@ nvim/.config/nvim/
 └── lazy-lock.json           # Plugin version lock
 ```
 
-See [DESIGN_PLAN.md](DESIGN_PLAN.md) for detailed architecture explanation.
+For implementation details, read the files in `lua/` and `lua/plugins/`.
 
 ## 🎯 Key Mappings
 
@@ -354,9 +354,9 @@ Automatically configured for Neovim development.
 - Use `:Telescope keymaps` to search available shortcuts
 
 ### For This Configuration
-- See [DESIGN_PLAN.md](DESIGN_PLAN.md) for architecture and design rationale
-- Check [CHANGES_APPLIED.md](CHANGES_APPLIED.md) for recent improvements
-- Review individual plugin files in `lua/plugins/` for specific configurations
+- Review `init.lua` for startup wiring
+- Review `lua/vim-options.lua` for core editor behavior
+- Review individual plugin files in `lua/plugins/` for plugin-specific configuration
 
 ---
 

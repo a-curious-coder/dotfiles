@@ -12,14 +12,6 @@ local function is_vue_file(path)
   return path:match("%.vue$") ~= nil or vim.bo.filetype == "vue"
 end
 
-local function test_candidates(path)
-  local dir = vim.fn.fnamemodify(path, ":p:h")
-  local base = vim.fn.fnamemodify(path, ":t:r")
-  return {
-    dir .. "/" .. base .. ".spec.ts",
-  }
-end
-
 local function file_exists(path)
   return vim.fn.filereadable(path) == 1
 end
@@ -31,22 +23,48 @@ local function ensure_dir(path)
   end
 end
 
-local function component_name(path)
+local function component_file_base(path)
   return vim.fn.fnamemodify(path, ":t:r")
 end
 
-local function write_vue_test(path, name)
+local function component_identifier(path)
+  local base = component_file_base(path)
+  local parts = {}
+  for part in base:gmatch("[A-Za-z0-9]+") do
+    parts[#parts + 1] = part:sub(1, 1):upper() .. part:sub(2)
+  end
+
+  local ident = table.concat(parts)
+  if ident == "" then
+    ident = "Component"
+  end
+  if ident:match("^%d") then
+    ident = "Component" .. ident
+  end
+
+  return ident
+end
+
+local function preferred_test_path(path)
+  local dir = vim.fn.fnamemodify(path, ":p:h")
+  local base = component_file_base(path)
+  return dir .. "/" .. base .. ".spec.ts"
+end
+
+local function write_vue_test(path, component_path, identifier)
   if file_exists(path) then
     return
   end
+
   ensure_dir(path)
+  local component_file = vim.fn.fnamemodify(component_path, ":t")
   local lines = {
     "import { mount } from \"@vue/test-utils\"",
-    "import " .. name .. " from \"./" .. name .. ".vue\"",
+    "import " .. identifier .. " from \"./" .. component_file .. "\"",
     "",
-    "describe(\"" .. name .. "\", () => {",
+    "describe(\"" .. identifier .. "\", () => {",
     "  it(\"renders\", () => {",
-    "    const wrapper = mount(" .. name .. ")",
+    "    const wrapper = mount(" .. identifier .. ")",
     "    expect(wrapper.exists()).toBe(true)",
     "  })",
     "})",
@@ -70,12 +88,24 @@ end
 
 local function search_repo_for_test(path)
   local root = project_root(vim.fn.fnamemodify(path, ":p:h"))
-  local base = vim.fn.fnamemodify(path, ":t:r")
-  local pattern = "**/" .. base .. ".spec.ts"
-  local matches = vim.fn.globpath(root, pattern, false, true)
-  if type(matches) ~= "table" then
-    return {}
+  local base = component_file_base(path)
+  local suffixes = { "spec.ts", "test.ts", "spec.tsx", "test.tsx", "spec.js", "test.js" }
+  local matches = {}
+  local seen = {}
+
+  for _, suffix in ipairs(suffixes) do
+    local pattern = string.format("**/%s.%s", base, suffix)
+    local found = vim.fn.globpath(root, pattern, false, true)
+    if type(found) == "table" then
+      for _, candidate in ipairs(found) do
+        if not seen[candidate] then
+          seen[candidate] = true
+          matches[#matches + 1] = candidate
+        end
+      end
+    end
   end
+
   table.sort(matches)
   return matches
 end
@@ -92,12 +122,10 @@ function M.open_or_create_test()
     return
   end
 
-  local candidates = test_candidates(path)
-  for _, candidate in ipairs(candidates) do
-    if file_exists(candidate) then
-      open_file(candidate)
-      return
-    end
+  local preferred_test = preferred_test_path(path)
+  if file_exists(preferred_test) then
+    open_file(preferred_test)
+    return
   end
 
   local matches = search_repo_for_test(path)
@@ -118,9 +146,8 @@ function M.open_or_create_test()
     return
   end
 
-  local target = candidates[1]
-  write_vue_test(target, component_name(path))
-  open_file(target)
+  write_vue_test(preferred_test, path, component_identifier(path))
+  open_file(preferred_test)
 end
 
 function M.setup()
