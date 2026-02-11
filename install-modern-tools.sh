@@ -86,6 +86,10 @@ github_install() {
     log_info "Installing $binary from $repo..."
     local version
     version=$(curl -sL "https://api.github.com/repos/$repo/releases/latest" | grep '"tag_name"' | cut -d'"' -f4)
+    if [[ -z "$version" ]]; then
+        log_err "Could not detect latest release for $repo"
+        return 1
+    fi
     local url="https://github.com/$repo/releases/download/$version/$tarball_pattern"
     url="${url//\{version\}/$version}"
     url="${url//\{version_num\}/${version#v}}"
@@ -114,6 +118,7 @@ script_install() {
     local cmd="$2"
     local url="$3"
     local args="${4:-}"
+    local -a arg_array=()
 
     if has "$cmd"; then
         log_skip "$name (already installed)"
@@ -122,7 +127,8 @@ script_install() {
 
     log_info "Installing $name..."
     if [[ -n "$args" ]]; then
-        curl -sS "$url" | bash -s -- $args
+        read -r -a arg_array <<<"$args"
+        curl -sS "$url" | bash -s -- "${arg_array[@]}"
     else
         curl -sS "$url" | bash
     fi
@@ -211,7 +217,7 @@ main() {
     log_info "=== Git Tools ==="
 
     # lazygit
-    if [[ "$PKG_MGR" == "pacman" ]]; then
+    if [[ "$PKG_MGR" == "pacman" || "$PKG_MGR" == "brew" ]]; then
         pkg_install "lazygit" "lazygit"
     else
         github_install "jesseduffield/lazygit" "lazygit" "lazygit_{version_num}_Linux_x86_64.tar.gz"
@@ -230,7 +236,7 @@ main() {
     log_info "=== Docker Tools ==="
 
     # lazydocker
-    if [[ "$PKG_MGR" == "pacman" ]]; then
+    if [[ "$PKG_MGR" == "pacman" || "$PKG_MGR" == "brew" ]]; then
         pkg_install "lazydocker" "lazydocker"
     else
         github_install "jesseduffield/lazydocker" "lazydocker" "lazydocker_{version_num}_Linux_x86_64.tar.gz"

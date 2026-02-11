@@ -36,6 +36,7 @@ test_results.txt
 
 # Local git configuration (contains personal credentials)
 .gitconfig.local
+git/
 
 # Cache files
 .cache/

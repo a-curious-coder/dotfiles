@@ -36,7 +36,7 @@ plugins=(
   zsh-syntax-highlighting
 )
 
-source $ZSH/oh-my-zsh.sh
+source "$ZSH/oh-my-zsh.sh"
 
 # PATH
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$GOPATH/bin:$GOROOT/bin:/usr/local/bin:$PATH:/snap/bin:/opt/nvim-linux64/bin"
@@ -91,7 +91,11 @@ fi
 
 # Starship prompt
 if command -v starship &> /dev/null; then
-    export STARSHIP_CONFIG="$HOME/.config/starship.toml"
+    if [[ -f "$HOME/.config/starship.toml" ]]; then
+        export STARSHIP_CONFIG="$HOME/.config/starship.toml"
+    elif [[ -f "$HOME/.config/starship-context.toml" ]]; then
+        export STARSHIP_CONFIG="$HOME/.config/starship-context.toml"
+    fi
     eval "$(starship init zsh)"
 fi
 
@@ -111,7 +115,6 @@ batdiff() {
 prompt-style() {
     local style="$1"
     local config_dir="$HOME/.config"
-    local available_styles=("lambda" "zen" "context")
 
     if [[ -z "$style" ]]; then
         echo "Available prompt styles:"
@@ -123,15 +126,33 @@ prompt-style() {
         echo "Current style:"
         if [[ -L "$config_dir/starship.toml" ]]; then
             readlink "$config_dir/starship.toml" | sed 's/.*starship-/  /' | sed 's/\.toml.*//'
+        elif [[ -f "$config_dir/starship.toml" ]]; then
+            local detected="custom"
+            local candidate
+            for candidate in lambda zen context; do
+                if cmp -s "$config_dir/starship.toml" "$config_dir/starship-${candidate}.toml"; then
+                    detected="$candidate"
+                    break
+                fi
+            done
+            echo "  $detected"
         else
             echo "  (unknown)"
         fi
         return 0
     fi
 
-    if [[ ! " ${available_styles[@]} " =~ " ${style} " ]]; then
-        echo "Error: Style '$style' not found."
-        echo "Available styles: ${available_styles[@]}"
+    case "$style" in
+        lambda|zen|context) ;;
+        *)
+            echo "Error: Style '$style' not found."
+            echo "Available styles: lambda zen context"
+            return 1
+            ;;
+    esac
+
+    if [[ ! -f "$config_dir/starship-${style}.toml" ]]; then
+        echo "Error: Missing file $config_dir/starship-${style}.toml"
         return 1
     fi
 
@@ -146,27 +167,50 @@ prompt-style() {
 ghostty-theme() {
     local theme_name="$1"
     local config_file="$HOME/.config/ghostty/config"
-    local available_themes=("current" "minimalist" "dracula" "nord")
 
     if [[ -z "$theme_name" ]]; then
-        echo "Available themes: ${available_themes[@]}"
+        echo "Available themes: current minimalist dracula nord"
         echo "Usage: ghostty-theme <theme-name>"
         echo "Current theme:"
-        grep "^import.*theme-" "$config_file" | sed 's/.*theme-/  /' | sed 's/\.conf.*//'
+        if [[ ! -f "$config_file" ]]; then
+            echo "  (config not found)"
+            return 1
+        fi
+        local current_theme
+        current_theme="$(grep -E "^import = .*theme-.*\\.conf$" "$config_file" | sed 's/.*theme-//' | sed 's/\.conf$//' | tail -n 1)"
+        if [[ -n "$current_theme" ]]; then
+            echo "  $current_theme"
+        else
+            echo "  (no theme import configured)"
+        fi
         return 0
     fi
 
-    if [[ ! " ${available_themes[@]} " =~ " ${theme_name} " ]]; then
-        echo "Error: Theme '$theme_name' not found."
-        echo "Available themes: ${available_themes[@]}"
+    case "$theme_name" in
+        current|minimalist|dracula|nord) ;;
+        *)
+            echo "Error: Theme '$theme_name' not found."
+            echo "Available themes: current minimalist dracula nord"
+            return 1
+            ;;
+    esac
+
+    if [[ ! -f "$config_file" ]]; then
+        echo "Error: Ghostty config not found at $config_file"
         return 1
     fi
 
-    # Comment out all theme imports
-    sed -i 's/^import = \(.*theme-.*\.conf\)/# import = \1/' "$config_file"
+    local theme_file="$HOME/.config/ghostty/themes/theme-${theme_name}.conf"
+    if [[ ! -f "$theme_file" ]]; then
+        echo "Error: Theme file not found at $theme_file"
+        return 1
+    fi
 
-    # Uncomment the selected theme
-    sed -i "s|^# import = \(.*theme-${theme_name}\.conf\)$|import = \1|" "$config_file"
+    local tmp_file
+    tmp_file="$(mktemp)"
+    awk '!/^import = .*theme-.*\.conf$/' "$config_file" > "$tmp_file"
+    printf '\nimport = %s\n' "$theme_file" >> "$tmp_file"
+    mv "$tmp_file" "$config_file"
 
     echo "Switched to theme: $theme_name"
     echo "Note: You may need to restart Ghostty or open a new window for changes to take effect."
