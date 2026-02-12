@@ -17,6 +17,17 @@ git clone git@github.com:a-curious-coder/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ```
 
+### One-command bootstrap
+
+```bash
+./bootstrap.sh
+```
+
+This runs:
+- `install-modern-tools.sh`
+- stow for common and platform packages
+- `setup-tmux.sh` (TPM install/update + plugin install)
+
 ### Core packages (both macOS and Linux)
 
 ```bash
@@ -55,13 +66,13 @@ Details: `docs/calibre.md`.
 
 ## Install Modern CLI Tools
 
-Cross-platform installer:
+Single installer path (cross-platform):
 
 ```bash
 ./install-modern-tools.sh
 ```
 
-Ubuntu-specific installer:
+Legacy Ubuntu entrypoint (kept for compatibility; delegates to the same installer):
 
 ```bash
 ./ubuntu_install.sh

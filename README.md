@@ -2,6 +2,16 @@
 
 Personal configurations managed with GNU Stow. Plain text, portable, version-controlled.
 
+## Purpose
+
+This repo exists to maintain a personal, durable, low-friction development environment.
+
+- Keep only active, necessary configuration.
+- Prefer plain-text, portable files over tool lock-in.
+- Make behavior easy to understand, change, and remove.
+
+Style and decision guidance lives in [style-guide.md](style-guide.md).
+
 ## Philosophy
 
 These configs follow [Kepano's principles](kepano-philosophy.md):
@@ -48,6 +58,10 @@ dotfiles/
 git clone git@github.com:a-curious-coder/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 
+# One-command bootstrap: tools + stow + tmux plugins
+./bootstrap.sh
+
+# Or run setup steps manually:
 # Symlink what you need
 stow git zsh starship tmux nvim ghostty
 
@@ -94,17 +108,20 @@ stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgre
 
 | File | Purpose |
 |------|---------|
-| `packages.yaml` | Unified package definitions for setup script |
+| `packages.yaml` | Package catalog/reference (not currently consumed by setup scripts) |
 | `stow-calibre.sh` | Stow the correct Calibre package for current OS |
 | `apply-calibre-reader-style.sh` | Idempotently patch Calibre reader settings |
 | `calibre-check.sh` | Validate Calibre symlinks and expected settings |
+| `bootstrap.sh` | Orchestrate install + stow + tmux bootstrap in one command |
 | `install-modern-tools.sh` | Install CLI tools (glow, zellij, dust, navi, posting, etc.) |
 | `setup-tmux.sh` | Stow tmux config, install/update TPM, and install plugins |
-| `ubuntu_install.sh` | Ubuntu-specific package installation |
+| `ubuntu_install.sh` | Compatibility wrapper that delegates to `install-modern-tools.sh` |
+| `discord_install.sh` | Arch Linux workaround script for Discord updates (suitable for cron) |
+| `scripts/check-shell.sh` | Run `shellcheck` for maintained repo shell scripts |
+| `scripts/run-nvim-text-specs.sh` | Run lightweight Neovim text-spec checks |
 
 Docs:
 - `docs/calibre.md` (Calibre profile and validation)
-- `docs/CTF-GUIDE.md` (security/CTF command reference)
 
 ## Neovim
 

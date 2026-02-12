@@ -1,6 +1,6 @@
-# Unified Package Configuration
-# ============================
-# Single source of truth for all packages with platform-specific overrides
+# Package Configuration Catalog
+# =============================
+# Reference inventory for package choices and platform notes.
 
 # Package definitions with platform-specific installation methods
 packages:
