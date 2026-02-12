@@ -1,0 +1,23 @@
+name: Quick Checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  quick-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck lua5.4
+
+      - name: ShellCheck
+        run: ./scripts/check-shell.sh
+
+      - name: Neovim text-specs
+        run: ./scripts/run-nvim-text-specs.sh
