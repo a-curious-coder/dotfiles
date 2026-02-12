@@ -58,7 +58,7 @@ stow calibre-linux
 - Generic e-ink conversion profile
 - Reader defaults:
   - `read_mode: flow` (continuous/infinite scrolling)
-  - `current_color_scheme: sepia-light`
+  - `current_color_scheme: sepia-dark` (warm dark baseline; closest built-in to Flexoki intent)
   - `override_book_colors: always` for consistent appearance
   - `fullscreen_when_opening: always` for immediate focus mode
   - `tts_bar_position: bottom-right` to keep read-aloud controls visible but out of the text lane
