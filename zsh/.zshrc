@@ -102,9 +102,8 @@ fi
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# Personal shortcuts
-alias c='ssh -i ~/.ssh/vps-access root@2.58.82.20'
-alias marc='claude'
+# Optional machine-local overrides (not tracked in this repo)
+[[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
 # Better git diff with bat
 batdiff() {
