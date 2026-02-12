@@ -3,7 +3,7 @@
   "session_data": {
     "base_font_size": 16,
     "book_scrollbar": false,
-    "current_color_scheme": "sepia-dark",
+    "current_color_scheme": "*Flexoki Dark",
     "fullscreen_when_opening": "always",
     "hide_tooltips": true,
     "margin_bottom": 20,
@@ -13,6 +13,14 @@
     "max_text_width": 760,
     "override_book_colors": "always",
     "read_mode": "flow",
+    "user_color_schemes": {
+      "*Flexoki Dark": {
+        "background": "#100f0f",
+        "foreground": "#cecdc3",
+        "link": "#4385be",
+        "name": "Flexoki Dark"
+      }
+    },
     "tts_backend": {
       "rate": 1.1
     },

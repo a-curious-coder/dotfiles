@@ -89,7 +89,15 @@ run_apply() {
     | .session_data = (.session_data // {})
     | .session_data.base_font_size = 16
     | .session_data.book_scrollbar = false
-    | .session_data.current_color_scheme = "sepia-dark"
+    | .session_data.user_color_schemes = ((.session_data.user_color_schemes // {}) + {
+        "*Flexoki Dark": {
+          "name": "Flexoki Dark",
+          "foreground": "#cecdc3",
+          "background": "#100f0f",
+          "link": "#4385be"
+        }
+      })
+    | .session_data.current_color_scheme = "*Flexoki Dark"
     | .session_data.fullscreen_when_opening = "always"
     | .session_data.hide_tooltips = true
     | .session_data.margin_top = 20
@@ -292,7 +300,10 @@ run_check() {
   check_page_setup_profile "$config_dir/conversion/page_setup.py" 'generic_eink'
 
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.read_mode' 'flow'
-  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.current_color_scheme' 'sepia-dark'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.current_color_scheme' '*Flexoki Dark'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.user_color_schemes["*Flexoki Dark"].background' '#100f0f'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.user_color_schemes["*Flexoki Dark"].foreground' '#cecdc3'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.user_color_schemes["*Flexoki Dark"].link' '#4385be'
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.override_book_colors' 'always'
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.fullscreen_when_opening' 'always'
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.tts_bar_position' 'bottom-right'
