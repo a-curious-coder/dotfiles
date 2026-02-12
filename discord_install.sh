@@ -1,6 +1,5 @@
-#!/bin/bash
-
-set -e
+#!/usr/bin/env bash
+set -euo pipefail
 
 # --- Configuration ---
 APP_NAME="Discord"
@@ -8,6 +7,21 @@ INSTALL_DIR="/opt/$APP_NAME"
 EXECUTABLE_LINK="/usr/bin/discord"
 DISCORD_URL="https://discord.com/api/download?platform=linux&format=tar.gz"
 TEMP_DIR="/tmp/discord_install"
+OWNER_USER="${USER:-$(id -un)}"
+LOCK_FILE="${XDG_RUNTIME_DIR:-/tmp}/discord_install.lock"
+
+if command -v flock >/dev/null 2>&1; then
+    exec 9>"$LOCK_FILE"
+    if ! flock -n 9; then
+        echo "Another discord_install.sh run is active; exiting."
+        exit 0
+    fi
+fi
+
+cleanup() {
+    rm -rf "$TEMP_DIR"
+}
+trap cleanup EXIT
 
 echo "Starting Discord update process..."
 
@@ -46,7 +60,6 @@ echo "Latest available: Discord $LATEST_VERSION"
 # --- 3. Compare versions ---
 if [ "$INSTALLED_VERSION" = "$LATEST_VERSION" ] && [ -n "$INSTALLED_VERSION" ]; then
     echo "Discord is already up to date (version $INSTALLED_VERSION). Skipping installation."
-    rm -rf "$TEMP_DIR"
     exit 0
 fi
 
@@ -68,7 +81,7 @@ fi
 echo "Installing to $INSTALL_DIR..."
 sudo rm -rf "$INSTALL_DIR"
 sudo mv "$EXTRACTED_DIR" "$INSTALL_DIR"
-sudo chown -R "$USER:$USER" "$INSTALL_DIR"
+sudo chown -R "$OWNER_USER:$OWNER_USER" "$INSTALL_DIR"
 
 # --- 6. Create symlink ---
 EXECUTABLE_BIN="$INSTALL_DIR/$APP_NAME"
@@ -80,7 +93,7 @@ else
 fi
 
 # --- 7. Cleanup ---
-rm -rf "$TEMP_DIR"
+# Handled by trap on EXIT.
 
 # --- 8. Clear Discord cache to prevent "Splash.updateCountdownSeconds: undefined" error ---
 # Preserves Local Storage (login tokens) so you stay logged in

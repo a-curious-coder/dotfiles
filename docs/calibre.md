@@ -61,7 +61,7 @@ To automatically restore reader settings after such rewrites, run `./apply-calib
 Install via your setup scripts:
 
 - macOS: `./install-modern-tools.sh` (installs `font-noto-serif` via Homebrew cask)
-- Ubuntu: `./ubuntu_install.sh` (installs `fonts-noto-core`)
+- Ubuntu: `./install-modern-tools.sh` (installs `fonts-noto-core`)
 
 ## 1-7 rating scale
 
