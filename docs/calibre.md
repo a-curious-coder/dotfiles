@@ -8,19 +8,31 @@ This repo includes two platform-specific stow packages for Calibre config:
 Use the helper script to pick the correct package automatically:
 
 ```bash
-./stow-calibre.sh
+./calibre.sh stow
 ```
 
 Re-apply reader settings idempotently (useful after Calibre runtime rewrites):
 
 ```bash
-./apply-calibre-reader-style.sh
+./calibre.sh apply
 ```
 
 Run a health check (symlinks + expected key values):
 
 ```bash
-./calibre-check.sh
+./calibre.sh check
+```
+
+Show active runtime config path + loaded values (best for Linux verification):
+
+```bash
+./calibre.sh where
+```
+
+One-command workflow (stow + apply + check):
+
+```bash
+./calibre.sh
 ```
 
 Or stow manually:
@@ -48,13 +60,33 @@ stow calibre-linux
   - `read_mode: flow` (continuous/infinite scrolling)
   - `current_color_scheme: sepia-light`
   - `override_book_colors: always` for consistent appearance
+  - `fullscreen_when_opening: always` for immediate focus mode
+  - `tts_bar_position: bottom-right` to keep read-aloud controls visible but out of the text lane
+  - `tts_backend.rate: 1.1` for slightly faster default narration pace
   - `standalone_font_settings.serif_family: Noto Serif`
   - Hidden reader action toolbar for reduced UI chrome
   - Capped line width (`max_text_width: 760`) for readable prose
 
-Note: Calibre may rewrite `viewer-webengine.json` during normal use (window geometry, recent files, session state). If that happens, re-run `./stow-calibre.sh` or manually re-apply reader settings.
+Note: Calibre may rewrite `viewer-webengine.json` during normal use (window geometry, recent files, session state). If that happens, re-run `./calibre.sh` (or `./calibre.sh apply`).
 
-To automatically restore reader settings after such rewrites, run `./apply-calibre-reader-style.sh`.
+To automatically restore reader settings after such rewrites, run `./calibre.sh apply`.
+
+If Linux values still look wrong, run `./calibre.sh where` and compare:
+- `CALIBRE_CONFIG_DIRECTORY`
+- `Calibre runtime config dir`
+- `~/.config/calibre/...` symlink targets
+
+## Frictionless read-aloud flow
+
+1. Open a book in the viewer (it will open in fullscreen).
+2. Press `Ctrl+S` to open Read aloud.
+3. Press `Space` to play/pause narration.
+4. Click any word to jump narration to that point.
+5. Use the read-aloud bar controls for speed/config if needed.
+
+Notes:
+- Default speech rate is set to `1.1`; your chosen voice is preserved.
+- Read-aloud defaults are applied via `viewer-webengine.json` so they remain portable in this repo.
 
 ## Noto Serif install
 

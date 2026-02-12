@@ -54,12 +54,16 @@ stow btop lazygit lazydocker fastfetch ripgrep vscode
 
 ## Calibre Setup
 
-Use the helper scripts to keep platform differences and runtime rewrites manageable:
+Use the single helper script to keep platform differences and runtime rewrites manageable:
 
 ```bash
-./stow-calibre.sh
-./apply-calibre-reader-style.sh
-./calibre-check.sh
+./calibre.sh
+
+# Optional explicit subcommands
+./calibre.sh stow
+./calibre.sh apply
+./calibre.sh check
+./calibre.sh where
 ```
 
 Details: `docs/calibre.md`.

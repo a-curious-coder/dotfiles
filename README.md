@@ -95,13 +95,14 @@ stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgre
 
 **Calibre (auto-select package by OS)**
 ```bash
-./stow-calibre.sh
+# One command: stow + apply reader style + validate
+./calibre.sh
 
-# Re-apply reader style after Calibre runtime rewrites
-./apply-calibre-reader-style.sh
-
-# Validate symlinks + key settings
-./calibre-check.sh
+# Optional explicit subcommands
+./calibre.sh stow
+./calibre.sh apply
+./calibre.sh check
+./calibre.sh where
 ```
 
 ## Scripts
@@ -109,9 +110,7 @@ stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgre
 | File | Purpose |
 |------|---------|
 | `packages.yaml` | Package catalog/reference (not currently consumed by setup scripts) |
-| `stow-calibre.sh` | Stow the correct Calibre package for current OS |
-| `apply-calibre-reader-style.sh` | Idempotently patch Calibre reader settings |
-| `calibre-check.sh` | Validate Calibre symlinks and expected settings |
+| `calibre.sh` | Single Calibre entrypoint (`stow`, `apply`, `check`, `where`, `all`) |
 | `bootstrap.sh` | Orchestrate install + stow + tmux bootstrap in one command |
 | `install-modern-tools.sh` | Install CLI tools (glow, zellij, dust, navi, posting, etc.) |
 | `setup-tmux.sh` | Stow tmux config, install/update TPM, and install plugins |

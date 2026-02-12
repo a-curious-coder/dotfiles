@@ -4,6 +4,7 @@
     "base_font_size": 16,
     "book_scrollbar": false,
     "current_color_scheme": "sepia-light",
+    "fullscreen_when_opening": "always",
     "hide_tooltips": true,
     "margin_bottom": 20,
     "margin_left": 24,
@@ -12,6 +13,10 @@
     "max_text_width": 760,
     "override_book_colors": "always",
     "read_mode": "flow",
+    "tts_backend": {
+      "rate": 1.1
+    },
+    "tts_bar_position": "bottom-right",
     "standalone_font_settings": {
       "minimum_font_size": 8,
       "serif_family": "Noto Serif",
