@@ -56,6 +56,11 @@ stow calibre-linux
 - Animations off, social metadata off
 - Search-as-you-type and search highlight enabled
 - Generic e-ink conversion profile
+- Main GUI defaults:
+  - `ui_style: calibre`
+  - `color_palette: dark`
+  - `dark_palette_name: Flexoki Dark`
+  - Custom `dark_palettes["Flexoki Dark"]` applied for app chrome (`#100f0f` bg, `#cecdc3` text, `#4385be` links)
 - Reader defaults:
   - `read_mode: flow` (continuous/infinite scrolling)
   - `current_color_scheme: *Flexoki Dark` (custom scheme: `#100f0f` bg, `#cecdc3` fg, `#4385be` links)
@@ -73,6 +78,7 @@ To automatically restore reader settings after such rewrites, run `./calibre.sh 
 
 If Linux values still look wrong, run `./calibre.sh where` and compare:
 - `CALIBRE_CONFIG_DIRECTORY`
+- `CALIBRE_USE_SYSTEM_THEME` (must not be `1` if you want Calibre palette control)
 - `Calibre runtime config dir`
 - `~/.config/calibre/...` symlink targets
 

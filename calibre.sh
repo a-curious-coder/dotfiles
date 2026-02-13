@@ -78,6 +78,53 @@ run_apply() {
   require_jq
 
   mkdir -p "$config_dir"
+
+  gui_cfg="$config_dir/gui.json"
+  if [ ! -s "$gui_cfg" ]; then
+    printf '{}\n' > "$gui_cfg"
+  fi
+
+  gui_tmp_file="$(mktemp)"
+  jq '
+    .ui_style = "calibre"
+    | .color_palette = "dark"
+    | .dark_palette_name = "Flexoki Dark"
+    | .dark_palettes = ((.dark_palettes // {}) + {
+        "Flexoki Dark": {
+          "Window": "#100f0f",
+          "WindowText": "#cecdc3",
+          "WindowText-disabled": "#878580",
+          "Base": "#1c1b1a",
+          "Text": "#cecdc3",
+          "Text-disabled": "#878580",
+          "Button": "#1c1b1a",
+          "ButtonText": "#cecdc3",
+          "ButtonText-disabled": "#878580",
+          "PlaceholderText": "#878580",
+          "ToolTipBase": "#1c1b1a",
+          "ToolTipText": "#cecdc3",
+          "BrightText": "#d14d41",
+          "Highlight": "#205ea6",
+          "HighlightedText": "#f2f0e5",
+          "HighlightedText-disabled": "#878580",
+          "Link": "#4385be",
+          "LinkVisited": "#8b7ec8",
+          "AlternateBase": "#282726"
+        }
+      })
+    | .quick_start_guide_added = true
+    | .cover_grid_background = (.cover_grid_background // {
+        "dark": [45, 45, 45],
+        "dark_texture": null,
+        "light": [80, 80, 80],
+        "light_texture": null,
+        "migrated": true
+      })
+  ' "$gui_cfg" > "$gui_tmp_file"
+
+  cat "$gui_tmp_file" > "$gui_cfg"
+  rm -f "$gui_tmp_file"
+
   viewer_cfg="$config_dir/viewer-webengine.json"
   if [ ! -s "$viewer_cfg" ]; then
     printf '{}\n' > "$viewer_cfg"
@@ -141,6 +188,10 @@ run_where() {
   echo "Dotfiles package: $package"
   echo "Default config dir: $config_dir"
   echo "CALIBRE_CONFIG_DIRECTORY: ${CALIBRE_CONFIG_DIRECTORY:-<unset>}"
+  echo "CALIBRE_USE_SYSTEM_THEME: ${CALIBRE_USE_SYSTEM_THEME:-<unset>}"
+  if [ "${CALIBRE_USE_SYSTEM_THEME:-0}" = "1" ]; then
+    echo "WARNING: CALIBRE_USE_SYSTEM_THEME=1 forces system theme and can ignore gui.json palette settings."
+  fi
 
   active_dir="$config_dir"
   if command -v calibre-debug >/dev/null 2>&1; then
@@ -174,6 +225,20 @@ run_where() {
   done
 
   viewer_cfg="$config_dir/viewer-webengine.json"
+  gui_cfg="$config_dir/gui.json"
+  if [ -f "$gui_cfg" ] && command -v jq >/dev/null 2>&1; then
+    echo
+    echo "gui.json values:"
+    jq -r '
+      "  ui_style=\(.ui_style // "<unset>")"
+      , "  color_palette=\(.color_palette // "<unset>")"
+      , "  dark_palette_name=\(.dark_palette_name // "<unset>")"
+      , "  dark_palettes[Flexoki Dark].Window=\(.dark_palettes["Flexoki Dark"].Window // "<unset>")"
+      , "  dark_palettes[Flexoki Dark].Text=\(.dark_palettes["Flexoki Dark"].Text // "<unset>")"
+      , "  dark_palettes[Flexoki Dark].Link=\(.dark_palettes["Flexoki Dark"].Link // "<unset>")"
+    ' "$gui_cfg"
+  fi
+
   if [ -f "$viewer_cfg" ] && command -v jq >/dev/null 2>&1; then
     echo
     echo "viewer-webengine.json values:"
@@ -188,6 +253,10 @@ run_where() {
   fi
 
   if command -v calibre-debug >/dev/null 2>&1; then
+    echo
+    echo "Calibre runtime GUI values:"
+    calibre-debug -c "from calibre.utils.config import JSONConfig; g=JSONConfig('gui'); dp=(g.get('dark_palettes') or {}).get('Flexoki Dark', {}); print('  ui_style='+str(g.get('ui_style','<unset>'))); print('  color_palette='+str(g.get('color_palette','<unset>'))); print('  dark_palette_name='+str(g.get('dark_palette_name','<unset>'))); print('  dark_palettes[Flexoki Dark].Window='+str(dp.get('Window','<unset>'))); print('  dark_palettes[Flexoki Dark].Text='+str(dp.get('Text','<unset>'))); print('  dark_palettes[Flexoki Dark].Link='+str(dp.get('Link','<unset>')))"
+
     echo
     echo "Calibre runtime session values:"
     calibre-debug -c "from calibre.utils.config import JSONConfig; sd=(JSONConfig('viewer-webengine').get('session_data') or {}); tb=(sd.get('tts_backend') or {}); print('  read_mode='+str(sd.get('read_mode','<unset>'))); print('  current_color_scheme='+str(sd.get('current_color_scheme','<unset>'))); print('  fullscreen_when_opening='+str(sd.get('fullscreen_when_opening','<unset>'))); print('  tts_bar_position='+str(sd.get('tts_bar_position','<unset>'))); print('  tts_backend.rate='+str(tb.get('rate','<unset>')))"
@@ -297,6 +366,13 @@ run_check() {
   check_json_eq "$config_dir/gui.py.json" '.highlight_search_matches' 'true'
   check_json_eq "$config_dir/gui.py.json" '.upload_news_to_device' 'false'
 
+  check_json_eq "$config_dir/gui.json" '.ui_style' 'calibre'
+  check_json_eq "$config_dir/gui.json" '.color_palette' 'dark'
+  check_json_eq "$config_dir/gui.json" '.dark_palette_name' 'Flexoki Dark'
+  check_json_eq "$config_dir/gui.json" '.dark_palettes["Flexoki Dark"].Window' '#100f0f'
+  check_json_eq "$config_dir/gui.json" '.dark_palettes["Flexoki Dark"].Text' '#cecdc3'
+  check_json_eq "$config_dir/gui.json" '.dark_palettes["Flexoki Dark"].Link' '#4385be'
+
   check_page_setup_profile "$config_dir/conversion/page_setup.py" 'generic_eink'
 
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.read_mode' 'flow'
@@ -310,6 +386,10 @@ run_check() {
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.tts_backend.rate' '1.1'
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.standalone_font_settings.serif_family' 'Noto Serif'
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.standalone_misc_settings.show_actions_toolbar' 'false'
+
+  if [ "${CALIBRE_USE_SYSTEM_THEME:-0}" = "1" ]; then
+    warn "CALIBRE_USE_SYSTEM_THEME=1 can override Calibre GUI palette; set it to 0/unset for Flexoki Dark GUI."
+  fi
 
   printf '\nSummary: %d failure(s), %d warning(s)\n' "$failures" "$warnings"
   if [ "$failures" -gt 0 ]; then

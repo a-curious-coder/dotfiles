@@ -1,4 +1,5 @@
 {
+  "color_palette": "dark",
   "cover_grid_background": {
     "dark": [
       45,
@@ -14,5 +15,30 @@
     "light_texture": null,
     "migrated": true
   },
-  "quick_start_guide_added": true
+  "dark_palette_name": "Flexoki Dark",
+  "dark_palettes": {
+    "Flexoki Dark": {
+      "AlternateBase": "#282726",
+      "Base": "#1c1b1a",
+      "BrightText": "#d14d41",
+      "Button": "#1c1b1a",
+      "ButtonText": "#cecdc3",
+      "ButtonText-disabled": "#878580",
+      "Highlight": "#205ea6",
+      "HighlightedText": "#f2f0e5",
+      "HighlightedText-disabled": "#878580",
+      "Link": "#4385be",
+      "LinkVisited": "#8b7ec8",
+      "PlaceholderText": "#878580",
+      "Text": "#cecdc3",
+      "Text-disabled": "#878580",
+      "ToolTipBase": "#1c1b1a",
+      "ToolTipText": "#cecdc3",
+      "Window": "#100f0f",
+      "WindowText": "#cecdc3",
+      "WindowText-disabled": "#878580"
+    }
+  },
+  "quick_start_guide_added": true,
+  "ui_style": "calibre"
 }
