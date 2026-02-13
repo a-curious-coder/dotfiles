@@ -284,10 +284,13 @@ return {
 			-- Keymaps: <leader>f = find/search operations
 			vim.keymap.set("n", "<leader>ff", function()
 				local opts = scope_opts()
-				local ok, _ = pcall(builtin.git_files, vim.tbl_extend("force", opts, {
-					show_untracked = true,
-					entry_maker = file_entry_maker(opts),
-				}))
+				local ok, _ = pcall(
+					builtin.git_files,
+					vim.tbl_extend("force", opts, {
+						show_untracked = true,
+						entry_maker = file_entry_maker(opts),
+					})
+				)
 				if not ok then
 					builtin.find_files(vim.tbl_extend("force", opts, {
 						hidden = true,
@@ -306,7 +309,7 @@ return {
 				}))
 			end, { desc = "Live grep" })
 
-			vim.keymap.set("n", "<leader>fr", recent_files_picker, { desc = "Recent files" })
+			vim.keymap.set("n", "<leader><leader>", recent_files_picker, { desc = "Recent files" })
 
 			vim.keymap.set("n", "<leader>fT", toggle_scope, { desc = "Toggle find scope (repo/global)" })
 		end,
