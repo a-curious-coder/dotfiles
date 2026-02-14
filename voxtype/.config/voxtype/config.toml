@@ -1,0 +1,24 @@
+# Voxtype latency-focused defaults.
+# Note: Voxtype still transcribes after recording stops (not true live typing).
+
+[hotkey]
+enabled = false
+
+[audio]
+device = "default"
+sample_rate = 16000
+max_duration_secs = 60
+
+[whisper]
+backend = "local"
+model = "tiny.en"
+language = "en"
+translate = false
+on_demand_loading = false
+gpu_isolation = false
+context_window_optimization = true
+
+[output]
+mode = "type"
+fallback_to_clipboard = true
+type_delay_ms = 0
