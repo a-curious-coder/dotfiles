@@ -41,6 +41,7 @@ dotfiles/
 ├── lazydocker/     Docker TUI
 ├── lazygit/        Git TUI
 ├── nvim/           Neovim
+├── pavucontrol/    PulseAudio volume control UI state
 ├── ripgrep/        ripgrep config
 ├── rofi/           Application launcher
 ├── starship/       Shell prompt
@@ -81,6 +82,7 @@ Tip: if you use zoxide, `z dotfiles` is the quickest way back to this repo.
 **Linux (Hyprland)**
 ```bash
 stow hypr waybar rofi ags swaync wlogout calibre-linux
+stow pavucontrol
 ```
 
 **macOS**
