@@ -65,6 +65,25 @@ window#waybar {
   padding: 0 16px;
 }
 
+/* Taskbar: lightweight window switch pane */
+#taskbar {
+  padding: 0 8px;
+}
+
+#taskbar button {
+  color: @base600;
+  padding: 0 8px;
+  min-width: 16px;
+}
+
+#taskbar button.active {
+  color: @paper;
+}
+
+#taskbar button.urgent {
+  color: @red;
+}
+
 /* Tray: Background utility, should not compete for attention */
 #tray {
   padding: 0 8px;
