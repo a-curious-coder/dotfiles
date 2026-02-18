@@ -215,5 +215,6 @@ ghostty-theme() {
     echo "Note: You may need to restart Ghostty or open a new window for changes to take effect."
 }
 if command -v pyenv 1>/dev/null 2>&1; then
-    eval "$(pyenv init -)"
+    # Avoid per-shell startup rehash lock contention in new tmux panes/windows.
+    eval "$(pyenv init - --no-rehash)"
 fi
