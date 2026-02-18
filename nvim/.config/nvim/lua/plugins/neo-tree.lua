@@ -57,12 +57,15 @@ return {
 		},
 	},
 	config = function()
-		vim.keymap.set("n", "<leader>ue", function()
+		local function toggle_neotree()
 			require("neo-tree.command").execute({
 				toggle = true,
 				reveal = true,
 				position = "right",
 			})
-		end, { desc = "Toggle Neo-tree" })
+		end
+
+		vim.keymap.set("n", "<leader>e", toggle_neotree, { desc = "Toggle Neo-tree" })
+		vim.keymap.set("n", "<leader>ue", toggle_neotree, { desc = "Toggle Neo-tree" })
 	end,
 }

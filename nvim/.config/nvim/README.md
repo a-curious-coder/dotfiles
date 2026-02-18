@@ -96,6 +96,7 @@ For implementation details, read the files in `lua/` and `lua/plugins/`.
 | `<leader>ff` | Find files (git-aware, falls back to all files) |
 | `<leader>fb` | Find buffers |
 | `<leader>fs` | Live grep (includes hidden files) |
+| `<leader>fo` | Live grep in open files |
 | `<leader>fr` | Recent files |
 | `<leader>fh` | Clear search highlight |
 
@@ -129,6 +130,7 @@ For implementation details, read the files in `lua/` and `lua/plugins/`.
 ### UI Toggles (`<leader>u`)
 | Key | Action |
 |-----|--------|
+| `<leader>e` | Toggle Neo-tree |
 | `<leader>ue` | Toggle Neo-tree |
 | `<leader>ud` | Toggle diagnostics |
 | `<leader>um` | Toggle markdown read view |
@@ -153,7 +155,7 @@ For implementation details, read the files in `lua/` and `lua/plugins/`.
 
 ### UX Defaults
 - Persistent undo enabled
-- System clipboard enabled
+- System clipboard is opt-in via `"+` register (for example `"+y`)
 - Intro screen and mode text hidden
 - Inline diagnostics enabled (details on demand with `gl`)
 - Inline git blame enabled (toggle with `<leader>gB`)
@@ -176,8 +178,8 @@ Keep links and filenames readable, and use markdown links when you need maximum 
 
 ## 🧭 Daily Workflow
 - Jump to a file with `<leader>ff` or reopen with `<leader>fr`.
-- Search across the repo with `<leader>fs`, then clear highlights with `<leader>fh`.
-- Toggle the tree with `<leader>ue`, hop buffers with `<leader>fb` and `[b` / `]b`.
+- Search across the repo with `<leader>fs` or only open files with `<leader>fo`, then clear highlights with `<leader>fh`.
+- Toggle the tree with `<leader>e`, hop buffers with `<leader>fb` and `[b` / `]b`.
 - Use `<leader>um` in markdown files for a readable render, or `<leader>uM` for side-by-side preview.
 - Use `gf` in markdown files to open `[[wikilinks]]` (including `[[note#heading]]`).
 - Use `<leader>tt` for quick shell commands without leaving Neovim.

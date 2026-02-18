@@ -29,6 +29,6 @@ assert_not_contains("lua/plugins/telescope.lua", "<leader><leader>")
 
 -- UI keymaps stay under <leader>u
 assert_contains("lua/plugins/neo-tree.lua", "<leader>ue")
-assert_not_contains("lua/plugins/neo-tree.lua", "<leader>e")
+assert_contains("lua/plugins/neo-tree.lua", "<leader>e")
 
 print("keymap surface: ok")

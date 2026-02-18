@@ -63,7 +63,7 @@ vim.api.nvim_create_autocmd({ "BufAdd", "BufDelete", "BufEnter" }, {
 update_tabline_visibility()
 
 -- === CLIPBOARD ===
-vim.opt.clipboard = "unnamedplus"
+vim.opt.clipboard = ""
 
 -- Cursor styling and colors
 vim.cmd([[highlight Cursor guifg=yellow guibg=yellow]])

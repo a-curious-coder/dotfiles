@@ -309,6 +309,16 @@ return {
 				}))
 			end, { desc = "Live grep" })
 
+			vim.keymap.set("n", "<leader>fo", function()
+				local opts = scope_opts()
+				builtin.live_grep(vim.tbl_extend("force", opts, {
+					grep_open_files = true,
+					prompt_title = "Live grep (open files)",
+					additional_args = { "--hidden" },
+					entry_maker = vimgrep_entry_maker(opts),
+				}))
+			end, { desc = "Live grep open files" })
+
 			vim.keymap.set("n", "<leader><leader>", recent_files_picker, { desc = "Recent files" })
 
 			vim.keymap.set("n", "<leader>fT", toggle_scope, { desc = "Toggle find scope (repo/global)" })
