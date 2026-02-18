@@ -54,7 +54,7 @@ GDK_BACKEND=$BACKEND yad \
 "ALT Print" "Screenshot active window" "active window only" \
 "CTRL ALT P" "power-menu" "(wlogout)" \
 "CTRL ALT L" "screen lock" "(hyprlock)" \
-" CTRL L" "focus break screen" "(random minimal theme)" \
+" CTRL L" "focus break screen" "(random plain-art background)" \
 " CTRL SHIFT L" "focus break screen" "(fixed minimal theme)" \
 "CTRL ALT Del" "Hyprland Exit" "(NOTE: Hyprland Will exit immediately)" \
 " SHIFT F" "Fullscreen" "Toggles to full screen" \
