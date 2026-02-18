@@ -1,4 +1,4 @@
-/* Wallpaper gallery - Kepano: grid of images, minimal chrome */
+/* Wallpaper gallery - Kepano: image grid, minimal chrome */
 
 @import "~/.config/rofi/0-shared-fonts.rasi"
 
@@ -20,8 +20,8 @@ configuration {
 }
 
 window {
-    width:              80%;
-    height:             70%;
+    width:              86%;
+    height:             74%;
     border:             1px solid;
     border-color:       @border;
     background-color:   @bg;
@@ -33,7 +33,7 @@ mainbox {
 }
 
 inputbar {
-    padding:            14px 20px;
+    padding:            12px 16px;
     background-color:   @bg-alt;
     text-color:         @tx-bright;
     children:           [ "entry" ];
@@ -42,16 +42,16 @@ inputbar {
 entry {
     text-color:         @tx-bright;
     background-color:   transparent;
-    placeholder:        "Search wallpapers...";
+    placeholder:        "Find wallpaper...";
     placeholder-color:  @ui-dim;
-    horizontal-align:   0.5;
+    horizontal-align:   0.0;
 }
 
 listview {
-    columns:            5;
-    lines:              2;
-    spacing:            16px;
-    padding:            20px;
+    columns:            4;
+    lines:              3;
+    spacing:            12px;
+    padding:            14px;
     flow:               horizontal;
     fixed-height:       true;
     background-color:   @bg;
@@ -60,21 +60,21 @@ listview {
 
 element {
     orientation:        vertical;
-    padding:            8px;
-    spacing:            8px;
-    background-color:   @bg-alt;
+    padding:            6px;
+    spacing:            6px;
+    background-color:   transparent;
     border:             1px solid;
     border-color:       @border;
 }
 
 element selected.normal {
     background-color:   @bg-hover;
+    text-color:         @tx-bright;
     border-color:       @accent;
-    border:             2px solid;
 }
 
 element-icon {
-    size:               100%;
+    size:               92%;
     horizontal-align:   0.5;
     background-color:   transparent;
 }
@@ -82,10 +82,10 @@ element-icon {
 element-text {
     horizontal-align:   0.5;
     vertical-align:     0.5;
-    padding:            4px;
+    padding:            2px;
     background-color:   transparent;
     text-color:         @tx;
-    font:               "JetBrainsMono Nerd Font 9";
+    font:               "JetBrainsMono Nerd Font 10";
 }
 
 element selected.normal element-text {

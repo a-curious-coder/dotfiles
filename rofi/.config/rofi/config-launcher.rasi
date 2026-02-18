@@ -1,0 +1,25 @@
+/* Minimal launcher profile for SUPER+D */
+
+@import "~/.config/rofi/config.rasi"
+
+configuration {
+    modi:                "drun";
+    show-icons:          true;
+    display-drun:        "";
+    drun-display-format: "{name}";
+    hover-select:        false;
+}
+
+window {
+    width: 620px;
+}
+
+entry {
+    placeholder: "Open app...";
+}
+
+listview {
+    lines: 10;
+    cycle: false;
+    scrollbar: false;
+}

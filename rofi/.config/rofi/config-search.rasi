@@ -5,21 +5,21 @@
 
 /* ---- Window ---- */
 window {
-	width: 40%;
-	//orientation: horizontal;
+	width: 620px;
 	height: inherit;
-    y-offset: 10px;
-    location: north;
-    children: [ "entry", "message" ];
-    border: 2px;
-    border-color: white/25%;
+    children: [ "inputbar" ];
 }
 
-/* ---- Entry ---- */ 
+/* ---- Inputbar ---- */
+inputbar {
+    children: [ "entry" ];
+}
+
+/* ---- Entry ---- */
 entry {
 	expand: true;
-	placeholder: " 🔎 Google Search";
-	horizontal-align: 0.5;
-	padding: 15px;
+	placeholder: "Search web...";
+	horizontal-align: 0.0;
+	padding: 0px;
 	border-radius: inherit;
 }

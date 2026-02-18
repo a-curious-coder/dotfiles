@@ -7,28 +7,28 @@
 /* ---- Mainbox ---- */
 mainbox {
   children:
-    [ "inputbar", "message", "listview"];
+    [ "inputbar", "listview" ];
 }
 
 /* ---- Entry ---- */
 entry {
   expand: true;
-  placeholder: " 🧮 Search Keybinds";
+  placeholder: "Search keybinds...";
 }
 
 /* ---- Listview ---- */
 listview {
-  columns: 2;
-  lines: 8;
+  columns: 1;
+  lines: 14;
   fixed-height: false;
   scrollbar: true;
-  spacing: 6px;
-  cycle: true;
+  spacing: 2px;
+  cycle: false;
 }
 
 window {
-  width: 90%;
-  height: inherit;
+  width: 860px;
+  height: 78%;
 }
 
 /* ---- Elements ---- */
@@ -44,5 +44,5 @@ element-text {
     horizontal-align: 0.0;
     vertical-align: 0.5;
     margin: 0px;
-    padding: 0px;
+    padding: 2px 0px;
 }
