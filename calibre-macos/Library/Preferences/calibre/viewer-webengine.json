@@ -1,24 +1,24 @@
 {
   "old_prefs_migrated": true,
   "session_data": {
-    "base_font_size": 16,
+    "base_font_size": 18,
     "book_scrollbar": false,
     "current_color_scheme": "*Flexoki Dark",
     "fullscreen_when_opening": "always",
     "hide_tooltips": true,
-    "margin_bottom": 20,
-    "margin_left": 24,
-    "margin_right": 24,
-    "margin_top": 20,
-    "max_text_width": 760,
+    "margin_bottom": 24,
+    "margin_left": 36,
+    "margin_right": 36,
+    "margin_top": 24,
+    "max_text_width": 700,
     "override_book_colors": "always",
     "read_mode": "flow",
     "user_color_schemes": {
       "*Flexoki Dark": {
-        "background": "#100f0f",
+        "name": "Flexoki Dark",
         "foreground": "#cecdc3",
-        "link": "#4385be",
-        "name": "Flexoki Dark"
+        "background": "#100f0f",
+        "link": "#4385be"
       }
     },
     "tts_backend": {
@@ -26,7 +26,7 @@
     },
     "tts_bar_position": "bottom-right",
     "standalone_font_settings": {
-      "minimum_font_size": 8,
+      "minimum_font_size": 10,
       "serif_family": "Noto Serif",
       "standard_font": "serif",
       "zoom_step_size": 20
@@ -39,7 +39,7 @@
       "save_annotations_in_ebook": true,
       "show_actions_toolbar": false,
       "show_actions_toolbar_in_fullscreen": false,
-      "singleinstance": false
+      "singleinstance": true
     }
   }
 }

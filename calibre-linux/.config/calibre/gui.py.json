@@ -8,15 +8,14 @@
     "title",
     "authors",
     "rating",
-    "tags",
-    "pubdate"
+    "tags"
   ],
   "confirm_delete": true,
   "cover_flow_queue_length": 6,
   "default_send_to_device_action": "DeviceAction:main::False:False",
   "delete_news_from_library_on_upload": false,
   "disable_animations": true,
-  "disable_tray_notification": false,
+  "disable_tray_notification": true,
   "enforce_cpu_limit": true,
   "get_social_metadata": false,
   "gui_layout": "wide",
@@ -44,7 +43,7 @@
   "main_search_history": [],
   "main_window_geometry": null,
   "match_tags_type": "any",
-  "new_version_notification": true,
+  "new_version_notification": false,
   "oldest_news": 60,
   "overwrite_author_title_metadata": true,
   "plugin_search_history": [],
@@ -55,12 +54,18 @@
   "send_to_storage_card_by_default": false,
   "separate_cover_flow": false,
   "shortcuts_search_history": [],
-  "show_avg_rating": true,
+  "show_avg_rating": false,
   "sort_tags_by": "name",
   "systray_icon": false,
   "tag_browser_hidden_categories": {
     "__class__": "set",
-    "__value__": []
+    "__value__": [
+      "formats",
+      "identifiers",
+      "languages",
+      "publisher",
+      "series"
+    ]
   },
   "tweaks_search_history": [],
   "upload_news_to_device": false,

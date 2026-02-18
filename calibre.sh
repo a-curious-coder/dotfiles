@@ -134,7 +134,7 @@ run_apply() {
   jq '
     .old_prefs_migrated = true
     | .session_data = (.session_data // {})
-    | .session_data.base_font_size = 16
+    | .session_data.base_font_size = 18
     | .session_data.book_scrollbar = false
     | .session_data.user_color_schemes = ((.session_data.user_color_schemes // {}) + {
         "*Flexoki Dark": {
@@ -147,11 +147,11 @@ run_apply() {
     | .session_data.current_color_scheme = "*Flexoki Dark"
     | .session_data.fullscreen_when_opening = "always"
     | .session_data.hide_tooltips = true
-    | .session_data.margin_top = 20
-    | .session_data.margin_right = 24
-    | .session_data.margin_bottom = 20
-    | .session_data.margin_left = 24
-    | .session_data.max_text_width = 760
+    | .session_data.margin_top = 24
+    | .session_data.margin_right = 36
+    | .session_data.margin_bottom = 24
+    | .session_data.margin_left = 36
+    | .session_data.max_text_width = 700
     | .session_data.override_book_colors = "always"
     | .session_data.read_mode = "flow"
     | .session_data.tts_bar_position = "bottom-right"
@@ -159,7 +159,7 @@ run_apply() {
         "rate": 1.1
       })
     | .session_data.standalone_font_settings = ((.session_data.standalone_font_settings // {}) + {
-        "minimum_font_size": 8,
+        "minimum_font_size": 10,
         "serif_family": "Noto Serif",
         "standard_font": "serif",
         "zoom_step_size": 20
@@ -172,7 +172,7 @@ run_apply() {
         "save_annotations_in_ebook": true,
         "show_actions_toolbar": false,
         "show_actions_toolbar_in_fullscreen": false,
-        "singleinstance": false
+        "singleinstance": true
       })
   ' "$viewer_cfg" > "$tmp_file"
 
@@ -360,10 +360,15 @@ run_check() {
   check_json_eq "$config_dir/global.py.json" '.limit_search_columns' 'true'
 
   check_json_eq "$config_dir/gui.py.json" '.confirm_delete' 'true'
+  check_json_eq "$config_dir/gui.py.json" '.column_map | @json' '["title","authors","rating","tags"]'
   check_json_eq "$config_dir/gui.py.json" '.disable_animations' 'true'
+  check_json_eq "$config_dir/gui.py.json" '.disable_tray_notification' 'true'
   check_json_eq "$config_dir/gui.py.json" '.get_social_metadata' 'false'
+  check_json_eq "$config_dir/gui.py.json" '.new_version_notification' 'false'
   check_json_eq "$config_dir/gui.py.json" '.search_as_you_type' 'true'
   check_json_eq "$config_dir/gui.py.json" '.highlight_search_matches' 'true'
+  check_json_eq "$config_dir/gui.py.json" '.show_avg_rating' 'false'
+  check_json_eq "$config_dir/gui.py.json" '.tag_browser_hidden_categories.__value__ | @json' '["formats","identifiers","languages","publisher","series"]'
   check_json_eq "$config_dir/gui.py.json" '.upload_news_to_device' 'false'
 
   check_json_eq "$config_dir/gui.json" '.ui_style' 'calibre'
@@ -384,7 +389,15 @@ run_check() {
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.fullscreen_when_opening' 'always'
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.tts_bar_position' 'bottom-right'
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.tts_backend.rate' '1.1'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.base_font_size' '18'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.max_text_width' '700'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.margin_left' '36'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.margin_right' '36'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.margin_top' '24'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.margin_bottom' '24'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.standalone_font_settings.minimum_font_size' '10'
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.standalone_font_settings.serif_family' 'Noto Serif'
+  check_json_eq "$config_dir/viewer-webengine.json" '.session_data.standalone_misc_settings.singleinstance' 'true'
   check_json_eq "$config_dir/viewer-webengine.json" '.session_data.standalone_misc_settings.show_actions_toolbar' 'false'
 
   if [ "${CALIBRE_USE_SYSTEM_THEME:-0}" = "1" ]; then
