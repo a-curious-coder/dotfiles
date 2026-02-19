@@ -271,9 +271,29 @@ local function copy_to_clipboard(text)
 	return false
 end
 
-vim.keymap.set("n", "<leader>y", function()
-	local path = vim.fn.expand("%")
-	if path == "" then
+local function current_file_relative_path()
+	local absolute_path = vim.fn.expand("%:p")
+	if absolute_path == "" then
+		return nil
+	end
+
+	local base_dir = vim.fn.getcwd()
+	local git_root = systemlist_ok({ "git", "-C", vim.fn.fnamemodify(absolute_path, ":h"), "rev-parse", "--show-toplevel" })
+	if git_root and git_root[1] and git_root[1] ~= "" then
+		base_dir = git_root[1]
+	end
+
+	local relative = vim.fs.relpath(vim.fs.normalize(base_dir), vim.fs.normalize(absolute_path))
+	if relative and relative ~= "" then
+		return relative
+	end
+
+	return vim.fn.fnamemodify(absolute_path, ":.")
+end
+
+local function copy_current_file_relative_path()
+	local path = current_file_relative_path()
+	if not path then
 		vim.notify("No file to copy path from", vim.log.levels.WARN)
 		return
 	end
@@ -283,7 +303,13 @@ vim.keymap.set("n", "<leader>y", function()
 	else
 		vim.notify("Failed to copy to clipboard", vim.log.levels.ERROR)
 	end
-end, { desc = "Copy relative file path" })
+end
+
+vim.api.nvim_create_user_command("CopyRelativePath", copy_current_file_relative_path, {
+	desc = "Copy current file path relative to git root (or cwd)",
+})
+
+vim.keymap.set("n", "<leader>y", copy_current_file_relative_path, { desc = "Copy relative file path" })
 
 -- === MARKDOWN LINK NAVIGATION ===
 local function find_wikilink_under_cursor()

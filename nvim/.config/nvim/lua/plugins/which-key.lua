@@ -36,10 +36,5 @@ return {
       { "g", group = "Go/LSP" },
       { "z", group = "Folds" },
     })
-
-    -- Show all keybindings
-    vim.keymap.set("n", "<leader>?", function()
-      require("which-key").show({ global = true })
-    end, { desc = "Show all keybindings" })
   end,
 }

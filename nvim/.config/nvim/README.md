@@ -88,7 +88,7 @@ For implementation details, read the files in `lua/` and `lua/plugins/`.
 
 ## 🎯 Key Mappings
 
-> **Tip:** Press `<Space>` (leader) to see available keybindings via which-key, or `<leader>?` for the full list.
+> **Tip:** Press `<Space>` (leader) to see available keybindings via which-key, or `<leader>?` to search keybindings.
 
 ### File & Search (`<leader>f`)
 | Key | Action |
@@ -140,7 +140,7 @@ For implementation details, read the files in `lua/` and `lua/plugins/`.
 | Key | Action |
 |-----|--------|
 | `<leader>y` | Copy relative file path |
-| `<leader>?` | Show all keybindings |
+| `<leader>?` | Search keymaps |
 | `<leader>ct` | Create/open Vue test (prefers co-located, searches repo if missing) |
 | `gf` (markdown) | Follow file links and Obsidian-style `[[wikilinks]]` |
 | `<leader>tt` | Toggle floating terminal |
