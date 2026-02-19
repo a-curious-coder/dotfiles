@@ -35,9 +35,11 @@ fi
 
 downloaded=0
 processed=0
+declare -a valid_slugs=()
 
 while IFS=$'\t' read -r slug object_id title artist object_date url; do
     [[ -z "$slug" || "$slug" == \#* ]] && continue
+    valid_slugs+=("$slug")
 
     raw_file="$RAW_DIR/${slug}.jpg"
     proc_file="$PROC_DIR/${slug}.jpg"
@@ -54,28 +56,19 @@ while IFS=$'\t' read -r slug object_id title artist object_date url; do
         fi
     fi
 
-    if [[ ! -f "$proc_file" || "$raw_file" -nt "$proc_file" ]]; then
+    if [[ ! -f "$proc_file" || "$raw_file" -nt "$proc_file" || "$0" -nt "$proc_file" ]]; then
         if command -v magick >/dev/null 2>&1; then
-            if [[ "$slug" == "pierced-window-screen" ]]; then
-                # Keep one low-saturation color option.
-                magick "$raw_file" \
-                    -auto-orient \
-                    -resize 3200x1800^ \
-                    -gravity center \
-                    -extent 3200x1800 \
-                    -modulate 70,45,100 \
-                    "$proc_file"
-            else
-                magick "$raw_file" \
-                    -auto-orient \
-                    -colorspace Gray \
-                    -resize 3200x1800^ \
-                    -gravity center \
-                    -extent 3200x1800 \
-                    -fill 'rgba(0,0,0,0.28)' \
-                    -colorize 28 \
-                    "$proc_file"
-            fi
+            # Keep composition intact: fit inside frame, then letterbox.
+            magick "$raw_file" \
+                -auto-orient \
+                -resize 3840x2160 \
+                -background '#0b0b0b' \
+                -gravity center \
+                -extent 3840x2160 \
+                -modulate 92,45,100 \
+                -fill 'rgba(0,0,0,0.16)' \
+                -colorize 16 \
+                "$proc_file"
         else
             cp "$raw_file" "$proc_file"
         fi
@@ -83,5 +76,25 @@ while IFS=$'\t' read -r slug object_id title artist object_date url; do
         log "processed: $slug"
     fi
 done < "$SOURCE_FILE"
+
+# prune stale files no longer in the curated source list
+for dir in "$RAW_DIR" "$PROC_DIR"; do
+    [[ -d "$dir" ]] || continue
+    while IFS= read -r path; do
+        base="$(basename "$path")"
+        stem="${base%.*}"
+        keep=0
+        for slug in "${valid_slugs[@]}"; do
+            if [[ "$stem" == "$slug" ]]; then
+                keep=1
+                break
+            fi
+        done
+        if (( keep == 0 )); then
+            rm -f "$path"
+            log "pruned: $base"
+        fi
+    done < <(find "$dir" -maxdepth 1 -type f)
+done
 
 log "done: downloaded=$downloaded processed=$processed"
