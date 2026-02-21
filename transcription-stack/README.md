@@ -54,13 +54,19 @@ zoxide add "$(pwd)/transcription-stack"
 
 ## Key realtime tuning vars
 
-- `LOCAL_DICT_STABLE_PREFIX_GUARD_WORDS` (default `2`)
+- `LOCAL_DICT_STABLE_PREFIX_GUARD_WORDS` (default `1`)
   - Holds back the last N words from each stable chunk so uncertain words are not committed too early.
 - `LOCAL_DICT_TAIL_REVISION_MAX_WORDS` (default `3`)
   - Maximum number of recently typed words that may be replaced when Whisper revises a phrase.
 - `LOCAL_DICT_TAIL_REVISION_MIN_ANCHOR_WORDS` (default `2`)
   - Minimum exact anchor words required before a tail revision is allowed.
-- `LOCAL_DICT_SILENCE_FLUSH_GUARD_WORDS` (default `1`)
+- `LOCAL_DICT_SILENCE_FLUSH_GUARD_WORDS` (default `0`)
   - On silence boundary, flush pending words but keep the final N words uncommitted to reduce random trailing tokens.
+- `LOCAL_DICT_EXIT_FLUSH_GUARD_WORDS` (default `0`)
+  - On explicit stop/exit, flushes pending words with this guard value.
+- `LOCAL_DICT_EXIT_FLUSH_MAX_IDLE_SECONDS` (default `2.5`)
+  - Exit flush only runs if speech was recent, which helps avoid stale random trailing output.
 - `LOCAL_DICT_PUNCTUATION_STYLE` (default `adaptive`)
   - `raw`, `minimal`, or `adaptive` punctuation behavior.
+- `LOCAL_DICT_ENABLE_START_SOUND` (default `0`)
+  - Start sound is disabled by default to avoid clipping the first words while dictation warms up.

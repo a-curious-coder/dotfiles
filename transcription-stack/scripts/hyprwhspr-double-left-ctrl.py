@@ -28,6 +28,10 @@ LOCAL_DICTATION_CMD = "/home/groot/.local/bin/local-live-dictation.py"
 UID = os.getuid()
 XDG_RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{UID}")
 DICTATION_PID_FILE = Path(XDG_RUNTIME_DIR) / "local-live-dictation" / "loop.pid"
+ENABLE_START_SOUND = os.environ.get("LOCAL_DICT_ENABLE_START_SOUND", "0").strip().lower() not in {"0", "false", "no", "off"}
+ENABLE_STOP_SOUND = os.environ.get("LOCAL_DICT_ENABLE_STOP_SOUND", "1").strip().lower() not in {"0", "false", "no", "off"}
+START_SOUND_EVENT = os.environ.get("LOCAL_DICT_START_SOUND_EVENT", "bell").strip() or "bell"
+STOP_SOUND_EVENT = os.environ.get("LOCAL_DICT_STOP_SOUND_EVENT", "complete").strip() or "complete"
 
 RUNNING = True
 
@@ -107,7 +111,12 @@ def _dictation_running() -> bool:
 
 
 def _play_state_sound(on: bool) -> None:
-    event_id = "service-login" if on else "complete"
+    if on and not ENABLE_START_SOUND:
+        return
+    if (not on) and not ENABLE_STOP_SOUND:
+        return
+
+    event_id = START_SOUND_EVENT if on else STOP_SOUND_EVENT
     for cmd in (
         ["canberra-gtk-play", "-i", event_id],
         ["paplay", "/usr/share/sounds/freedesktop/stereo/audio-volume-change.oga"],
@@ -142,6 +151,8 @@ def _trigger_dictation(now: float, last_start_ts: float) -> float:
 
     action = "stop" if running else "start"
     print(f"[double-ctrl] trigger -> local-live-dictation {action}", flush=True)
+    if action == "start":
+        _notify("Dictation", "Starting...")
 
     out = ""
     rc = 1

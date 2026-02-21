@@ -40,14 +40,16 @@ MODEL_NAME = os.environ.get("LOCAL_DICT_MODEL", "base.en")
 LANGUAGE_OVERRIDE = os.environ.get("LOCAL_DICT_LANGUAGE", "en")
 DEBUG = os.environ.get("LOCAL_DICT_DEBUG", "1").strip().lower() not in {"0", "false", "no", "off"}
 LOG_TRANSCRIPTS = os.environ.get("LOCAL_DICT_LOG_TRANSCRIPTS", "1").strip().lower() not in {"0", "false", "no", "off"}
-STABLE_PREFIX_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_STABLE_PREFIX_GUARD_WORDS", "2"))
+STABLE_PREFIX_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_STABLE_PREFIX_GUARD_WORDS", "1"))
 EMIT_HISTORY_WORDS = int(os.environ.get("LOCAL_DICT_EMIT_HISTORY_WORDS", "72"))
 SILENCE_RESET_SECONDS = float(os.environ.get("LOCAL_DICT_SILENCE_RESET_SECONDS", "1.2"))
 AUTO_STOP_SILENCE_SECONDS = float(os.environ.get("LOCAL_DICT_AUTO_STOP_SILENCE_SECONDS", "12.0"))
 MIN_EMIT_WORDS = int(os.environ.get("LOCAL_DICT_MIN_EMIT_WORDS", "1"))
 TAIL_REVISION_MAX_WORDS = int(os.environ.get("LOCAL_DICT_TAIL_REVISION_MAX_WORDS", "3"))
 TAIL_REVISION_MIN_ANCHOR_WORDS = int(os.environ.get("LOCAL_DICT_TAIL_REVISION_MIN_ANCHOR_WORDS", "2"))
-SILENCE_FLUSH_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_SILENCE_FLUSH_GUARD_WORDS", "1"))
+SILENCE_FLUSH_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_SILENCE_FLUSH_GUARD_WORDS", "0"))
+EXIT_FLUSH_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_EXIT_FLUSH_GUARD_WORDS", "0"))
+EXIT_FLUSH_MAX_IDLE_SECONDS = float(os.environ.get("LOCAL_DICT_EXIT_FLUSH_MAX_IDLE_SECONDS", "2.5"))
 VOICED_FRAME_MS = int(os.environ.get("LOCAL_DICT_VOICED_FRAME_MS", "30"))
 MIN_VOICED_RATIO = float(os.environ.get("LOCAL_DICT_MIN_VOICED_RATIO", "0.05"))
 
@@ -659,7 +661,7 @@ def _run_loop() -> int:
             f"step={STEP_SECONDS}s window={WINDOW_SECONDS}s max_buffer={MAX_BUFFER_SECONDS}s "
             f"rms_threshold={RMS_THRESHOLD} min_voiced_ratio={MIN_VOICED_RATIO} "
             f"guard_words={STABLE_PREFIX_GUARD_WORDS} tail_revise={TAIL_REVISION_MAX_WORDS} "
-            f"silence_flush_guard={SILENCE_FLUSH_GUARD_WORDS} "
+            f"silence_flush_guard={SILENCE_FLUSH_GUARD_WORDS} exit_flush_guard={EXIT_FLUSH_GUARD_WORDS} "
             f"auto_stop_silence={AUTO_STOP_SILENCE_SECONDS}s",
             flush=True,
         )
@@ -770,6 +772,15 @@ def _run_loop() -> int:
                     )
 
                 prev_hyp_words = words
+
+            exit_idle = (time.monotonic() - last_voice_ts) if last_voice_ts > 0.0 else (time.monotonic() - loop_start_ts)
+            if prev_hyp_words and exit_idle <= max(0.0, EXIT_FLUSH_MAX_IDLE_SECONDS):
+                _commit_stable_words(
+                    stable_candidate=prev_hyp_words,
+                    emitted_words=emitted_words,
+                    typer_state=typer_state,
+                    guard_words=EXIT_FLUSH_GUARD_WORDS,
+                )
 
     finally:
         print("[local-dict] stopped", flush=True)
