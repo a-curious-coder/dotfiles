@@ -40,7 +40,7 @@ MODEL_NAME = os.environ.get("LOCAL_DICT_MODEL", "base.en")
 LANGUAGE_OVERRIDE = os.environ.get("LOCAL_DICT_LANGUAGE", "en")
 DEBUG = os.environ.get("LOCAL_DICT_DEBUG", "1").strip().lower() not in {"0", "false", "no", "off"}
 LOG_TRANSCRIPTS = os.environ.get("LOCAL_DICT_LOG_TRANSCRIPTS", "1").strip().lower() not in {"0", "false", "no", "off"}
-STABLE_PREFIX_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_STABLE_PREFIX_GUARD_WORDS", "1"))
+STABLE_PREFIX_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_STABLE_PREFIX_GUARD_WORDS", "0"))
 EMIT_HISTORY_WORDS = int(os.environ.get("LOCAL_DICT_EMIT_HISTORY_WORDS", "72"))
 SILENCE_RESET_SECONDS = float(os.environ.get("LOCAL_DICT_SILENCE_RESET_SECONDS", "1.2"))
 AUTO_STOP_SILENCE_SECONDS = float(os.environ.get("LOCAL_DICT_AUTO_STOP_SILENCE_SECONDS", "12.0"))
@@ -50,6 +50,7 @@ TAIL_REVISION_MIN_ANCHOR_WORDS = int(os.environ.get("LOCAL_DICT_TAIL_REVISION_MI
 SILENCE_FLUSH_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_SILENCE_FLUSH_GUARD_WORDS", "0"))
 EXIT_FLUSH_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_EXIT_FLUSH_GUARD_WORDS", "0"))
 EXIT_FLUSH_MAX_IDLE_SECONDS = float(os.environ.get("LOCAL_DICT_EXIT_FLUSH_MAX_IDLE_SECONDS", "2.5"))
+FINAL_FLUSH_PAD_SECONDS = float(os.environ.get("LOCAL_DICT_FINAL_FLUSH_PAD_SECONDS", "0.70"))
 VOICED_FRAME_MS = int(os.environ.get("LOCAL_DICT_VOICED_FRAME_MS", "30"))
 MIN_VOICED_RATIO = float(os.environ.get("LOCAL_DICT_MIN_VOICED_RATIO", "0.05"))
 
@@ -673,9 +674,13 @@ def _run_loop() -> int:
             return cfg_lang.strip()
         return ""
 
-    def _transcribe_window(audio_window: np.ndarray) -> str:
+    def _transcribe_window(audio_window: np.ndarray, pad_seconds: float = 0.0) -> str:
         if audio_window.size <= 0:
             return ""
+        if pad_seconds > 0.0:
+            pad_samples = max(1, int(round(pad_seconds * capture_rate)))
+            pad = np.zeros(pad_samples, dtype=np.float32)
+            audio_window = np.concatenate([audio_window.astype(np.float32, copy=False), pad], axis=0)
         whisper_audio = _resample_to_whisper(audio_window, capture_rate)
         if whisper_audio.size <= 0:
             return ""
@@ -693,7 +698,7 @@ def _run_loop() -> int:
             return ""
         return text
 
-    def _flush_pending(reason: str, guard_words: int) -> None:
+    def _flush_pending(reason: str, guard_words: int, force_decode: bool = False, pad_seconds: float = 0.0) -> None:
         nonlocal prev_hyp_words
 
         if prev_hyp_words:
@@ -715,12 +720,13 @@ def _run_loop() -> int:
         if audio_now.size > window_samples:
             audio_now = audio_now[-window_samples:]
 
-        rms = float(np.sqrt(np.mean(audio_now * audio_now)))
-        voiced_ratio = _voiced_ratio(audio_now, RMS_THRESHOLD, VOICED_FRAME_MS, capture_rate)
-        if rms < RMS_THRESHOLD or voiced_ratio < MIN_VOICED_RATIO:
-            return
+        if not force_decode:
+            rms = float(np.sqrt(np.mean(audio_now * audio_now)))
+            voiced_ratio = _voiced_ratio(audio_now, RMS_THRESHOLD, VOICED_FRAME_MS, capture_rate)
+            if rms < RMS_THRESHOLD or voiced_ratio < MIN_VOICED_RATIO:
+                return
 
-        text = _transcribe_window(audio_now)
+        text = _transcribe_window(audio_now, pad_seconds=pad_seconds)
         if not text:
             return
 
@@ -758,6 +764,7 @@ def _run_loop() -> int:
             f"rms_threshold={RMS_THRESHOLD} min_voiced_ratio={MIN_VOICED_RATIO} "
             f"guard_words={STABLE_PREFIX_GUARD_WORDS} tail_revise={TAIL_REVISION_MAX_WORDS} "
             f"silence_flush_guard={SILENCE_FLUSH_GUARD_WORDS} exit_flush_guard={EXIT_FLUSH_GUARD_WORDS} "
+            f"final_flush_pad={FINAL_FLUSH_PAD_SECONDS}s "
             f"auto_stop_silence={AUTO_STOP_SILENCE_SECONDS}s",
             flush=True,
         )
@@ -776,7 +783,13 @@ def _run_loop() -> int:
                 next_typing_enabled = _is_typing_enabled()
                 if next_typing_enabled != typing_enabled:
                     if typing_enabled and not next_typing_enabled:
-                        _flush_pending("typing-off", EXIT_FLUSH_GUARD_WORDS)
+                        recent_voice = last_voice_ts > 0.0 and (now - last_voice_ts) <= max(0.0, EXIT_FLUSH_MAX_IDLE_SECONDS)
+                        _flush_pending(
+                            "typing-off",
+                            EXIT_FLUSH_GUARD_WORDS,
+                            force_decode=recent_voice,
+                            pad_seconds=FINAL_FLUSH_PAD_SECONDS if recent_voice else 0.0,
+                        )
                     typing_enabled = next_typing_enabled
                     prev_hyp_words = []
                     loop_start_ts = now
@@ -869,7 +882,7 @@ def _run_loop() -> int:
 
             exit_idle = (time.monotonic() - last_voice_ts) if last_voice_ts > 0.0 else (time.monotonic() - loop_start_ts)
             if typing_enabled and exit_idle <= max(0.0, EXIT_FLUSH_MAX_IDLE_SECONDS):
-                _flush_pending("exit", EXIT_FLUSH_GUARD_WORDS)
+                _flush_pending("exit", EXIT_FLUSH_GUARD_WORDS, force_decode=True, pad_seconds=FINAL_FLUSH_PAD_SECONDS)
 
     finally:
         print("[local-dict] stopped", flush=True)

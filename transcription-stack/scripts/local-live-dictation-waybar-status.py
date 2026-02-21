@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+"""Waybar status module for local live dictation daemon/typing state."""
+
+from __future__ import annotations
+
+import json
+import os
+from pathlib import Path
+from typing import Optional
+
+
+def _pid_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+        return True
+    except OSError:
+        return False
+
+
+def _read_pid(path: Path) -> Optional[int]:
+    if not path.exists():
+        return None
+    try:
+        return int(path.read_text().strip())
+    except Exception:
+        return None
+
+
+def main() -> int:
+    uid = os.getuid()
+    xdg_runtime_dir = os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{uid}")
+    state_dir = Path(xdg_runtime_dir) / "local-live-dictation"
+    pid_file = state_dir / "loop.pid"
+    typing_file = state_dir / "typing.on"
+
+    pid = _read_pid(pid_file)
+    running = bool(pid and _pid_alive(pid))
+    typing = running and typing_file.exists()
+
+    if typing:
+        text = "DICT ON"
+        classes = ["running", "typing"]
+        tooltip = "Dictation typing enabled\nCtrl+Ctrl: toggle typing\nRight-click: stop daemon"
+    elif running:
+        text = "DICT WARM"
+        classes = ["running", "warm"]
+        tooltip = "Dictation model loaded (typing off)\nCtrl+Ctrl: enable typing\nRight-click: stop daemon"
+    else:
+        text = "DICT OFF"
+        classes = ["stopped"]
+        tooltip = "Dictation daemon stopped\nMiddle-click: start daemon"
+
+    out = {
+        "text": text,
+        "class": classes,
+        "tooltip": tooltip,
+    }
+    print(json.dumps(out))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -100,3 +100,21 @@ window#waybar {
 #tray > .needs-attention {
   -gtk-icon-effect: highlight;
 }
+
+/* Dictation model status */
+#custom-dictation-model {
+  padding: 0 10px;
+  color: @base600;
+}
+
+#custom-dictation-model.running.warm {
+  color: @orange;
+}
+
+#custom-dictation-model.running.typing {
+  color: @green;
+}
+
+#custom-dictation-model.stopped {
+  color: @base600;
+}

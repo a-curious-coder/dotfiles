@@ -28,6 +28,7 @@
 ],
 
 "modules-right": [
+  "custom/dictation-model",
   "tray",
   "clock"
 ],
@@ -53,6 +54,19 @@
   "format-alt": "{:%Y-%m-%d}",
   "tooltip-format": "{:%A, %Y-%m-%d}",
   "tooltip": true
+},
+
+// Dictation model status: OFF / WARM / ON
+// Left click: toggle typing
+// Middle click: start daemon/model
+// Right click: stop daemon/model
+"custom/dictation-model": {
+  "exec": "~/.local/bin/local-live-dictation-waybar-status.py",
+  "return-type": "json",
+  "interval": 1,
+  "on-click": "~/.local/bin/local-live-dictation.py toggle",
+  "on-click-middle": "~/.local/bin/local-live-dictation.py daemon-start",
+  "on-click-right": "~/.local/bin/local-live-dictation.py daemon-stop"
 },
 
 // Tray: Let system handle its own indicators
