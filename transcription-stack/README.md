@@ -7,7 +7,7 @@ This directory is the version-controlled source for the offline dictation setup 
 - `scripts/local-live-dictation.py`
   - Live dictation daemon (offline Whisper + ydotool typing).
 - `scripts/hyprwhspr-double-left-ctrl.py`
-  - Global double-`Ctrl` hotkey listener and start/stop trigger.
+  - Global double-`Ctrl` hotkey listener and typing on/off toggle.
 - `scripts/local-live-dictation-eval.py`
   - Deterministic replay/evaluation tool for recorded audio.
 - `systemd/hyprwhspr-double-left-ctrl.service`
@@ -52,6 +52,19 @@ To make this folder addressable directly with zoxide:
 zoxide add "$(pwd)/transcription-stack"
 ```
 
+## Runtime control
+
+- Double-`Ctrl` now toggles **typing mode**.
+- The Whisper model daemon stays loaded between dictation sessions.
+- `~/.local/bin/local-live-dictation.py start`
+  - Ensure daemon is running and enable typing mode.
+- `~/.local/bin/local-live-dictation.py stop`
+  - Disable typing mode but keep daemon/model loaded.
+- `~/.local/bin/local-live-dictation.py daemon-stop`
+  - Fully stop daemon/model.
+- `~/.local/bin/local-live-dictation.py status`
+  - Print `running=<0|1> typing=<0|1>`.
+
 ## Key realtime tuning vars
 
 - `LOCAL_DICT_STABLE_PREFIX_GUARD_WORDS` (default `1`)
@@ -66,6 +79,8 @@ zoxide add "$(pwd)/transcription-stack"
   - On explicit stop/exit, flushes pending words with this guard value.
 - `LOCAL_DICT_EXIT_FLUSH_MAX_IDLE_SECONDS` (default `2.5`)
   - Exit flush only runs if speech was recent, which helps avoid stale random trailing output.
+- `LOCAL_DICT_AUTO_STOP_SILENCE_SECONDS` (default `12.0`)
+  - Auto-disables typing after inactivity while leaving the daemon/model running.
 - `LOCAL_DICT_PUNCTUATION_STYLE` (default `adaptive`)
   - `raw`, `minimal`, or `adaptive` punctuation behavior.
 - `LOCAL_DICT_ENABLE_START_SOUND` (default `0`)

@@ -57,6 +57,7 @@ XDG_RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR", f"/tmp/{os.getuid()}")
 STATE_DIR = Path(XDG_RUNTIME_DIR) / "local-live-dictation"
 PID_FILE = STATE_DIR / "loop.pid"
 STOP_FILE = STATE_DIR / "stop"
+TYPE_ON_FILE = STATE_DIR / "typing.on"
 LOG_FILE = Path.home() / ".local" / "state" / "local-live-dictation.log"
 
 HYPRWHSPR_CONFIG = Path.home() / ".config" / "hyprwhspr" / "config.json"
@@ -110,6 +111,20 @@ def _pid_alive(pid: int) -> bool:
 def _is_running() -> bool:
     pid = _read_pid()
     return bool(pid and _pid_alive(pid))
+
+
+def _is_typing_enabled() -> bool:
+    return TYPE_ON_FILE.exists()
+
+
+def _set_typing_enabled(enabled: bool) -> None:
+    if enabled:
+        try:
+            TYPE_ON_FILE.touch(exist_ok=True)
+        except Exception:
+            pass
+        return
+    _remove_file(TYPE_ON_FILE)
 
 
 def _stop_signal_handler(_signum, _frame):
@@ -641,6 +656,87 @@ def _run_loop() -> int:
     last_silence_log = 0.0
     loop_start_ts = time.monotonic()
     last_voice_ts = 0.0
+    typing_enabled = _is_typing_enabled()
+
+    def _clear_audio_buffer() -> None:
+        nonlocal total_samples
+        with lock:
+            chunks.clear()
+            total_samples = 0
+
+    def _current_language() -> str:
+        lang = LANGUAGE_OVERRIDE.strip()
+        if lang:
+            return lang
+        cfg_lang = _load_hyprwhspr_config().get("language")
+        if isinstance(cfg_lang, str) and cfg_lang.strip():
+            return cfg_lang.strip()
+        return ""
+
+    def _transcribe_window(audio_window: np.ndarray) -> str:
+        if audio_window.size <= 0:
+            return ""
+        whisper_audio = _resample_to_whisper(audio_window, capture_rate)
+        if whisper_audio.size <= 0:
+            return ""
+        try:
+            kwargs = {}
+            lang = _current_language()
+            if lang:
+                kwargs["language"] = lang
+            segments = model.transcribe(whisper_audio, n_processors=None, **kwargs)
+            text = " ".join(seg.text for seg in segments if getattr(seg, "text", "")).strip()
+        except Exception:
+            return ""
+        text = _collapse_whitespace(text)
+        if not text or _is_hallucination(text):
+            return ""
+        return text
+
+    def _flush_pending(reason: str, guard_words: int) -> None:
+        nonlocal prev_hyp_words
+
+        if prev_hyp_words:
+            _commit_stable_words(
+                stable_candidate=prev_hyp_words,
+                emitted_words=emitted_words,
+                typer_state=typer_state,
+                guard_words=guard_words,
+            )
+            prev_hyp_words = []
+
+        with lock:
+            if total_samples <= 0 or not chunks:
+                return
+            audio_now = np.concatenate(list(chunks), axis=0)
+
+        if audio_now.size <= 0:
+            return
+        if audio_now.size > window_samples:
+            audio_now = audio_now[-window_samples:]
+
+        rms = float(np.sqrt(np.mean(audio_now * audio_now)))
+        voiced_ratio = _voiced_ratio(audio_now, RMS_THRESHOLD, VOICED_FRAME_MS, capture_rate)
+        if rms < RMS_THRESHOLD or voiced_ratio < MIN_VOICED_RATIO:
+            return
+
+        text = _transcribe_window(audio_now)
+        if not text:
+            return
+
+        words = text.split()
+        if not words:
+            return
+
+        _commit_stable_words(
+            stable_candidate=words,
+            emitted_words=emitted_words,
+            typer_state=typer_state,
+            guard_words=guard_words,
+        )
+        if DEBUG and LOG_TRANSCRIPTS:
+            preview = text if len(text) <= 120 else text[:117] + "..."
+            print(f"[local-dict] flush[{reason}]: {preview}", flush=True)
 
     def audio_callback(indata, _frames, _time_info, status):
         nonlocal total_samples
@@ -677,10 +773,23 @@ def _run_loop() -> int:
         ):
             while RUNNING and not STOP_FILE.exists():
                 now = time.monotonic()
-                silence_for = (now - last_voice_ts) if last_voice_ts > 0.0 else (now - loop_start_ts)
-                if AUTO_STOP_SILENCE_SECONDS > 0 and silence_for >= AUTO_STOP_SILENCE_SECONDS:
-                    print(f"[local-dict] auto-stop after {silence_for:.1f}s of inactivity", flush=True)
-                    break
+                next_typing_enabled = _is_typing_enabled()
+                if next_typing_enabled != typing_enabled:
+                    if typing_enabled and not next_typing_enabled:
+                        _flush_pending("typing-off", EXIT_FLUSH_GUARD_WORDS)
+                    typing_enabled = next_typing_enabled
+                    prev_hyp_words = []
+                    loop_start_ts = now
+                    last_voice_ts = 0.0
+                    last_process = 0.0
+                    _clear_audio_buffer()
+                    if DEBUG:
+                        state = "enabled" if typing_enabled else "disabled"
+                        print(f"[local-dict] typing {state}", flush=True)
+
+                if not typing_enabled:
+                    time.sleep(0.03)
+                    continue
 
                 if now - last_process < STEP_SECONDS:
                     time.sleep(0.03)
@@ -704,14 +813,18 @@ def _run_loop() -> int:
                 if rms < RMS_THRESHOLD or voiced_ratio < MIN_VOICED_RATIO:
                     silence_for = (now - last_voice_ts) if last_voice_ts > 0.0 else (now - loop_start_ts)
                     if last_voice_ts > 0.0 and silence_for >= SILENCE_RESET_SECONDS:
-                        if prev_hyp_words:
-                            _commit_stable_words(
-                                stable_candidate=prev_hyp_words,
-                                emitted_words=emitted_words,
-                                typer_state=typer_state,
-                                guard_words=SILENCE_FLUSH_GUARD_WORDS,
-                            )
+                        _flush_pending("silence", SILENCE_FLUSH_GUARD_WORDS)
+
+                    if AUTO_STOP_SILENCE_SECONDS > 0 and silence_for >= AUTO_STOP_SILENCE_SECONDS:
+                        print(f"[local-dict] auto-disable typing after {silence_for:.1f}s of inactivity", flush=True)
+                        _set_typing_enabled(False)
+                        typing_enabled = False
                         prev_hyp_words = []
+                        loop_start_ts = now
+                        last_voice_ts = 0.0
+                        _clear_audio_buffer()
+                        continue
+
                     if DEBUG and (now - last_silence_log) >= 5.0:
                         print(
                             f"[local-dict] waiting for voice rms={rms:.5f} voiced_ratio={voiced_ratio:.2f} "
@@ -721,27 +834,8 @@ def _run_loop() -> int:
                         last_silence_log = now
                     continue
 
-                whisper_audio = _resample_to_whisper(audio, capture_rate)
-                if whisper_audio.size <= 0:
-                    continue
-
-                try:
-                    kwargs = {}
-                    lang = LANGUAGE_OVERRIDE.strip()
-                    if not lang:
-                        cfg_lang = _load_hyprwhspr_config().get("language")
-                        if isinstance(cfg_lang, str) and cfg_lang.strip():
-                            lang = cfg_lang.strip()
-                    if lang:
-                        kwargs["language"] = lang
-
-                    segments = model.transcribe(whisper_audio, n_processors=None, **kwargs)
-                    text = " ".join(seg.text for seg in segments if getattr(seg, "text", "")).strip()
-                except Exception:
-                    continue
-
-                text = _collapse_whitespace(text)
-                if not text or _is_hallucination(text):
+                text = _transcribe_window(audio)
+                if not text:
                     continue
 
                 last_voice_ts = now
@@ -774,23 +868,19 @@ def _run_loop() -> int:
                 prev_hyp_words = words
 
             exit_idle = (time.monotonic() - last_voice_ts) if last_voice_ts > 0.0 else (time.monotonic() - loop_start_ts)
-            if prev_hyp_words and exit_idle <= max(0.0, EXIT_FLUSH_MAX_IDLE_SECONDS):
-                _commit_stable_words(
-                    stable_candidate=prev_hyp_words,
-                    emitted_words=emitted_words,
-                    typer_state=typer_state,
-                    guard_words=EXIT_FLUSH_GUARD_WORDS,
-                )
+            if typing_enabled and exit_idle <= max(0.0, EXIT_FLUSH_MAX_IDLE_SECONDS):
+                _flush_pending("exit", EXIT_FLUSH_GUARD_WORDS)
 
     finally:
         print("[local-dict] stopped", flush=True)
         _remove_file(PID_FILE)
         _remove_file(STOP_FILE)
+        _remove_file(TYPE_ON_FILE)
 
     return 0
 
 
-def _start() -> int:
+def _daemon_start() -> int:
     _ensure_dirs()
     if _is_running():
         print("already-running")
@@ -820,13 +910,44 @@ def _start() -> int:
     return 1
 
 
+def _start() -> int:
+    _ensure_dirs()
+    _remove_file(STOP_FILE)
+    _set_typing_enabled(True)
+
+    if _is_running():
+        print("already-on" if _is_typing_enabled() else "typing-on")
+        return 0
+
+    return _daemon_start()
+
+
 def _stop() -> int:
+    _ensure_dirs()
+    if not _is_running():
+        _remove_file(PID_FILE)
+        _remove_file(STOP_FILE)
+        _remove_file(TYPE_ON_FILE)
+        print("already-off")
+        return 0
+
+    if not _is_typing_enabled():
+        print("already-off")
+        return 0
+
+    _set_typing_enabled(False)
+    print("typing-off")
+    return 0
+
+
+def _daemon_stop() -> int:
     _ensure_dirs()
     pid = _read_pid()
     if not pid or not _pid_alive(pid):
         _remove_file(PID_FILE)
         _remove_file(STOP_FILE)
-        print("already-stopped")
+        _remove_file(TYPE_ON_FILE)
+        print("already-daemon-stopped")
         return 0
 
     STOP_FILE.touch(exist_ok=True)
@@ -848,7 +969,15 @@ def _stop() -> int:
 
     _remove_file(PID_FILE)
     _remove_file(STOP_FILE)
-    print("stopped")
+    _remove_file(TYPE_ON_FILE)
+    print("daemon-stopped")
+    return 0
+
+
+def _status() -> int:
+    running = _is_running()
+    typing = running and _is_typing_enabled()
+    print(f"running={1 if running else 0} typing={1 if typing else 0}")
     return 0
 
 
@@ -860,8 +989,14 @@ def main() -> int:
         return _start()
     if cmd == "stop":
         return _stop()
+    if cmd in {"daemon-start", "model-start"}:
+        return _daemon_start()
+    if cmd in {"daemon-stop", "model-stop"}:
+        return _daemon_stop()
+    if cmd == "status":
+        return _status()
     if cmd == "toggle":
-        return _stop() if _is_running() else _start()
+        return _stop() if (_is_running() and _is_typing_enabled()) else _start()
 
     print(f"unknown command: {cmd}", file=sys.stderr)
     return 2

@@ -28,6 +28,7 @@ LOCAL_DICTATION_CMD = "/home/groot/.local/bin/local-live-dictation.py"
 UID = os.getuid()
 XDG_RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{UID}")
 DICTATION_PID_FILE = Path(XDG_RUNTIME_DIR) / "local-live-dictation" / "loop.pid"
+DICTATION_TYPING_FILE = Path(XDG_RUNTIME_DIR) / "local-live-dictation" / "typing.on"
 ENABLE_START_SOUND = os.environ.get("LOCAL_DICT_ENABLE_START_SOUND", "0").strip().lower() not in {"0", "false", "no", "off"}
 ENABLE_STOP_SOUND = os.environ.get("LOCAL_DICT_ENABLE_STOP_SOUND", "1").strip().lower() not in {"0", "false", "no", "off"}
 START_SOUND_EVENT = os.environ.get("LOCAL_DICT_START_SOUND_EVENT", "bell").strip() or "bell"
@@ -110,6 +111,12 @@ def _dictation_running() -> bool:
     return _pid_alive(pid)
 
 
+def _typing_active() -> bool:
+    if not _dictation_running():
+        return False
+    return DICTATION_TYPING_FILE.exists()
+
+
 def _play_state_sound(on: bool) -> None:
     if on and not ENABLE_START_SOUND:
         return
@@ -140,16 +147,16 @@ def _notify(summary: str, body: str = "") -> None:
 
 
 def _trigger_dictation(now: float, last_start_ts: float) -> float:
-    running = _dictation_running()
+    typing_active = _typing_active()
 
-    if running and last_start_ts > 0.0 and (now - last_start_ts) < MIN_ON_SECONDS_BEFORE_STOP:
+    if typing_active and last_start_ts > 0.0 and (now - last_start_ts) < MIN_ON_SECONDS_BEFORE_STOP:
         wait_left = max(0.0, MIN_ON_SECONDS_BEFORE_STOP - (now - last_start_ts))
         print(f"[double-ctrl] ignoring stop while dictation is still starting ({wait_left:.1f}s)", flush=True)
         _play_state_sound(True)
         _notify("Dictation", "Still starting...")
         return last_start_ts
 
-    action = "stop" if running else "start"
+    action = "stop" if typing_active else "start"
     print(f"[double-ctrl] trigger -> local-live-dictation {action}", flush=True)
     if action == "start":
         _notify("Dictation", "Starting...")
@@ -171,7 +178,7 @@ def _trigger_dictation(now: float, last_start_ts: float) -> float:
         out = str(exc)
 
     if action == "start":
-        ok = rc == 0 and out in {"started", "already-running"}
+        ok = rc == 0 and out in {"started", "typing-on", "already-on", "already-running"}
         if ok:
             _play_state_sound(True)
             _notify("Dictation On", "Live transcription enabled")
@@ -181,7 +188,7 @@ def _trigger_dictation(now: float, last_start_ts: float) -> float:
         print(f"[double-ctrl] start failed rc={rc} out={out}", flush=True)
         return last_start_ts
 
-    ok = rc == 0 and out in {"stopped", "already-stopped"}
+    ok = rc == 0 and out in {"typing-off", "already-off", "stopped", "already-stopped"}
     if ok:
         _play_state_sound(False)
         _notify("Dictation Off", "Live transcription disabled")
