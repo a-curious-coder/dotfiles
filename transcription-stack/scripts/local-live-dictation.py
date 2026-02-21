@@ -913,10 +913,11 @@ def _daemon_start() -> int:
 def _start() -> int:
     _ensure_dirs()
     _remove_file(STOP_FILE)
+    was_typing_enabled = _is_typing_enabled()
     _set_typing_enabled(True)
 
     if _is_running():
-        print("already-on" if _is_typing_enabled() else "typing-on")
+        print("already-on" if was_typing_enabled else "typing-on")
         return 0
 
     return _daemon_start()
