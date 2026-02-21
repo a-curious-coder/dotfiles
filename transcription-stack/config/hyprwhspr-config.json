@@ -1,0 +1,10 @@
+{
+  "$schema": "https://raw.githubusercontent.com/goodroot/hyprwhspr/main/share/config.schema.json",
+  "audio_device_name": "Arctis Nova Pro Wireless Mono",
+  "backend": "vulkan",
+  "gpu_layers": 999,
+  "model": "base",
+  "silence_limit": 1.5,
+  "threshold": 0.002,
+  "vad_enabled": true
+}

@@ -1,0 +1,5 @@
+bb9cc10fb7b901e2fabd9c6c8506f1b2a3076dff02e0a4444a74f6cf7dc5f79b  scripts/local-live-dictation.py
+1a460d2543955a25b290e27711e299ce75b46be5a527113823aa1bac01991d9f  scripts/hyprwhspr-double-left-ctrl.py
+d9f873d3e52c085613471194f33f1d921bf82ae8a66d5752a760969e153dc676  scripts/local-live-dictation-eval.py
+7c8d191b93eb41bc26fdd4aee62c0608e29a4c6a70d4d746dec84a2544d6fa74  systemd/hyprwhspr-double-left-ctrl.service
+b4115be17919d78e28a72c49855ba1672a07a50b2547ab24d844cca9cd88fcde  config/hyprwhspr-config.json
