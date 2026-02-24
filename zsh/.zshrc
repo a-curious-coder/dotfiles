@@ -218,3 +218,4 @@ if command -v pyenv 1>/dev/null 2>&1; then
     # Avoid per-shell startup rehash lock contention in new tmux panes/windows.
     eval "$(pyenv init - --no-rehash)"
 fi
+export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
