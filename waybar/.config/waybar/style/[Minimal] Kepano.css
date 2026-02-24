@@ -104,17 +104,23 @@ window#waybar {
 /* Dictation model status */
 #custom-dictation-model {
   padding: 0 10px;
+  min-width: 16px;
+  font-size: 14px;
   color: @base600;
 }
 
-#custom-dictation-model.running.warm {
+#custom-dictation-model.warm {
   color: @orange;
 }
 
-#custom-dictation-model.running.typing {
+#custom-dictation-model.typing {
   color: @green;
 }
 
-#custom-dictation-model.stopped {
+#custom-dictation-model.commands {
+  color: @red;
+}
+
+#custom-dictation-model.off {
   color: @base600;
 }

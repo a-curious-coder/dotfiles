@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Listen for a clean double-tap of Ctrl and toggle local live dictation."""
+"""Double-Ctrl mode switcher.
+
+Hotkeys:
+- Double LEFT Ctrl: toggle live dictation typing mode.
+- Double RIGHT Ctrl: toggle voice-command mode.
+
+Modes are strictly mutually exclusive. Starting one mode stops the other first.
+"""
+
+from __future__ import annotations
 
 import os
 import select
@@ -16,23 +25,35 @@ except Exception as exc:
     print(f"[double-ctrl] Failed to import evdev: {exc}", file=sys.stderr, flush=True)
     sys.exit(1)
 
-CTRL_CODES = {ecodes.KEY_LEFTCTRL, ecodes.KEY_RIGHTCTRL}
+LEFT_CTRL_CODE = ecodes.KEY_LEFTCTRL
+RIGHT_CTRL_CODE = ecodes.KEY_RIGHTCTRL
+CTRL_CODES = {LEFT_CTRL_CODE, RIGHT_CTRL_CODE}
+
 DOUBLE_TAP_WINDOW = 0.45
 MAX_TAP_HOLD = 0.30
-TRIGGER_COOLDOWN = 1.40
-MIN_ON_SECONDS_BEFORE_STOP = 3.00
+TRIGGER_COOLDOWN = 1.30
+MIN_MODE_ON_SECONDS_BEFORE_STOP = 1.20
 TAP_DEDUP_WINDOW = 0.07
 RESCAN_INTERVAL = 5.0
 
 LOCAL_DICTATION_CMD = "/home/groot/.local/bin/local-live-dictation.py"
+VOICE_COMMANDS_CMD = "/home/groot/.local/bin/local-voice-commands.py"
+
 UID = os.getuid()
 XDG_RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{UID}")
 DICTATION_PID_FILE = Path(XDG_RUNTIME_DIR) / "local-live-dictation" / "loop.pid"
 DICTATION_TYPING_FILE = Path(XDG_RUNTIME_DIR) / "local-live-dictation" / "typing.on"
+VOICE_COMMAND_PID_FILE = Path(XDG_RUNTIME_DIR) / "local-voice-commands" / "loop.pid"
+
 ENABLE_START_SOUND = os.environ.get("LOCAL_DICT_ENABLE_START_SOUND", "0").strip().lower() not in {"0", "false", "no", "off"}
 ENABLE_STOP_SOUND = os.environ.get("LOCAL_DICT_ENABLE_STOP_SOUND", "1").strip().lower() not in {"0", "false", "no", "off"}
 START_SOUND_EVENT = os.environ.get("LOCAL_DICT_START_SOUND_EVENT", "bell").strip() or "bell"
 STOP_SOUND_EVENT = os.environ.get("LOCAL_DICT_STOP_SOUND_EVENT", "complete").strip() or "complete"
+DEFAULT_MODE = os.environ.get("LOCAL_SPEECH_DEFAULT_MODE", "commands").strip().lower()
+try:
+    DEFAULT_MODE_DELAY_SECONDS = max(0.0, float(os.environ.get("LOCAL_SPEECH_DEFAULT_MODE_DELAY_SECONDS", "0.8")))
+except Exception:
+    DEFAULT_MODE_DELAY_SECONDS = 0.8
 
 RUNNING = True
 
@@ -44,14 +65,11 @@ def _handle_signal(_signum, _frame):
 
 def _is_keyboard_like(device: InputDevice) -> bool:
     name = (device.name or "").lower()
-
-    # Ignore ydotool injected device to avoid feedback loops.
     if "ydotool" in name:
         return False
 
     caps = device.capabilities(verbose=False)
     keys = set(caps.get(ecodes.EV_KEY, []))
-
     required = {
         ecodes.KEY_LEFTCTRL,
         ecodes.KEY_A,
@@ -72,6 +90,7 @@ def _discover_devices(devices: Dict[int, InputDevice], key_state: Dict[int, dict
                 devices[dev.fd] = dev
                 key_state[dev.fd] = {
                     "ctrl_is_down": False,
+                    "ctrl_code_down": 0,
                     "ctrl_down_ts": 0.0,
                     "saw_other_key_during_ctrl": False,
                 }
@@ -103,18 +122,44 @@ def _pid_alive(pid: int) -> bool:
         return False
 
 
-def _dictation_running() -> bool:
+def _read_pid(path: Path) -> int | None:
     try:
-        pid = int(DICTATION_PID_FILE.read_text().strip())
+        return int(path.read_text().strip())
     except Exception:
-        return False
-    return _pid_alive(pid)
+        return None
+
+
+def _dictation_running() -> bool:
+    pid = _read_pid(DICTATION_PID_FILE)
+    return bool(pid and _pid_alive(pid))
 
 
 def _typing_active() -> bool:
-    if not _dictation_running():
-        return False
-    return DICTATION_TYPING_FILE.exists()
+    return _dictation_running() and DICTATION_TYPING_FILE.exists()
+
+
+def _voice_commands_running() -> bool:
+    pid = _read_pid(VOICE_COMMAND_PID_FILE)
+    return bool(pid and _pid_alive(pid))
+
+
+def _run_mode_cmd(argv: list[str], timeout: float = 20.0) -> tuple[int, str]:
+    out = ""
+    rc = 1
+    try:
+        proc = subprocess.run(
+            argv,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=False,
+            timeout=timeout,
+        )
+        rc = proc.returncode
+        out = (proc.stdout or "").strip() or (proc.stderr or "").strip()
+    except Exception as exc:
+        out = str(exc)
+    return rc, out
 
 
 def _play_state_sound(on: bool) -> None:
@@ -122,7 +167,6 @@ def _play_state_sound(on: bool) -> None:
         return
     if (not on) and not ENABLE_STOP_SOUND:
         return
-
     event_id = START_SOUND_EVENT if on else STOP_SOUND_EVENT
     for cmd in (
         ["canberra-gtk-play", "-i", event_id],
@@ -136,9 +180,8 @@ def _play_state_sound(on: bool) -> None:
 
 
 def _notify(summary: str, body: str = "") -> None:
-    # Best-effort desktop notification. This can fail in some session setups.
     try:
-        args = ["notify-send", "-a", "Dictation", summary]
+        args = ["notify-send", "-a", "Speech Modes", summary]
         if body:
             args.append(body)
         subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -146,38 +189,35 @@ def _notify(summary: str, body: str = "") -> None:
         pass
 
 
-def _trigger_dictation(now: float, last_start_ts: float) -> float:
+def _stop_dictation_daemon_for_switch() -> None:
+    if not _dictation_running():
+        return
+    _run_mode_cmd([LOCAL_DICTATION_CMD, "daemon-stop"], timeout=25)
+
+
+def _stop_voice_commands_for_switch() -> None:
+    if not _voice_commands_running():
+        return
+    _run_mode_cmd([VOICE_COMMANDS_CMD, "stop"], timeout=20)
+
+
+def _trigger_dictation(now: float, last_dictation_on_ts: float) -> float:
     typing_active = _typing_active()
 
-    if typing_active and last_start_ts > 0.0 and (now - last_start_ts) < MIN_ON_SECONDS_BEFORE_STOP:
-        wait_left = max(0.0, MIN_ON_SECONDS_BEFORE_STOP - (now - last_start_ts))
-        print(f"[double-ctrl] ignoring stop while dictation is still starting ({wait_left:.1f}s)", flush=True)
+    if typing_active and last_dictation_on_ts > 0.0 and (now - last_dictation_on_ts) < MIN_MODE_ON_SECONDS_BEFORE_STOP:
+        wait_left = max(0.0, MIN_MODE_ON_SECONDS_BEFORE_STOP - (now - last_dictation_on_ts))
+        print(f"[double-ctrl] ignoring dictation stop while still starting ({wait_left:.1f}s)", flush=True)
         _play_state_sound(True)
         _notify("Dictation", "Still starting...")
-        return last_start_ts
+        return last_dictation_on_ts
 
     action = "stop" if typing_active else "start"
-    print(f"[double-ctrl] trigger -> local-live-dictation {action}", flush=True)
-    if action == "start":
-        _notify("Dictation", "Starting...")
-
-    out = ""
-    rc = 1
-    try:
-        proc = subprocess.run(
-            [LOCAL_DICTATION_CMD, action],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            check=False,
-            timeout=15,
-        )
-        rc = proc.returncode
-        out = (proc.stdout or "").strip() or (proc.stderr or "").strip()
-    except Exception as exc:
-        out = str(exc)
+    print(f"[double-ctrl] trigger -> dictation {action}", flush=True)
 
     if action == "start":
+        _stop_voice_commands_for_switch()
+        _notify("Dictation", "Starting (commands off)...")
+        rc, out = _run_mode_cmd([LOCAL_DICTATION_CMD, "start"], timeout=20)
         ok = rc == 0 and out in {"started", "typing-on", "already-on", "already-running"}
         if ok:
             _play_state_sound(True)
@@ -185,9 +225,10 @@ def _trigger_dictation(now: float, last_start_ts: float) -> float:
             return now
         _play_state_sound(False)
         _notify("Dictation Start Failed", out or "See log")
-        print(f"[double-ctrl] start failed rc={rc} out={out}", flush=True)
-        return last_start_ts
+        print(f"[double-ctrl] dictation start failed rc={rc} out={out}", flush=True)
+        return last_dictation_on_ts
 
+    rc, out = _run_mode_cmd([LOCAL_DICTATION_CMD, "stop"], timeout=15)
     ok = rc == 0 and out in {"typing-off", "already-off", "stopped", "already-stopped"}
     if ok:
         _play_state_sound(False)
@@ -196,8 +237,92 @@ def _trigger_dictation(now: float, last_start_ts: float) -> float:
 
     _play_state_sound(False)
     _notify("Dictation Stop Failed", out or "See log")
-    print(f"[double-ctrl] stop failed rc={rc} out={out}", flush=True)
-    return last_start_ts
+    print(f"[double-ctrl] dictation stop failed rc={rc} out={out}", flush=True)
+    return last_dictation_on_ts
+
+
+def _trigger_voice_commands(now: float, last_commands_on_ts: float) -> float:
+    commands_running = _voice_commands_running()
+
+    if commands_running and last_commands_on_ts > 0.0 and (now - last_commands_on_ts) < MIN_MODE_ON_SECONDS_BEFORE_STOP:
+        wait_left = max(0.0, MIN_MODE_ON_SECONDS_BEFORE_STOP - (now - last_commands_on_ts))
+        print(f"[double-ctrl] ignoring commands stop while still starting ({wait_left:.1f}s)", flush=True)
+        _play_state_sound(True)
+        _notify("Voice Commands", "Still starting...")
+        return last_commands_on_ts
+
+    action = "stop" if commands_running else "start"
+    print(f"[double-ctrl] trigger -> voice-commands {action}", flush=True)
+
+    if action == "start":
+        _stop_dictation_daemon_for_switch()
+        _notify("Voice Commands", "Starting (dictation off)...")
+        rc, out = _run_mode_cmd([VOICE_COMMANDS_CMD, "start"], timeout=20)
+        ok = rc == 0 and out in {"started", "already-running"}
+        if ok:
+            _play_state_sound(True)
+            _notify("Voice Commands On", "Speak commands like: open terminal")
+            return now
+        _play_state_sound(False)
+        _notify("Voice Commands Start Failed", out or "See log")
+        print(f"[double-ctrl] voice-commands start failed rc={rc} out={out}", flush=True)
+        return last_commands_on_ts
+
+    rc, out = _run_mode_cmd([VOICE_COMMANDS_CMD, "stop"], timeout=15)
+    ok = rc == 0 and out in {"stopped", "already-stopped"}
+    if ok:
+        _play_state_sound(False)
+        _notify("Voice Commands Off", "Command listening disabled")
+        return 0.0
+
+    _play_state_sound(False)
+    _notify("Voice Commands Stop Failed", out or "See log")
+    print(f"[double-ctrl] voice-commands stop failed rc={rc} out={out}", flush=True)
+    return last_commands_on_ts
+
+
+def _bootstrap_default_mode() -> tuple[float, float]:
+    mode = DEFAULT_MODE
+    if mode in {"", "off", "none", "disabled"}:
+        return 0.0, 0.0
+    if mode not in {"commands", "dictation"}:
+        mode = "commands"
+
+    now = time.monotonic()
+    typing_active = _typing_active()
+    commands_running = _voice_commands_running()
+
+    if typing_active:
+        print("[double-ctrl] startup: dictation already active; keeping current mode", flush=True)
+        return now, 0.0
+    if commands_running:
+        print("[double-ctrl] startup: voice commands already active", flush=True)
+        return 0.0, now
+
+    if DEFAULT_MODE_DELAY_SECONDS > 0.0:
+        time.sleep(DEFAULT_MODE_DELAY_SECONDS)
+
+    if mode == "commands":
+        _stop_dictation_daemon_for_switch()
+        rc, out = _run_mode_cmd([VOICE_COMMANDS_CMD, "start"], timeout=20)
+        ok = rc == 0 and out in {"started", "already-running"}
+        if ok:
+            print("[double-ctrl] startup -> voice-commands start", flush=True)
+            _notify("Voice Commands On", "Enabled by default")
+            return 0.0, time.monotonic()
+        print(f"[double-ctrl] startup voice-commands failed rc={rc} out={out}", flush=True)
+        return 0.0, 0.0
+
+    _stop_voice_commands_for_switch()
+    rc, out = _run_mode_cmd([LOCAL_DICTATION_CMD, "start"], timeout=20)
+    ok = rc == 0 and out in {"started", "typing-on", "already-on", "already-running"}
+    if ok:
+        print("[double-ctrl] startup -> dictation start", flush=True)
+        _notify("Dictation On", "Enabled by default")
+        return time.monotonic(), 0.0
+
+    print(f"[double-ctrl] startup dictation failed rc={rc} out={out}", flush=True)
+    return 0.0, 0.0
 
 
 def main() -> int:
@@ -206,16 +331,15 @@ def main() -> int:
 
     devices: Dict[int, InputDevice] = {}
     key_state: Dict[int, dict] = {}
-
     last_scan = 0.0
 
-    # Global tap timeline (dedupes mirrored keyboard devices).
-    last_tap_up_ts = 0.0
-    last_raw_tap_ts = 0.0
-    last_trigger_ts = 0.0
-    last_start_ts = 0.0
+    # Global tap timelines per Ctrl side (dedupes mirrored input devices).
+    last_tap_up_ts = {LEFT_CTRL_CODE: 0.0, RIGHT_CTRL_CODE: 0.0}
+    last_raw_tap_ts = {LEFT_CTRL_CODE: 0.0, RIGHT_CTRL_CODE: 0.0}
+    last_trigger_ts = {LEFT_CTRL_CODE: 0.0, RIGHT_CTRL_CODE: 0.0}
+    last_dictation_on_ts, last_commands_on_ts = _bootstrap_default_mode()
 
-    print("[double-ctrl] started", flush=True)
+    print("[double-ctrl] started (L+L=dictation, R+R=commands)", flush=True)
 
     while RUNNING:
         now = time.monotonic()
@@ -243,6 +367,7 @@ def main() -> int:
                 fd,
                 {
                     "ctrl_is_down": False,
+                    "ctrl_code_down": 0,
                     "ctrl_down_ts": 0.0,
                     "saw_other_key_during_ctrl": False,
                 },
@@ -264,13 +389,16 @@ def main() -> int:
                 if code in CTRL_CODES:
                     if value == 1:
                         if state["ctrl_is_down"]:
+                            if state.get("ctrl_code_down") != code:
+                                state["saw_other_key_during_ctrl"] = True
                             continue
                         state["ctrl_is_down"] = True
+                        state["ctrl_code_down"] = code
                         state["ctrl_down_ts"] = time.monotonic()
                         state["saw_other_key_during_ctrl"] = False
 
                     elif value == 0:
-                        if not state["ctrl_is_down"]:
+                        if not state["ctrl_is_down"] or state.get("ctrl_code_down") != code:
                             continue
 
                         state["ctrl_is_down"] = False
@@ -280,26 +408,30 @@ def main() -> int:
                         if valid_tap:
                             tap_time = time.monotonic()
 
-                            # Ignore duplicates from mirrored input devices.
-                            if (tap_time - last_raw_tap_ts) < TAP_DEDUP_WINDOW:
+                            if (tap_time - last_raw_tap_ts[code]) < TAP_DEDUP_WINDOW:
+                                state["ctrl_code_down"] = 0
                                 state["ctrl_down_ts"] = 0.0
                                 state["saw_other_key_during_ctrl"] = False
                                 continue
-                            last_raw_tap_ts = tap_time
+                            last_raw_tap_ts[code] = tap_time
 
                             if (
-                                last_tap_up_ts > 0.0
-                                and (tap_time - last_tap_up_ts) <= DOUBLE_TAP_WINDOW
-                                and (tap_time - last_trigger_ts) >= TRIGGER_COOLDOWN
+                                last_tap_up_ts[code] > 0.0
+                                and (tap_time - last_tap_up_ts[code]) <= DOUBLE_TAP_WINDOW
+                                and (tap_time - last_trigger_ts[code]) >= TRIGGER_COOLDOWN
                             ):
-                                last_start_ts = _trigger_dictation(tap_time, last_start_ts)
-                                last_trigger_ts = tap_time
-                                last_tap_up_ts = 0.0
+                                if code == LEFT_CTRL_CODE:
+                                    last_dictation_on_ts = _trigger_dictation(tap_time, last_dictation_on_ts)
+                                else:
+                                    last_commands_on_ts = _trigger_voice_commands(tap_time, last_commands_on_ts)
+                                last_trigger_ts[code] = tap_time
+                                last_tap_up_ts[code] = 0.0
                             else:
-                                last_tap_up_ts = tap_time
+                                last_tap_up_ts[code] = tap_time
                         else:
-                            last_tap_up_ts = 0.0
+                            last_tap_up_ts[code] = 0.0
 
+                        state["ctrl_code_down"] = 0
                         state["ctrl_down_ts"] = 0.0
                         state["saw_other_key_during_ctrl"] = False
 
@@ -307,7 +439,9 @@ def main() -> int:
                     if value == 1:
                         if state["ctrl_is_down"]:
                             state["saw_other_key_during_ctrl"] = True
-                        last_tap_up_ts = 0.0
+                            down_code = state.get("ctrl_code_down", 0)
+                            if down_code in last_tap_up_ts:
+                                last_tap_up_ts[down_code] = 0.0
 
     for fd in list(devices.keys()):
         _remove_device(fd, devices, key_state)

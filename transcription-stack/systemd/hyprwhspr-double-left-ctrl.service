@@ -1,5 +1,5 @@
 [Unit]
-Description=Double Left Ctrl trigger for hyprwhspr
+Description=Double Ctrl trigger for dictation + voice commands
 After=hyprwhspr.service graphical-session.target
 Wants=hyprwhspr.service
 
@@ -9,6 +9,8 @@ ExecStart=%h/.local/bin/hyprwhspr-double-left-ctrl.py
 Restart=always
 RestartSec=1
 Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=LOCAL_SPEECH_DEFAULT_MODE=commands
+Environment=LOCAL_SPEECH_DEFAULT_MODE_DELAY_SECONDS=0.8
 
 [Install]
 WantedBy=default.target

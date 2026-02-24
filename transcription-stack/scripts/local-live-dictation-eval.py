@@ -307,18 +307,18 @@ def _build_parser() -> argparse.ArgumentParser:
     p.add_argument("--audio", required=True, help="Path to input audio/video file")
     p.add_argument("--reference", default="", help="Expected phrase/text")
     p.add_argument("--reference-file", default="", help="Path to file containing expected text")
-    p.add_argument("--model", default="base.en", help="Whisper model name")
-    p.add_argument("--language", default="en", help="Language override (e.g. en)")
+    p.add_argument("--model", default="", help="Whisper model name (defaults to live script setting)")
+    p.add_argument("--language", default="", help="Language override (e.g. en, defaults to live script setting)")
     p.add_argument("--sample-rate", type=int, default=16000)
-    p.add_argument("--step-seconds", type=float, default=0.6)
-    p.add_argument("--window-seconds", type=float, default=4.0)
-    p.add_argument("--rms-threshold", type=float, default=0.00035)
-    p.add_argument("--silence-reset-seconds", type=float, default=1.2)
-    p.add_argument("--silence-flush-guard-words", type=int, default=0)
-    p.add_argument("--guard-words", type=int, default=0)
-    p.add_argument("--tail-revision-max-words", type=int, default=3)
-    p.add_argument("--tail-revision-min-anchor-words", type=int, default=2)
-    p.add_argument("--emit-history-words", type=int, default=72)
+    p.add_argument("--step-seconds", type=float, default=None)
+    p.add_argument("--window-seconds", type=float, default=None)
+    p.add_argument("--rms-threshold", type=float, default=None)
+    p.add_argument("--silence-reset-seconds", type=float, default=None)
+    p.add_argument("--silence-flush-guard-words", type=int, default=None)
+    p.add_argument("--guard-words", type=int, default=None)
+    p.add_argument("--tail-revision-max-words", type=int, default=None)
+    p.add_argument("--tail-revision-min-anchor-words", type=int, default=None)
+    p.add_argument("--emit-history-words", type=int, default=None)
     p.add_argument("--verbose", action="store_true")
     return p
 
@@ -341,14 +341,31 @@ def main() -> int:
 
     live = _load_live_module(SCRIPT_PATH)
 
+    def _live_or(arg_value, attr_name: str, fallback):
+        if arg_value is not None and arg_value != "":
+            return arg_value
+        return getattr(live, attr_name, fallback)
+
+    model_name = str(_live_or(args.model, "MODEL_NAME", "base.en"))
+    language = str(_live_or(args.language, "LANGUAGE_OVERRIDE", "en"))
+    step_seconds = float(_live_or(args.step_seconds, "STEP_SECONDS", 0.5))
+    window_seconds = float(_live_or(args.window_seconds, "WINDOW_SECONDS", 3.6))
+    rms_threshold = float(_live_or(args.rms_threshold, "RMS_THRESHOLD", 0.00035))
+    silence_reset_seconds = float(_live_or(args.silence_reset_seconds, "SILENCE_RESET_SECONDS", 1.2))
+    silence_flush_guard_words = int(_live_or(args.silence_flush_guard_words, "SILENCE_FLUSH_GUARD_WORDS", 0))
+    guard_words = int(_live_or(args.guard_words, "STABLE_PREFIX_GUARD_WORDS", 0))
+    tail_revision_max_words = int(_live_or(args.tail_revision_max_words, "TAIL_REVISION_MAX_WORDS", 6))
+    tail_revision_min_anchor_words = int(_live_or(args.tail_revision_min_anchor_words, "TAIL_REVISION_MIN_ANCHOR_WORDS", 3))
+    emit_history_words = int(_live_or(args.emit_history_words, "EMIT_HISTORY_WORDS", 72))
+
     print(f"[eval] decoding: {audio_path}")
     audio = _decode_audio_to_f32_mono(audio_path, args.sample_rate)
     duration = audio.size / float(args.sample_rate)
     print(f"[eval] audio duration: {duration:.2f}s @ {args.sample_rate}Hz")
 
-    print(f"[eval] loading model={args.model}")
+    print(f"[eval] loading model={model_name}")
     model = Model(
-        args.model,
+        model_name,
         print_realtime=False,
         print_progress=False,
         print_timestamps=False,
@@ -356,22 +373,22 @@ def main() -> int:
         no_context=True,
     )
 
-    full_text = _transcribe_text(model, audio, args.language)
+    full_text = _transcribe_text(model, audio, language)
     simulated_text, trace = _simulate_realtime(
         live=live,
         model=model,
         audio=audio,
         sample_rate=args.sample_rate,
-        step_seconds=args.step_seconds,
-        window_seconds=args.window_seconds,
-        rms_threshold=args.rms_threshold,
-        silence_reset_seconds=args.silence_reset_seconds,
-        silence_flush_guard_words=args.silence_flush_guard_words,
-        guard_words=args.guard_words,
-        tail_revision_max_words=args.tail_revision_max_words,
-        tail_revision_min_anchor_words=args.tail_revision_min_anchor_words,
-        emit_history_words=args.emit_history_words,
-        language=args.language,
+        step_seconds=step_seconds,
+        window_seconds=window_seconds,
+        rms_threshold=rms_threshold,
+        silence_reset_seconds=silence_reset_seconds,
+        silence_flush_guard_words=silence_flush_guard_words,
+        guard_words=guard_words,
+        tail_revision_max_words=tail_revision_max_words,
+        tail_revision_min_anchor_words=tail_revision_min_anchor_words,
+        emit_history_words=emit_history_words,
+        language=language,
         verbose=args.verbose,
     )
 

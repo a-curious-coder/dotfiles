@@ -12,6 +12,7 @@ import sys
 import threading
 import time
 from collections import deque
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Deque, List, Optional, Tuple
 
@@ -28,8 +29,8 @@ WHISPER_SAMPLE_RATE = 16000
 CHANNELS = 1
 BLOCK_SIZE = 1024
 
-STEP_SECONDS = float(os.environ.get("LOCAL_DICT_STEP_SECONDS", "0.6"))
-WINDOW_SECONDS = float(os.environ.get("LOCAL_DICT_WINDOW_SECONDS", "4.0"))
+STEP_SECONDS = float(os.environ.get("LOCAL_DICT_STEP_SECONDS", "0.5"))
+WINDOW_SECONDS = float(os.environ.get("LOCAL_DICT_WINDOW_SECONDS", "3.6"))
 MAX_BUFFER_SECONDS = float(os.environ.get("LOCAL_DICT_MAX_BUFFER_SECONDS", "8.0"))
 RMS_THRESHOLD = float(os.environ.get("LOCAL_DICT_RMS_THRESHOLD", "0.00035"))
 KEY_DELAY_MS = int(os.environ.get("LOCAL_DICT_KEY_DELAY_MS", "2"))
@@ -45,24 +46,30 @@ EMIT_HISTORY_WORDS = int(os.environ.get("LOCAL_DICT_EMIT_HISTORY_WORDS", "72"))
 SILENCE_RESET_SECONDS = float(os.environ.get("LOCAL_DICT_SILENCE_RESET_SECONDS", "1.2"))
 AUTO_STOP_SILENCE_SECONDS = float(os.environ.get("LOCAL_DICT_AUTO_STOP_SILENCE_SECONDS", "12.0"))
 MIN_EMIT_WORDS = int(os.environ.get("LOCAL_DICT_MIN_EMIT_WORDS", "1"))
-TAIL_REVISION_MAX_WORDS = int(os.environ.get("LOCAL_DICT_TAIL_REVISION_MAX_WORDS", "3"))
-TAIL_REVISION_MIN_ANCHOR_WORDS = int(os.environ.get("LOCAL_DICT_TAIL_REVISION_MIN_ANCHOR_WORDS", "2"))
+TAIL_REVISION_MAX_WORDS = int(os.environ.get("LOCAL_DICT_TAIL_REVISION_MAX_WORDS", "6"))
+TAIL_REVISION_MIN_ANCHOR_WORDS = int(os.environ.get("LOCAL_DICT_TAIL_REVISION_MIN_ANCHOR_WORDS", "3"))
+FLUSH_MIN_ANCHOR_WORDS = int(os.environ.get("LOCAL_DICT_FLUSH_MIN_ANCHOR_WORDS", "2"))
 SILENCE_FLUSH_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_SILENCE_FLUSH_GUARD_WORDS", "0"))
 EXIT_FLUSH_GUARD_WORDS = int(os.environ.get("LOCAL_DICT_EXIT_FLUSH_GUARD_WORDS", "0"))
 EXIT_FLUSH_MAX_IDLE_SECONDS = float(os.environ.get("LOCAL_DICT_EXIT_FLUSH_MAX_IDLE_SECONDS", "2.5"))
 FINAL_FLUSH_PAD_SECONDS = float(os.environ.get("LOCAL_DICT_FINAL_FLUSH_PAD_SECONDS", "0.70"))
 VOICED_FRAME_MS = int(os.environ.get("LOCAL_DICT_VOICED_FRAME_MS", "30"))
 MIN_VOICED_RATIO = float(os.environ.get("LOCAL_DICT_MIN_VOICED_RATIO", "0.05"))
+VOICE_CONTINUATION_SECONDS = float(os.environ.get("LOCAL_DICT_VOICE_CONTINUATION_SECONDS", "1.8"))
+RMS_CONTINUATION_FACTOR = float(os.environ.get("LOCAL_DICT_RMS_CONTINUATION_FACTOR", "0.55"))
+VOICED_CONTINUATION_FACTOR = float(os.environ.get("LOCAL_DICT_VOICED_CONTINUATION_FACTOR", "0.55"))
 
 XDG_RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR", f"/tmp/{os.getuid()}")
 STATE_DIR = Path(XDG_RUNTIME_DIR) / "local-live-dictation"
 PID_FILE = STATE_DIR / "loop.pid"
 STOP_FILE = STATE_DIR / "stop"
 TYPE_ON_FILE = STATE_DIR / "typing.on"
+VOICE_COMMANDS_PID_FILE = Path(XDG_RUNTIME_DIR) / "local-voice-commands" / "loop.pid"
 LOG_FILE = Path.home() / ".local" / "state" / "local-live-dictation.log"
 
 HYPRWHSPR_CONFIG = Path.home() / ".config" / "hyprwhspr" / "config.json"
 HYPRWHSPR_REALTIME_WRAPPER = Path.home() / ".local" / "bin" / "hyprwhspr-realtime-toggle.py"
+VOICE_COMMANDS_CMD = Path.home() / ".local" / "bin" / "local-voice-commands.py"
 
 HALLUCINATION_MARKERS = {
     "blank",
@@ -112,6 +119,31 @@ def _pid_alive(pid: int) -> bool:
 def _is_running() -> bool:
     pid = _read_pid()
     return bool(pid and _pid_alive(pid))
+
+
+def _voice_commands_running() -> bool:
+    if not VOICE_COMMANDS_PID_FILE.exists():
+        return False
+    try:
+        pid = int(VOICE_COMMANDS_PID_FILE.read_text().strip())
+    except Exception:
+        return False
+    return _pid_alive(pid)
+
+
+def _stop_voice_commands_best_effort() -> None:
+    if not _voice_commands_running():
+        return
+    try:
+        subprocess.run(
+            [str(VOICE_COMMANDS_CMD), "stop"],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=20,
+        )
+    except Exception:
+        pass
 
 
 def _is_typing_enabled() -> bool:
@@ -333,6 +365,82 @@ def _pick_device() -> Tuple[Optional[int], Optional[int], str]:
     return None, None, ""
 
 
+@dataclass
+class AudioRingBuffer:
+    """Thread-safe ring buffer for capture audio."""
+
+    capacity: int
+    _buffer: np.ndarray = field(init=False, repr=False)
+    _size: int = field(default=0, init=False, repr=False)
+    _write_pos: int = field(default=0, init=False, repr=False)
+    _lock: threading.Lock = field(default_factory=threading.Lock, init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        self.capacity = max(1, int(self.capacity))
+        self._buffer = np.zeros(self.capacity, dtype=np.float32)
+
+    def append(self, chunk: np.ndarray) -> None:
+        data = np.asarray(chunk, dtype=np.float32).reshape(-1)
+        if data.size <= 0:
+            return
+
+        with self._lock:
+            if data.size >= self.capacity:
+                self._buffer[:] = data[-self.capacity :]
+                self._size = self.capacity
+                self._write_pos = 0
+                return
+
+            first = min(self.capacity - self._write_pos, data.size)
+            self._buffer[self._write_pos : self._write_pos + first] = data[:first]
+
+            remaining = data.size - first
+            if remaining > 0:
+                self._buffer[:remaining] = data[first:]
+
+            self._write_pos = (self._write_pos + data.size) % self.capacity
+            self._size = min(self.capacity, self._size + data.size)
+
+    def snapshot(self, limit_samples: Optional[int] = None) -> np.ndarray:
+        with self._lock:
+            if self._size <= 0:
+                return np.empty(0, dtype=np.float32)
+
+            n = self._size if limit_samples is None else max(0, min(self._size, int(limit_samples)))
+            if n <= 0:
+                return np.empty(0, dtype=np.float32)
+
+            start = (self._write_pos - n) % self.capacity
+            if start + n <= self.capacity:
+                return self._buffer[start : start + n].copy()
+
+            first = self.capacity - start
+            return np.concatenate((self._buffer[start:], self._buffer[: n - first]), axis=0).astype(np.float32, copy=False)
+
+    def clear(self) -> None:
+        with self._lock:
+            self._size = 0
+            self._write_pos = 0
+
+
+@dataclass
+class TranscriptSession:
+    """Mutable dictation state that can be reset cleanly between sessions."""
+
+    emitted_words: Deque[str] = field(default_factory=lambda: deque(maxlen=max(8, EMIT_HISTORY_WORDS)))
+    prev_hyp_words: List[str] = field(default_factory=list)
+    typer_state: dict = field(default_factory=lambda: {"last_char": "", "typed_word_pieces": []})
+
+    def reset_pending(self) -> None:
+        self.prev_hyp_words = []
+
+    def reset_all(self) -> None:
+        self.reset_pending()
+        self.emitted_words.clear()
+        self.typer_state["last_char"] = ""
+        self.typer_state["typed_word_pieces"] = []
+
+
 def _normalize_word(word: str) -> str:
     return re.sub(r"(^\W+|\W+$)", "", word.lower())
 
@@ -443,17 +551,21 @@ def _resolve_tail_update(
 
     base_overlap = _tail_overlap_words(history_words, candidate_words, limit=64)
     best_overlap = base_overlap
+    best_remaining = max(0, len(history_words) - base_overlap)
     best_delete = 0
 
     max_delete = min(max(0, max_revise_words), len(history_words))
     for delete_n in range(1, max_delete + 1):
         trimmed = history_words[:-delete_n]
         overlap = _tail_overlap_words(trimmed, candidate_words, limit=64)
-        if overlap <= best_overlap:
-            continue
         if overlap < max(1, min_anchor_words):
             continue
+        remaining = max(0, len(trimmed) - overlap)
+        better = overlap > best_overlap or (overlap == best_overlap and remaining < best_remaining)
+        if not better:
+            continue
         best_overlap = overlap
+        best_remaining = remaining
         best_delete = delete_n
 
     if best_overlap >= len(candidate_words):
@@ -464,6 +576,29 @@ def _resolve_tail_update(
         return 0, []
 
     return best_delete, new_words
+
+
+def _select_flush_candidate_words(pending_words: List[str], decoded_words: List[str], min_anchor_words: int) -> List[str]:
+    """Pick the safest final flush candidate without appending unrelated hallucinated tails."""
+    if not pending_words:
+        return decoded_words
+    if not decoded_words:
+        return pending_words
+
+    anchor = max(1, min_anchor_words)
+    prefix = _common_prefix_len(pending_words, decoded_words)
+
+    # Near-identical hypotheses: keep the richer one.
+    if prefix >= max(1, min(len(pending_words), len(decoded_words)) - 1):
+        return decoded_words if len(decoded_words) >= len(pending_words) else pending_words
+
+    # Typical trailing revision: previous tail aligns with decoded prefix.
+    overlap = _tail_overlap_words(pending_words, decoded_words, limit=64)
+    if overlap >= anchor:
+        return decoded_words
+
+    # Fallback to pending if decoded tail does not anchor (likely noise/hallucination).
+    return pending_words
 
 
 def _commit_stable_words(
@@ -645,13 +780,8 @@ def _run_loop() -> int:
     max_samples = int(MAX_BUFFER_SECONDS * capture_rate)
     window_samples = int(WINDOW_SECONDS * capture_rate)
 
-    chunks: Deque[np.ndarray] = deque()
-    total_samples = 0
-    lock = threading.Lock()
-
-    prev_hyp_words: List[str] = []
-    emitted_words: Deque[str] = deque(maxlen=max(8, EMIT_HISTORY_WORDS))
-    typer_state = {"last_char": ""}
+    audio_buffer = AudioRingBuffer(max_samples)
+    session = TranscriptSession()
 
     last_process = 0.0
     last_silence_log = 0.0
@@ -660,10 +790,13 @@ def _run_loop() -> int:
     typing_enabled = _is_typing_enabled()
 
     def _clear_audio_buffer() -> None:
-        nonlocal total_samples
-        with lock:
-            chunks.clear()
-            total_samples = 0
+        audio_buffer.clear()
+
+    def _reset_transcript_state(clear_history: bool = False) -> None:
+        if clear_history:
+            session.reset_all()
+            return
+        session.reset_pending()
 
     def _current_language() -> str:
         lang = LANGUAGE_OVERRIDE.strip()
@@ -698,63 +831,66 @@ def _run_loop() -> int:
             return ""
         return text
 
-    def _flush_pending(reason: str, guard_words: int, force_decode: bool = False, pad_seconds: float = 0.0) -> None:
-        nonlocal prev_hyp_words
-
-        if prev_hyp_words:
-            _commit_stable_words(
-                stable_candidate=prev_hyp_words,
-                emitted_words=emitted_words,
-                typer_state=typer_state,
-                guard_words=guard_words,
-            )
-            prev_hyp_words = []
-
-        with lock:
-            if total_samples <= 0 or not chunks:
-                return
-            audio_now = np.concatenate(list(chunks), axis=0)
-
-        if audio_now.size <= 0:
+    def _commit_words(candidate_words: List[str], guard_words: int) -> None:
+        if not candidate_words:
             return
-        if audio_now.size > window_samples:
-            audio_now = audio_now[-window_samples:]
+        _commit_stable_words(
+            stable_candidate=candidate_words,
+            emitted_words=session.emitted_words,
+            typer_state=session.typer_state,
+            guard_words=guard_words,
+        )
 
-        if not force_decode:
-            rms = float(np.sqrt(np.mean(audio_now * audio_now)))
-            voiced_ratio = _voiced_ratio(audio_now, RMS_THRESHOLD, VOICED_FRAME_MS, capture_rate)
-            if rms < RMS_THRESHOLD or voiced_ratio < MIN_VOICED_RATIO:
-                return
-
-        text = _transcribe_window(audio_now, pad_seconds=pad_seconds)
-        if not text:
-            return
-
+    def _process_hypothesis_text(text: str) -> None:
         words = text.split()
         if not words:
             return
 
-        _commit_stable_words(
-            stable_candidate=words,
-            emitted_words=emitted_words,
-            typer_state=typer_state,
-            guard_words=guard_words,
+        if not session.prev_hyp_words:
+            session.prev_hyp_words = words
+            return
+
+        overlap = _tail_overlap_words(session.prev_hyp_words, words, limit=64)
+        if overlap <= 0:
+            overlap = _common_prefix_len(session.prev_hyp_words, words)
+
+        if overlap > 0:
+            _commit_words(words[:overlap], STABLE_PREFIX_GUARD_WORDS)
+
+        session.prev_hyp_words = words
+
+    def _flush_pending(reason: str, guard_words: int, force_decode: bool = False, pad_seconds: float = 0.0) -> None:
+        pending_words = list(session.prev_hyp_words)
+        decoded_words: List[str] = []
+        audio_now = audio_buffer.snapshot(limit_samples=window_samples)
+        if audio_now.size > 0:
+            should_decode = force_decode
+            if not should_decode:
+                rms = float(np.sqrt(np.mean(audio_now * audio_now)))
+                voiced_ratio = _voiced_ratio(audio_now, RMS_THRESHOLD, VOICED_FRAME_MS, capture_rate)
+                should_decode = rms >= RMS_THRESHOLD and voiced_ratio >= MIN_VOICED_RATIO
+
+            if should_decode:
+                text = _transcribe_window(audio_now, pad_seconds=pad_seconds)
+                if text:
+                    decoded_words = text.split()
+                    if decoded_words and DEBUG and LOG_TRANSCRIPTS:
+                        preview = text if len(text) <= 120 else text[:117] + "..."
+                        print(f"[local-dict] flush[{reason}]: {preview}", flush=True)
+
+        final_words = _select_flush_candidate_words(
+            pending_words=pending_words,
+            decoded_words=decoded_words,
+            min_anchor_words=FLUSH_MIN_ANCHOR_WORDS,
         )
-        if DEBUG and LOG_TRANSCRIPTS:
-            preview = text if len(text) <= 120 else text[:117] + "..."
-            print(f"[local-dict] flush[{reason}]: {preview}", flush=True)
+        _commit_words(final_words, guard_words)
+        session.reset_pending()
 
     def audio_callback(indata, _frames, _time_info, status):
-        nonlocal total_samples
         if status:
             return
         mono = indata[:, 0].copy()
-        with lock:
-            chunks.append(mono)
-            total_samples += len(mono)
-            while total_samples > max_samples and chunks:
-                old = chunks.popleft()
-                total_samples -= len(old)
+        audio_buffer.append(mono)
 
     print("[local-dict] started", flush=True)
     if DEBUG:
@@ -762,7 +898,9 @@ def _run_loop() -> int:
             "[local-dict] settings "
             f"step={STEP_SECONDS}s window={WINDOW_SECONDS}s max_buffer={MAX_BUFFER_SECONDS}s "
             f"rms_threshold={RMS_THRESHOLD} min_voiced_ratio={MIN_VOICED_RATIO} "
+            f"voice_continuation={VOICE_CONTINUATION_SECONDS}s "
             f"guard_words={STABLE_PREFIX_GUARD_WORDS} tail_revise={TAIL_REVISION_MAX_WORDS} "
+            f"flush_anchor={FLUSH_MIN_ANCHOR_WORDS} "
             f"silence_flush_guard={SILENCE_FLUSH_GUARD_WORDS} exit_flush_guard={EXIT_FLUSH_GUARD_WORDS} "
             f"final_flush_pad={FINAL_FLUSH_PAD_SECONDS}s "
             f"auto_stop_silence={AUTO_STOP_SILENCE_SECONDS}s",
@@ -791,7 +929,7 @@ def _run_loop() -> int:
                             pad_seconds=FINAL_FLUSH_PAD_SECONDS if recent_voice else 0.0,
                         )
                     typing_enabled = next_typing_enabled
-                    prev_hyp_words = []
+                    _reset_transcript_state(clear_history=True)
                     loop_start_ts = now
                     last_voice_ts = 0.0
                     last_process = 0.0
@@ -809,30 +947,37 @@ def _run_loop() -> int:
                     continue
                 last_process = now
 
-                with lock:
-                    if total_samples <= 0 or not chunks:
-                        continue
-                    audio = np.concatenate(list(chunks), axis=0)
-
+                audio = audio_buffer.snapshot(limit_samples=window_samples)
                 if audio.size <= 0:
                     continue
 
-                if audio.size > window_samples:
-                    audio = audio[-window_samples:]
-
                 rms = float(np.sqrt(np.mean(audio * audio)))
                 voiced_ratio = _voiced_ratio(audio, RMS_THRESHOLD, VOICED_FRAME_MS, capture_rate)
+                continuation_open = last_voice_ts > 0.0 and (now - last_voice_ts) <= max(0.0, VOICE_CONTINUATION_SECONDS)
 
-                if rms < RMS_THRESHOLD or voiced_ratio < MIN_VOICED_RATIO:
+                rms_threshold = RMS_THRESHOLD
+                voiced_threshold = MIN_VOICED_RATIO
+                if continuation_open:
+                    rms_threshold *= max(0.05, RMS_CONTINUATION_FACTOR)
+                    voiced_threshold *= max(0.05, VOICED_CONTINUATION_FACTOR)
+
+                if rms < rms_threshold or voiced_ratio < voiced_threshold:
                     silence_for = (now - last_voice_ts) if last_voice_ts > 0.0 else (now - loop_start_ts)
                     if last_voice_ts > 0.0 and silence_for >= SILENCE_RESET_SECONDS:
-                        _flush_pending("silence", SILENCE_FLUSH_GUARD_WORDS)
+                        _flush_pending(
+                            "silence",
+                            SILENCE_FLUSH_GUARD_WORDS,
+                            force_decode=True,
+                            pad_seconds=FINAL_FLUSH_PAD_SECONDS,
+                        )
+                        last_voice_ts = 0.0
+                        loop_start_ts = now
 
                     if AUTO_STOP_SILENCE_SECONDS > 0 and silence_for >= AUTO_STOP_SILENCE_SECONDS:
                         print(f"[local-dict] auto-disable typing after {silence_for:.1f}s of inactivity", flush=True)
                         _set_typing_enabled(False)
                         typing_enabled = False
-                        prev_hyp_words = []
+                        _reset_transcript_state(clear_history=True)
                         loop_start_ts = now
                         last_voice_ts = 0.0
                         _clear_audio_buffer()
@@ -841,7 +986,7 @@ def _run_loop() -> int:
                     if DEBUG and (now - last_silence_log) >= 5.0:
                         print(
                             f"[local-dict] waiting for voice rms={rms:.5f} voiced_ratio={voiced_ratio:.2f} "
-                            f"thresholds=({RMS_THRESHOLD:.5f},{MIN_VOICED_RATIO:.2f})",
+                            f"thresholds=({rms_threshold:.5f},{voiced_threshold:.2f})",
                             flush=True,
                         )
                         last_silence_log = now
@@ -857,28 +1002,7 @@ def _run_loop() -> int:
                     preview = text if len(text) <= 120 else text[:117] + "..."
                     print(f"[local-dict] heard: {preview}", flush=True)
 
-                words = text.split()
-                if not words:
-                    continue
-
-                if not prev_hyp_words:
-                    prev_hyp_words = words
-                    continue
-
-                overlap = _tail_overlap_words(prev_hyp_words, words, limit=64)
-                if overlap <= 0:
-                    overlap = _common_prefix_len(prev_hyp_words, words)
-
-                if overlap > 0:
-                    stable_candidate = words[:overlap]
-                    _commit_stable_words(
-                        stable_candidate=stable_candidate,
-                        emitted_words=emitted_words,
-                        typer_state=typer_state,
-                        guard_words=STABLE_PREFIX_GUARD_WORDS,
-                    )
-
-                prev_hyp_words = words
+                _process_hypothesis_text(text)
 
             exit_idle = (time.monotonic() - last_voice_ts) if last_voice_ts > 0.0 else (time.monotonic() - loop_start_ts)
             if typing_enabled and exit_idle <= max(0.0, EXIT_FLUSH_MAX_IDLE_SECONDS):
@@ -895,6 +1019,7 @@ def _run_loop() -> int:
 
 def _daemon_start() -> int:
     _ensure_dirs()
+    _stop_voice_commands_best_effort()
     if _is_running():
         print("already-running")
         return 0
@@ -925,6 +1050,7 @@ def _daemon_start() -> int:
 
 def _start() -> int:
     _ensure_dirs()
+    _stop_voice_commands_best_effort()
     _remove_file(STOP_FILE)
     was_typing_enabled = _is_typing_enabled()
     _set_typing_enabled(True)

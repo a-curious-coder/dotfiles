@@ -32,26 +32,38 @@ def main() -> int:
     state_dir = Path(xdg_runtime_dir) / "local-live-dictation"
     pid_file = state_dir / "loop.pid"
     typing_file = state_dir / "typing.on"
+    command_pid_file = Path(xdg_runtime_dir) / "local-voice-commands" / "loop.pid"
 
     pid = _read_pid(pid_file)
     running = bool(pid and _pid_alive(pid))
     typing = running and typing_file.exists()
+    command_pid = _read_pid(command_pid_file)
+    command_mode = bool(command_pid and _pid_alive(command_pid))
 
-    if typing:
-        text = "DICT ON"
-        classes = ["running", "typing"]
-        tooltip = "Dictation typing enabled\nCtrl+Ctrl: toggle typing\nRight-click: stop daemon"
+    if command_mode:
+        text = ""
+        classes = ["commands", "on"]
+        alt = "commands"
+        tooltip = "Voice command mode enabled\nR-Ctrl x2: toggle commands\nL-Ctrl x2: switch to dictation"
+    elif typing:
+        text = ""
+        classes = ["running", "typing", "on"]
+        alt = "on"
+        tooltip = "Dictation typing enabled\nL-Ctrl x2: toggle typing\nR-Ctrl x2: voice commands\nRight-click: stop daemon"
     elif running:
-        text = "DICT WARM"
+        text = ""
         classes = ["running", "warm"]
-        tooltip = "Dictation model loaded (typing off)\nCtrl+Ctrl: enable typing\nRight-click: stop daemon"
+        alt = "warm"
+        tooltip = "Dictation model loaded (typing off)\nL-Ctrl x2: enable typing\nR-Ctrl x2: voice commands\nRight-click: stop daemon"
     else:
-        text = "DICT OFF"
-        classes = ["stopped"]
+        text = ""
+        classes = ["stopped", "off"]
+        alt = "off"
         tooltip = "Dictation daemon stopped\nMiddle-click: start daemon"
 
     out = {
         "text": text,
+        "alt": alt,
         "class": classes,
         "tooltip": tooltip,
     }

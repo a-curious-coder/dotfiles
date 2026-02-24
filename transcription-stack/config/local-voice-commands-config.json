@@ -1,0 +1,180 @@
+{
+  "apps": [
+    {
+      "id": "terminal",
+      "aliases": [
+        "terminal",
+        "shell",
+        "console"
+      ],
+      "launch": "ghostty",
+      "match": {
+        "class_contains": [
+          "ghostty",
+          "kitty",
+          "alacritty",
+          "wezterm",
+          "foot",
+          "gnome-terminal",
+          "konsole",
+          "xterm"
+        ]
+      }
+    },
+    {
+      "id": "browser",
+      "aliases": [
+        "browser",
+        "web browser",
+        "internet"
+      ],
+      "launch": "brave",
+      "match": {
+        "class_contains": [
+          "firefox",
+          "chromium",
+          "google-chrome",
+          "brave-browser",
+          "microsoft-edge",
+          "vivaldi"
+        ]
+      }
+    },
+    {
+      "id": "files",
+      "aliases": [
+        "files",
+        "file manager",
+        "explorer"
+      ],
+      "launch": "thunar",
+      "match": {
+        "class_contains": [
+          "thunar",
+          "nautilus",
+          "dolphin",
+          "pcmanfm"
+        ]
+      }
+    },
+    {
+      "id": "obsidian",
+      "aliases": [
+        "obsidian",
+        "notes",
+        "vault"
+      ],
+      "launch": "obsidian",
+      "match": {
+        "class_contains": [
+          "obsidian"
+        ]
+      }
+    },
+    {
+      "id": "vlc",
+      "aliases": [
+        "vlc",
+        "vlc player",
+        "media player",
+        "video player"
+      ],
+      "launch": "vlc",
+      "match": {
+        "class_contains": [
+          "vlc"
+        ]
+      }
+    },
+    {
+      "id": "discord",
+      "aliases": [
+        "discord",
+        "chat"
+      ],
+      "launch": "discord",
+      "match": {
+        "class_contains": [
+          "discord",
+          "vesktop"
+        ]
+      }
+    }
+  ],
+  "commands": [
+    {
+      "id": "workspace_next",
+      "aliases": [
+        "next workspace",
+        "workspace next",
+        "go to next workspace"
+      ],
+      "dispatch": "workspace +1",
+      "notify": "Next Workspace"
+    },
+    {
+      "id": "workspace_previous",
+      "aliases": [
+        "previous workspace",
+        "workspace previous",
+        "go to previous workspace"
+      ],
+      "dispatch": "workspace -1",
+      "notify": "Previous Workspace"
+    },
+    {
+      "id": "switch_monitor",
+      "aliases": [
+        "switch monitor",
+        "switch to other monitor",
+        "move window to other monitor",
+        "send window to other monitor"
+      ],
+      "dispatches": [
+        "movewindow mon:+1",
+        "focusmonitor +1"
+      ],
+      "notify": "Switch Monitor"
+    },
+    {
+      "id": "toggle_floating",
+      "aliases": [
+        "toggle floating",
+        "float window",
+        "toggle floating window"
+      ],
+      "dispatch": "togglefloating",
+      "notify": "Toggle Floating"
+    },
+    {
+      "id": "toggle_fullscreen",
+      "aliases": [
+        "toggle fullscreen",
+        "fullscreen",
+        "full screen"
+      ],
+      "dispatch": "fullscreen 1",
+      "notify": "Toggle Fullscreen"
+    },
+    {
+      "id": "update_discord",
+      "aliases": [
+        "update discord",
+        "upgrade discord",
+        "refresh discord"
+      ],
+      "exec": "~/Projects/personal/dotfiles/discord_install.sh",
+      "cwd": "~/Projects/personal/dotfiles",
+      "detached": true,
+      "notify": "Updating Discord"
+    }
+  ],
+  "search": {
+    "default_engine": "duckduckgo",
+    "engines": {
+      "duckduckgo": "https://duckduckgo.com/?q={query}",
+      "google": "https://www.google.com/search?q={query}",
+      "bing": "https://www.bing.com/search?q={query}"
+    }
+  }
+}

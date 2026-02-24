@@ -56,7 +56,7 @@
   "tooltip": true
 },
 
-// Dictation model status: OFF / WARM / ON
+// Speech mode status icon: off / warm / dictation-on / command-on
 // Left click: toggle typing
 // Middle click: start daemon/model
 // Right click: stop daemon/model
