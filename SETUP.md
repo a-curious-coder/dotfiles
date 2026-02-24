@@ -31,7 +31,7 @@ This runs:
 ### Core packages (both macOS and Linux)
 
 ```bash
-stow git zsh starship tmux nvim ghostty
+stow git zsh starship tmux nvim ghostty espanso
 ```
 
 ### Linux desktop (Hyprland stack)
@@ -76,6 +76,27 @@ Single installer path (cross-platform):
 ./install-modern-tools.sh
 ```
 
+## Espanso Setup
+
+After `stow espanso`, add your prompt snippets in:
+
+```bash
+~/.config/espanso/match/prompts.yml
+```
+
+On macOS, link espanso's native config path once:
+
+```bash
+./scripts/setup-espanso-macos.sh
+```
+
+Then start espanso:
+
+```bash
+espanso service register
+espanso start
+```
+
 Legacy Ubuntu entrypoint (kept for compatibility; delegates to the same installer):
 
 ```bash
@@ -112,7 +133,7 @@ ghostty-theme nord    # switch theme
 
 ```bash
 # Confirm symlinks exist
-stow -nvt "$HOME" git zsh starship tmux nvim ghostty
+stow -nvt "$HOME" git zsh starship tmux nvim ghostty espanso
 
 # Neovim health
 nvim +checkhealth +qa

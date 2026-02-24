@@ -43,7 +43,7 @@ main() {
 
   local -a common_packages=(
     git zsh starship tmux nvim ghostty
-    btop lazygit lazydocker fastfetch ripgrep vscode
+    btop lazygit lazydocker fastfetch ripgrep vscode espanso
   )
   local -a platform_packages=()
 
@@ -58,6 +58,11 @@ main() {
 
   echo "Stowing common packages..."
   stow_packages "${common_packages[@]}"
+
+  if [[ "$platform" == "macos" ]]; then
+    echo "Linking espanso config for macOS..."
+    "$repo_root/scripts/setup-espanso-macos.sh"
+  fi
 
   echo "Stowing platform packages for $platform..."
   stow_packages "${platform_packages[@]}"

@@ -266,6 +266,19 @@ packages:
         package: "fastfetch"
     verify: "fastfetch --version"
 
+  espanso:
+    name: "Espanso"
+    description: "Cross-platform text expander"
+    category: "productivity"
+    platforms:
+      linux:
+        method: "package-manager"
+        package: "espanso (or distro variant: espanso-wayland/espanso-x11)"
+      macos:
+        method: "cask"
+        package: "espanso"
+    verify: "espanso --version"
+
   lazydocker:
     name: "lazydocker"
     description: "Terminal UI for Docker"

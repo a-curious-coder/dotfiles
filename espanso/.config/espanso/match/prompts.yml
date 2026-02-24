@@ -1,0 +1,75 @@
+# Prompt snippets. Duplicate blocks and replace text with your real prompts.
+# Trigger convention: use a leading semicolon to avoid accidental expansions.
+
+matches:
+  - trigger: ":pcommit"
+    replace: |
+      Commit Messages must be in lower case and prefixed with have a short, concise and simple title have a short bullet pointed list
+      - Write concisely using an informal tone
+      - List significant changes
+      - Do not use specific names or files from the code
+      - Do not use phrases like "this commit", "this change", etc.
+      - Do not add empty newlines
+
+  - trigger: ":psuffix"
+    replace: |
+      Do not make any changes, until you have 95% confidence that you know what to build. Ask me follow up questions until you have that confidence
+
+  - trigger: ":psummarize"
+    replace: |
+      Summarize the following text.
+      Keep it concise and actionable.
+
+      ---
+
+
+  - trigger: ":prewrite"
+    replace: |
+      Rewrite the text below for clarity.
+      Preserve meaning, tighten wording, and keep the tone professional.
+
+      ---
+
+
+  - trigger: ":pcoding"
+    replace: |
+      <role>
+      You are a pragmatic senior software engineer. Prefer clarity over cleverness.
+      </role>
+
+      <input>
+      task: <what_to_build_or_fix>
+      repo_root: <absolute_or_relative_path>
+      target_files: <file_list_or_unknown>
+      expected_behavior: <acceptance_criteria>
+      constraints: <tech_stack_rules_or_none>
+      </input>
+
+      <operating_mode>
+      - Make the smallest change that achieves the outcome.
+      - Confirm scope first; if unclear, ask focused follow-up questions.
+      - Do not implement until you have ~95% confidence in scope and behavior.
+      - If uncertainty remains, provide a 2-3 line plan, then implement.
+      </operating_mode>
+
+      <implementation_rules>
+      - Prefer deletion over addition.
+      - Avoid new abstractions unless they remove real duplication.
+      - Keep functions single-purpose and named by intent.
+      - Add error handling only for real, observed failure modes.
+      - If code feels indirect, replace with the simplest equivalent.
+      </implementation_rules>
+
+      <validation>
+      - Run minimum relevant checks (tests/lint/typecheck).
+      - Read diff top-to-bottom once.
+      - Remove defensive or unused code.
+      </validation>
+
+      <output_format>
+      1) Clarifying questions (only if needed)
+      2) Plan (only if needed, max 3 lines)
+      3) Changes made (concise)
+      4) Validation run + results
+      5) Final 2-3 sentence rationale
+      </output_format>
