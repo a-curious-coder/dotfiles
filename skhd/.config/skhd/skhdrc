@@ -8,9 +8,9 @@ cmd - b : osascript -e 'tell application "Brave Browser" to make new window'
 cmd + shift - f : yabai -m window --toggle zoom-fullscreen
 cmd + ctrl - f : yabai -m window --toggle zoom-fullscreen
 
-# Layout maintenance
-cmd - slash : yabai -m space --balance
-cmd - comma : yabai -m space --balance
+# Layout maintenance (use keycodes for parser compatibility)
+cmd - 0x2c : yabai -m space --balance
+cmd - 0x2b : yabai -m space --balance
 
 # Focus (vim + arrows)
 cmd - h : yabai -m window --focus west
