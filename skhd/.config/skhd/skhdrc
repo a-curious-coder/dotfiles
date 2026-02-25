@@ -5,12 +5,12 @@ cmd - return : open -na Ghostty
 cmd - b : osascript -e 'tell application "Brave Browser" to make new window'
 
 # Fullscreen
-cmd + shift - f : yabai -m window --toggle zoom-fullscreen
-cmd + ctrl - f : yabai -m window --toggle zoom-fullscreen
+cmd + shift - f : yabai -m window --toggle native-fullscreen || yabai -m window --toggle zoom-fullscreen
+cmd + ctrl - f : yabai -m window --toggle native-fullscreen || yabai -m window --toggle zoom-fullscreen
 
-# Layout maintenance (use keycodes for parser compatibility)
-cmd - 0x2c : yabai -m space --balance
-cmd - 0x2b : yabai -m space --balance
+# Layout maintenance
+cmd + alt - b : yabai -m space --balance
+cmd + alt + shift - b : yabai -m space --balance
 
 # Focus (vim + arrows)
 cmd - h : yabai -m window --focus west
