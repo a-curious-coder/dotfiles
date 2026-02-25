@@ -241,6 +241,15 @@ main() {
     # eza (ls replacement)
     pkg_install "eza" "eza"
 
+    if [[ "$PLATFORM" == "macos" ]]; then
+        echo ""
+        log_info "=== macOS Window Manager ==="
+        brew tap koekeishiya/formulae >/dev/null 2>&1 || true
+        pkg_install "koekeishiya/formulae/yabai" "yabai"
+        pkg_install "koekeishiya/formulae/skhd" "skhd"
+        pkg_install "sketchybar" "sketchybar"
+    fi
+
     echo ""
     log_info "=== Git Tools ==="
 

@@ -28,8 +28,10 @@ Each directory is a stow package. Run `stow <package>` to symlink.
 
 ```
 dotfiles/
-├── aerospace/      macOS tiling window manager
+├── aerospace/      Legacy macOS tiling config (kept for rollback)
 ├── sketchybar/     Status bar (macOS)
+├── skhd/           Hotkey daemon config (macOS)
+├── yabai/          macOS BSP tiling window manager
 ├── ags/            Aylur's GTK Shell (Hyprland widgets)
 ├── btop/           Resource monitor
 ├── calibre-linux/  Calibre config for Linux (~/.config/calibre)
@@ -86,15 +88,17 @@ stow hypr waybar rofi ags swaync wlogout calibre-linux
 stow pavucontrol
 ```
 
-**macOS**
+**macOS (yabai + skhd + Sketchybar)**
 ```bash
-stow aerospace sketchybar calibre-macos
+stow yabai skhd sketchybar calibre-macos
 ```
 
 **Common (both platforms)**
 ```bash
 stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep vscode espanso
 ```
+
+Migration details: [docs/yabai-migration.md](docs/yabai-migration.md)
 
 ## Espanso (Text Expansion)
 
@@ -133,6 +137,7 @@ stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgre
 
 Docs:
 - `docs/calibre.md` (Calibre profile and validation)
+- `docs/yabai-migration.md` (macOS window-manager migration and test flow)
 
 ## Neovim
 

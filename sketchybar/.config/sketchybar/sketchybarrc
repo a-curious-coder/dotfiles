@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 # Minimal, legible bar aligned with kepano-philosophy.md:
 # - no decoration or animation
@@ -36,28 +36,49 @@ default=(
 )
 sketchybar --default "${default[@]}"
 
+WM_BACKEND=""
+YABAI_BIN=""
 AEROSPACE_BIN=""
-if command -v aerospace >/dev/null 2>&1; then
+
+if command -v yabai >/dev/null 2>&1; then
+  YABAI_BIN="yabai"
+  WM_BACKEND="yabai"
+elif command -v aerospace >/dev/null 2>&1; then
   AEROSPACE_BIN="aerospace"
+  WM_BACKEND="aerospace"
 elif [ -x "/Applications/AeroSpace.app/Contents/MacOS/AeroSpace" ]; then
   AEROSPACE_BIN="/Applications/AeroSpace.app/Contents/MacOS/AeroSpace"
+  WM_BACKEND="aerospace"
 fi
+
+export WM_BACKEND
+export YABAI_BIN
 export AEROSPACE_BIN
 
 WORKSPACES=""
-if [ -n "$AEROSPACE_BIN" ]; then
+if [ "$WM_BACKEND" = "yabai" ] && command -v jq >/dev/null 2>&1; then
+  WORKSPACES="$($YABAI_BIN -m query --spaces 2>/dev/null | jq -r '.[].index' | sort -n | tr '\n' ' ' | xargs)"
+elif [ "$WM_BACKEND" = "aerospace" ]; then
   WORKSPACES="$($AEROSPACE_BIN list-workspaces --all --format '%{workspace}')"
 fi
+
 if [ -z "$WORKSPACES" ]; then
   WORKSPACES="1 2 3 4 5 6 7 8 9"
 fi
+export WM_WORKSPACES="$WORKSPACES"
 
 for ws in $WORKSPACES; do
-  if [ -n "$AEROSPACE_BIN" ]; then
-    CLICK_SCRIPT="$AEROSPACE_BIN workspace $ws"
-  else
-    CLICK_SCRIPT="/usr/bin/true"
-  fi
+  case "$WM_BACKEND" in
+    yabai)
+      CLICK_SCRIPT="$YABAI_BIN -m space --focus $ws"
+      ;;
+    aerospace)
+      CLICK_SCRIPT="$AEROSPACE_BIN workspace $ws"
+      ;;
+    *)
+      CLICK_SCRIPT="/usr/bin/true"
+      ;;
+  esac
 
   sketchybar --add item "workspace.$ws" left \
              --set "workspace.$ws" label="$ws" \
@@ -65,11 +86,18 @@ for ws in $WORKSPACES; do
                  click_script="$CLICK_SCRIPT"
 done
 
+if [ "$WM_BACKEND" = "yabai" ]; then
+  sketchybar --add event yabai_space_changed
+  WS_EVENTS=(space_change display_change space_windows_change system_woke yabai_space_changed)
+else
+  WS_EVENTS=(space_change display_change system_woke)
+fi
+
 # Hidden updater to keep workspace state accurate without animation.
 sketchybar --add item workspace_updater left \
            --set workspace_updater drawing=off \
-                script="$PLUGIN_DIR/workspaces.sh" update_freq=1 \
-           --subscribe workspace_updater space_change display_change system_woke
+                script="$PLUGIN_DIR/workspaces.sh" update_freq=2 \
+           --subscribe workspace_updater "${WS_EVENTS[@]}"
 
 # Front app (left)
 sketchybar --add item front_app left \
@@ -78,7 +106,7 @@ sketchybar --add item front_app left \
            --subscribe front_app front_app_switched
 
 # Center: clock (date + time)
-if [ -n "$AEROSPACE_BIN" ]; then
+if [ "$WM_BACKEND" = "aerospace" ] && [ -n "$AEROSPACE_BIN" ]; then
   $AEROSPACE_BIN list-monitors --format '%{monitor-appkit-nsscreen-screens-id} %{monitor-name}' |
   while read -r sid mname; do
     clock_pos="center"
@@ -99,6 +127,21 @@ if [ -n "$AEROSPACE_BIN" ]; then
                     icon.color="$SB_COLOR_DIM" \
                     label.font="$SB_FONT_STRONG" \
                --subscribe "battery.$sid" power_source_change system_woke
+  done
+elif [ "$WM_BACKEND" = "yabai" ] && [ -n "$YABAI_BIN" ] && command -v jq >/dev/null 2>&1; then
+  $YABAI_BIN -m query --displays 2>/dev/null | jq -r '.[].index' |
+  while read -r did; do
+    [ -n "$did" ] || continue
+    sketchybar --add item "clock.$did" center \
+               --set "clock.$did" display="$did" update_freq=60 script="$PLUGIN_DIR/clock.sh" \
+                    label.font="$SB_FONT_STRONG" label.color="$SB_COLOR_FG_BRIGHT" \
+                    label.align=center label.width=220
+    sketchybar --add item "battery.$did" right \
+               --set "battery.$did" display="$did" update_freq=120 script="$PLUGIN_DIR/battery.sh" \
+                    icon.drawing=on icon="BAT" icon.font="$SB_FONT_STRONG" \
+                    icon.color="$SB_COLOR_DIM" \
+                    label.font="$SB_FONT_STRONG" \
+               --subscribe "battery.$did" power_source_change system_woke
   done
 else
   sketchybar --add item clock center \

@@ -40,10 +40,10 @@ stow git zsh starship tmux nvim ghostty espanso
 stow hypr waybar rofi ags swaync wlogout calibre-linux
 ```
 
-### macOS desktop
+### macOS desktop (yabai stack)
 
 ```bash
-stow aerospace sketchybar calibre-macos
+stow yabai skhd sketchybar calibre-macos
 ```
 
 ### Common optional tools
@@ -51,6 +51,48 @@ stow aerospace sketchybar calibre-macos
 ```bash
 stow btop lazygit lazydocker fastfetch ripgrep vscode
 ```
+
+## macOS: yabai + skhd Requirements
+
+### 1) Install and start services
+
+```bash
+brew tap koekeishiya/formulae
+brew install koekeishiya/formulae/yabai koekeishiya/formulae/skhd
+brew install sketchybar
+
+yabai --start-service
+skhd --start-service
+```
+
+### 2) Grant permissions
+
+- `System Settings -> Privacy & Security -> Accessibility`
+- Enable both `yabai` and `skhd`
+- Restart both services after granting access
+
+### 3) Configure scripting-addition (closest-to-Hypr mode)
+
+For full control and Hypr-like behavior, follow the official yabai SIP/scripting-addition steps:
+
+- https://github.com/asmvik/yabai/wiki/Disabling-System-Integrity-Protection
+- https://github.com/asmvik/yabai/wiki/Installing-yabai-(latest-release)#configure-scripting-addition
+
+After SIP/sudoers setup:
+
+```bash
+yabai --restart-service
+skhd --reload
+```
+
+### 4) Test key behavior
+
+- `cmd + drag` move/resize windows (`mouse_action1/2`)
+- `cmd + h/j/k/l` focus movement
+- `cmd + shift + h/j/k/l` window warp
+- `cmd + [1-9]` focus spaces
+
+Migration and rollback details: `docs/yabai-migration.md`
 
 ## Calibre Setup
 
