@@ -1,9 +1,13 @@
 # --- 1. GLOBAL SETTINGS (Must be at the top) ---
 start-at-login = true
 after-login-command = []
-after-startup-command = []
+after-startup-command = [
+  'exec-and-forget ~/.config/aerospace/scripts/apply-window-rules.sh',
+]
 
-enable-normalization-flatten-containers = true
+# Hyprland dwindle + preserve_split approximation:
+# keep nested split structure when branches temporarily have one child.
+enable-normalization-flatten-containers = false
 enable-normalization-opposite-orientation-for-nested-containers = true
 
 accordion-padding = 30
@@ -33,27 +37,71 @@ outer.right = 0
 # --- 2. WINDOW RULES (Must be in the middle) ---
 [[on-window-detected]]
 if.app-id = 'com.brave.Browser'
-run = 'move-node-to-workspace 1'
+run = ['layout tiling', 'move-node-to-workspace 1']
+
+[[on-window-detected]]
+if.app-id = 'com.google.Chrome'
+run = ['layout tiling', 'move-node-to-workspace 1']
+
+[[on-window-detected]]
+if.app-id = 'org.mozilla.firefox'
+run = ['layout tiling', 'move-node-to-workspace 1']
+
+[[on-window-detected]]
+if.app-id = 'com.apple.Safari'
+run = ['layout tiling', 'move-node-to-workspace 1']
 
 [[on-window-detected]]
 if.app-id = 'com.mitchellh.ghostty'
-run = 'move-node-to-workspace 2'
+run = ['layout tiling', 'move-node-to-workspace 2']
 
 [[on-window-detected]]
-if.app-id = 'com.microsoft.VSCode'
-run = 'move-node-to-workspace 3'
+if.app-id = 'com.googlecode.iterm2'
+run = ['layout tiling', 'move-node-to-workspace 2']
+
+[[on-window-detected]]
+if.app-id = 'net.kovidgoyal.kitty'
+run = ['layout tiling', 'move-node-to-workspace 2']
+
+[[on-window-detected]]
+if.app-id = 'org.alacritty'
+run = ['layout tiling', 'move-node-to-workspace 2']
 
 [[on-window-detected]]
 if.app-id = 'md.obsidian'
-run = 'move-node-to-workspace 4'
+run = ['layout tiling', 'move-node-to-workspace 4']
+
+[[on-window-detected]]
+if.app-id = 'com.obsproject.obs-studio'
+run = ['layout tiling', 'move-node-to-workspace 4']
+
+[[on-window-detected]]
+if.app-id = 'com.valvesoftware.steam'
+run = ['layout tiling', 'move-node-to-workspace 5']
+
+[[on-window-detected]]
+if.app-id = 'com.heroicgameslauncher.hgl'
+run = ['layout tiling', 'move-node-to-workspace 5']
+
+[[on-window-detected]]
+if.app-id = 'org.virt-manager'
+run = ['layout tiling', 'move-node-to-workspace 6']
 
 [[on-window-detected]]
 if.app-id = 'com.hnc.Discord'
-run = 'move-node-to-workspace 7'
+run = ['layout tiling', 'move-node-to-workspace 7']
 
 [[on-window-detected]]
-if.app-id = 'com.microsoft.teams'
-run = 'move-node-to-workspace E'
+if.app-id = 'com.microsoft.teams2'
+run = ['layout tiling', 'move-node-to-workspace 7']
+
+[[on-window-detected]]
+if.app-id = 'org.telegram.desktop'
+run = ['layout tiling', 'move-node-to-workspace 7']
+
+[[on-window-detected]]
+if.app-id = 'com.spotify.client'
+run = ['layout tiling', 'move-node-to-workspace 9']
 
 # --- 3. MODES AND BINDINGS (Must be at the bottom) ---
 [mode.main.binding]
@@ -64,7 +112,7 @@ cmd-b = "exec-and-forget osascript -e 'tell application \"Brave Browser\" to mak
 cmd-shift-f = 'fullscreen'
 cmd-ctrl-f = 'fullscreen'
 cmd-slash = 'layout tiles horizontal vertical'
-cmd-comma = 'layout accordion horizontal vertical'
+cmd-comma = 'layout tiles horizontal vertical'
 
 cmd-h = 'focus left'
 cmd-j = 'focus down'
@@ -111,6 +159,7 @@ cmd-shift-9 = 'move-node-to-workspace 9'
 cmd-shift-e = 'move-node-to-workspace E'
 
 cmd-shift-r = 'reload-config'
+cmd-shift-o = 'exec-and-forget ~/.config/aerospace/scripts/apply-window-rules.sh'
 cmd-tab = 'workspace-back-and-forth'
 alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 cmd-backtick = 'exec-and-forget ~/.config/aerospace/scripts/cycle-app-windows.sh'
@@ -120,7 +169,8 @@ cmd-shift-semicolon = 'mode service'
 [mode.service.binding]
 esc = ['reload-config', 'mode main']
 r = ['flatten-workspace-tree', 'mode main']
-f = ['layout floating tiling', 'mode main']
+f = ['layout tiling', 'mode main']
+shift-f = ['layout floating', 'mode main']
 backspace = ['close-all-windows-but-current', 'mode main']
 cmd-shift-h = ['join-with left', 'mode main']
 cmd-shift-j = ['join-with down', 'mode main']

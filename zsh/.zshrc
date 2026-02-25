@@ -16,6 +16,9 @@ DISABLE_MAGIC_FUNCTIONS="true"  # prevent pasted URLs from being escaped
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"  # faster git status in large repos
 HIST_STAMPS="yyyy-mm-dd"  # ISO 8601
+
+# Ensure core system tools are always reachable, even if parent env PATH is empty (e.g. fresh tmux server).
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PATH:-}"
 [[ -f "$HOME/.zshrc.env" ]] && source "$HOME/.zshrc.env"
 
 # Codex MCP secrets (only if codex exists on this machine)
@@ -39,7 +42,7 @@ plugins=(
 source "$ZSH/oh-my-zsh.sh"
 
 # PATH
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$GOPATH/bin:$GOROOT/bin:/usr/local/bin:$PATH:/snap/bin:/opt/nvim-linux64/bin"
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:${GOPATH:+$GOPATH/bin}:${GOROOT:+$GOROOT/bin}:$PATH:/snap/bin:/opt/nvim-linux64/bin"
 
 # NVM - lazy-loaded to avoid 200ms startup penalty
 export NVM_DIR="$HOME/.nvm"
@@ -104,6 +107,86 @@ fi
 
 # Optional machine-local overrides (not tracked in this repo)
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+
+# Keep tmux server env aligned with vars managed in ~/.zshrc.env.
+sync_tmux_environment_from_zshrc_env() {
+    [[ -n "${TMUX:-}" ]] || return 0
+    local tmux_bin="${commands[tmux]-}"
+    if [[ -z "$tmux_bin" ]]; then
+        local candidate
+        for candidate in /opt/homebrew/bin/tmux /usr/local/bin/tmux /usr/bin/tmux; do
+            if [[ -x "$candidate" ]]; then
+                tmux_bin="$candidate"
+                break
+            fi
+        done
+    fi
+    [[ -n "$tmux_bin" ]] || return 0
+
+    local env_file="$HOME/.zshrc.env"
+    local managed_key="DOTFILES_ZSHRC_ENV_MANAGED"
+    local previous_line parsed_vars var
+    local -a current_vars previous_vars stale_vars
+    local -A current_lookup
+
+    previous_line="$("$tmux_bin" show-environment -g "$managed_key" 2>/dev/null || true)"
+    if [[ "$previous_line" == "$managed_key="* ]]; then
+        previous_vars=(${=${previous_line#*=}})
+    fi
+    previous_vars=(${previous_vars:#PATH})
+
+    if [[ -f "$env_file" ]]; then
+        parsed_vars="$(awk '
+          /^[[:space:]]*export[[:space:]]+/ {
+            for (i = 2; i <= NF; ++i) {
+              split($i, parts, "=")
+              if (parts[1] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print parts[1]
+            }
+          }
+          /^[[:space:]]*typeset[[:space:]]+-[[:alnum:]]*x[[:alnum:]]*[[:space:]]+/ {
+            for (i = 3; i <= NF; ++i) {
+              split($i, parts, "=")
+              if (parts[1] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print parts[1]
+            }
+          }
+          /^[[:space:]]*unset[[:space:]]+/ {
+            for (i = 2; i <= NF; ++i) {
+              if ($i ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print $i
+            }
+          }
+        ' "$env_file" 2>/dev/null)"
+        current_vars=(${(u)${(f)parsed_vars}})
+    fi
+    current_vars=(${current_vars:#PATH})
+
+    for var in "${current_vars[@]}"; do
+        current_lookup["$var"]=1
+    done
+
+    for var in "${previous_vars[@]}"; do
+        [[ -n "${current_lookup[$var]-}" ]] || stale_vars+=("$var")
+    done
+
+    for var in "${stale_vars[@]}"; do
+        unset -v "$var" >/dev/null 2>&1 || true
+        "$tmux_bin" set-environment -gr "$var" >/dev/null 2>&1 || true
+    done
+
+    for var in "${current_vars[@]}"; do
+        if [[ -n "${(P)var+set}" ]]; then
+            "$tmux_bin" set-environment -g "$var" "${(P)var}" >/dev/null 2>&1 || true
+        else
+            "$tmux_bin" set-environment -gr "$var" >/dev/null 2>&1 || true
+        fi
+    done
+
+    if (( ${#current_vars[@]} > 0 )); then
+        "$tmux_bin" set-environment -g "$managed_key" "${(j: :)current_vars}" >/dev/null 2>&1 || true
+    else
+        "$tmux_bin" set-environment -gu "$managed_key" >/dev/null 2>&1 || true
+    fi
+}
+sync_tmux_environment_from_zshrc_env
 
 # Better git diff with bat
 batdiff() {

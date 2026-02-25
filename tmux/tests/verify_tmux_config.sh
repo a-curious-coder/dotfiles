@@ -69,6 +69,12 @@ else
   fail "tmux sources .tmux.conf without runtime/syntax errors"
 fi
 
+# Test 0: tmux server PATH includes tmux binary directory for plugin run-shell compatibility.
+tmux_server_path="$(tmux -L "$SOCKET_NAME" show-environment -g PATH 2>/dev/null || true)"
+assert_contains "tmux exports PATH in server environment" "$tmux_server_path" "PATH="
+tmux_bin_dir="$(dirname "$(command -v tmux 2>/dev/null || echo /usr/bin/tmux)")"
+assert_contains "tmux server PATH includes tmux binary directory" "$tmux_server_path" "$tmux_bin_dir"
+
 # Test 1: True-color config stays compatible by using terminal-features with Tc fallback.
 terminal_features="$(tmux -L "$SOCKET_NAME" show-options -g terminal-features 2>/dev/null || true)"
 terminal_overrides="$(tmux -L "$SOCKET_NAME" show-options -g terminal-overrides 2>/dev/null || true)"
