@@ -213,6 +213,25 @@ install_espanso() {
     esac
 }
 
+install_hammerspoon() {
+    if [[ "$PLATFORM" != "macos" ]]; then
+        return 0
+    fi
+
+    if [[ -d "/Applications/Hammerspoon.app" ]] || has hs; then
+        log_skip "hammerspoon (already installed)"
+        return 0
+    fi
+
+    if [[ "$PKG_MGR" == "brew" ]]; then
+        log_info "Installing hammerspoon via Homebrew cask..."
+        brew install --cask hammerspoon
+        log_ok "hammerspoon installed"
+    else
+        log_skip "hammerspoon auto-install requires Homebrew on macOS"
+    fi
+}
+
 # Main installation
 main() {
     log_info "Starting modern CLI tools installation"
@@ -240,15 +259,6 @@ main() {
 
     # eza (ls replacement)
     pkg_install "eza" "eza"
-
-    if [[ "$PLATFORM" == "macos" ]]; then
-        echo ""
-        log_info "=== macOS Window Manager ==="
-        brew tap koekeishiya/formulae >/dev/null 2>&1 || true
-        pkg_install "koekeishiya/formulae/yabai" "yabai"
-        pkg_install "koekeishiya/formulae/skhd" "skhd"
-        pkg_install "sketchybar" "sketchybar"
-    fi
 
     echo ""
     log_info "=== Git Tools ==="
@@ -359,6 +369,10 @@ main() {
     echo ""
     log_info "=== Text Expansion ==="
     install_espanso
+
+    echo ""
+    log_info "=== Window Automation ==="
+    install_hammerspoon
 
     echo ""
     log_info "=== Fonts ==="

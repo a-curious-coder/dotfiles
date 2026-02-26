@@ -3,6 +3,7 @@ start-at-login = true
 after-login-command = []
 after-startup-command = [
   'exec-and-forget ~/.config/aerospace/scripts/apply-window-rules.sh',
+  'exec-and-forget ~/.config/aerospace/scripts/apply-focused-window-rules.sh',
 ]
 
 # Hyprland dwindle + preserve_split approximation:
@@ -14,13 +15,17 @@ accordion-padding = 30
 default-root-container-layout = 'tiles'
 default-root-container-orientation = 'auto'
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+on-focus-changed = [
+  'exec-and-forget ~/.config/aerospace/scripts/auto-split-orientation.sh',
+  'exec-and-forget ~/.config/aerospace/scripts/apply-focused-window-rules.sh',
+]
 automatically-unhide-macos-hidden-apps = false
-
-# Add this to keep your 1-9 and e always visible
-# persistent-workspaces = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'e']
 
 [key-mapping]
 preset = 'qwerty'
+
+[exec.env-vars]
+HYPR_DWINDLE_SPLIT_WIDTH_MULTIPLIER = '1.0'
 
 [gaps]
 inner.horizontal = 0
@@ -103,6 +108,18 @@ run = ['layout tiling', 'move-node-to-workspace 7']
 if.app-id = 'com.spotify.client'
 run = ['layout tiling', 'move-node-to-workspace 9']
 
+[[on-window-detected]]
+if.app-id = 'com.microsoft.VSCode'
+run = ['layout tiling', 'move-node-to-workspace 3']
+
+[[on-window-detected]]
+if.app-id = 'com.apple.finder'
+run = ['layout tiling', 'move-node-to-workspace 3']
+
+[[on-window-detected]]
+if.app-id = 'com.microsoft.Outlook'
+run = ['layout tiling', 'move-node-to-workspace 7']
+
 # --- 3. MODES AND BINDINGS (Must be at the bottom) ---
 [mode.main.binding]
 
@@ -110,11 +127,19 @@ cmd-enter = 'exec-and-forget open -na Ghostty'
 cmd-b = "exec-and-forget osascript -e 'tell application \"Brave Browser\" to make new window'"
 
 cmd-shift-f = 'fullscreen'
-cmd-ctrl-f = 'fullscreen'
+cmd-ctrl-f = 'macos-native-fullscreen'
 cmd-slash = 'layout tiles horizontal vertical'
-cmd-comma = 'layout tiles horizontal vertical'
+cmd-shift-i = 'split opposite'
+cmd-space = 'layout floating tiling'
+cmd-alt-space = 'exec-and-forget ~/.config/aerospace/scripts/toggle-all-float-workspace.sh'
+cmd-shift-space = 'exec-and-forget ~/.config/aerospace/scripts/reorganize-workspace.sh'
+cmd-shift-enter = 'exec-and-forget ~/.config/aerospace/scripts/toggle-dropdown-terminal.sh'
+cmd-u = 'exec-and-forget ~/.config/aerospace/scripts/toggle-scratchpad-workspace.sh'
+cmd-shift-u = 'exec-and-forget ~/.config/aerospace/scripts/move-focused-to-scratchpad.sh'
+cmd-backslash = 'workspace-back-and-forth'
+cmd-h = 'exec-and-forget ~/.config/aerospace/scripts/show-keybindings.sh'
+cmd-shift-k = 'exec-and-forget ~/.config/aerospace/scripts/list-keybindings.sh'
 
-cmd-h = 'focus left'
 cmd-j = 'focus down'
 cmd-k = 'focus up'
 cmd-l = 'focus right'
@@ -125,16 +150,31 @@ cmd-down = 'focus down'
 cmd-up = 'focus up'
 cmd-right = 'focus right'
 
-cmd-shift-h = 'move left'
-cmd-shift-j = 'move down'
-cmd-shift-k = 'move up'
-cmd-shift-l = 'move right'
+# Resize (Hypr-style primary bindings use Shift + Arrows)
+cmd-shift-left = 'resize width -50'
+cmd-shift-down = 'resize height +50'
+cmd-shift-up = 'resize height -50'
+cmd-shift-right = 'resize width +50'
 
-# Add Shift + Arrow Keys
-cmd-shift-left = 'move left'
-cmd-shift-down = 'move down'
-cmd-shift-up = 'move up'
-cmd-shift-right = 'move right'
+cmd-ctrl-h = 'move left'
+cmd-ctrl-j = 'move down'
+cmd-ctrl-k = 'move up'
+cmd-ctrl-l = 'move right'
+
+cmd-ctrl-left = 'move left'
+cmd-ctrl-down = 'move down'
+cmd-ctrl-up = 'move up'
+cmd-ctrl-right = 'move right'
+
+cmd-alt-h = 'swap left'
+cmd-alt-j = 'swap down'
+cmd-alt-k = 'swap up'
+cmd-alt-l = 'swap right'
+
+cmd-alt-left = 'swap left'
+cmd-alt-down = 'swap down'
+cmd-alt-up = 'swap up'
+cmd-alt-right = 'swap right'
 
 cmd-1 = 'workspace 1'
 cmd-2 = 'workspace 2'
@@ -146,21 +186,46 @@ cmd-7 = 'workspace 7'
 cmd-8 = 'workspace 8'
 cmd-9 = 'workspace 9'
 cmd-e = 'workspace E' # Match lowercase 'e' from your rules
+cmd-0 = 'workspace S'
 
-cmd-shift-1 = 'move-node-to-workspace 1'
-cmd-shift-2 = 'move-node-to-workspace 2'
-cmd-shift-3 = 'move-node-to-workspace 3'
-cmd-shift-4 = 'move-node-to-workspace 4'
-cmd-shift-5 = 'move-node-to-workspace 5'
-cmd-shift-6 = 'move-node-to-workspace 6'
-cmd-shift-7 = 'move-node-to-workspace 7'
-cmd-shift-8 = 'move-node-to-workspace 8'
-cmd-shift-9 = 'move-node-to-workspace 9'
-cmd-shift-e = 'move-node-to-workspace E'
+cmd-comma = 'workspace --wrap-around prev'
+cmd-period = 'workspace --wrap-around next'
+cmd-tab = 'workspace --wrap-around next'
+cmd-shift-tab = 'workspace --wrap-around prev'
+
+cmd-shift-1 = 'move-node-to-workspace --focus-follows-window 1'
+cmd-shift-2 = 'move-node-to-workspace --focus-follows-window 2'
+cmd-shift-3 = 'move-node-to-workspace --focus-follows-window 3'
+cmd-shift-4 = 'move-node-to-workspace --focus-follows-window 4'
+cmd-shift-5 = 'move-node-to-workspace --focus-follows-window 5'
+cmd-shift-6 = 'move-node-to-workspace --focus-follows-window 6'
+cmd-shift-7 = 'move-node-to-workspace --focus-follows-window 7'
+cmd-shift-8 = 'move-node-to-workspace --focus-follows-window 8'
+cmd-shift-9 = 'move-node-to-workspace --focus-follows-window 9'
+cmd-shift-e = 'move-node-to-workspace --focus-follows-window E'
+cmd-shift-0 = 'move-node-to-workspace --focus-follows-window S'
+
+cmd-ctrl-1 = 'move-node-to-workspace 1'
+cmd-ctrl-2 = 'move-node-to-workspace 2'
+cmd-ctrl-3 = 'move-node-to-workspace 3'
+cmd-ctrl-4 = 'move-node-to-workspace 4'
+cmd-ctrl-5 = 'move-node-to-workspace 5'
+cmd-ctrl-6 = 'move-node-to-workspace 6'
+cmd-ctrl-7 = 'move-node-to-workspace 7'
+cmd-ctrl-8 = 'move-node-to-workspace 8'
+cmd-ctrl-9 = 'move-node-to-workspace 9'
+cmd-ctrl-e = 'move-node-to-workspace E'
+cmd-ctrl-0 = 'move-node-to-workspace S'
+
+cmd-shift-comma = 'move-node-to-workspace --focus-follows-window --wrap-around prev'
+cmd-shift-period = 'move-node-to-workspace --focus-follows-window --wrap-around next'
+
+cmd-ctrl-comma = 'move-node-to-workspace --wrap-around prev'
+cmd-ctrl-period = 'move-node-to-workspace --wrap-around next'
 
 cmd-shift-r = 'reload-config'
 cmd-shift-o = 'exec-and-forget ~/.config/aerospace/scripts/apply-window-rules.sh'
-cmd-tab = 'workspace-back-and-forth'
+cmd-alt-r = 'exec-and-forget ~/.config/aerospace/scripts/apply-focused-window-rules.sh'
 alt-shift-tab = 'move-workspace-to-monitor --wrap-around next'
 cmd-backtick = 'exec-and-forget ~/.config/aerospace/scripts/cycle-app-windows.sh'
 cmd-shift-backtick = 'exec-and-forget ~/.config/aerospace/scripts/cycle-app-windows.sh prev'

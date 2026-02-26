@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 
 # Minimal, legible bar aligned with kepano-philosophy.md:
 # - no decoration or animation
@@ -14,8 +14,6 @@ export SB_COLOR_BG=0xff100f0f
 export SB_COLOR_FG=0xffcecdc3
 export SB_COLOR_FG_BRIGHT=0xfffffcf0
 export SB_COLOR_DIM=0xff6f6e69
-export SB_COLOR_RED=0xffd14d41
-export SB_COLOR_GREEN=0xff879a39
 
 export SB_FONT="JetBrainsMono NFM:Regular:12.0"
 export SB_FONT_STRONG="JetBrainsMono NFM:Medium:12.0"
@@ -35,126 +33,62 @@ default=(
   background.drawing=off
 )
 sketchybar --default "${default[@]}"
+sketchybar --remove tasklist >/dev/null 2>&1 || true
+sketchybar --remove window_list >/dev/null 2>&1 || true
+sketchybar --remove window.list >/dev/null 2>&1 || true
+sketchybar --remove windowlist >/dev/null 2>&1 || true
+sketchybar --remove clock >/dev/null 2>&1 || true
+sketchybar --remove battery >/dev/null 2>&1 || true
+for sid in 1 2 3 4 5 6 7 8; do
+  sketchybar --remove "clock.$sid" >/dev/null 2>&1 || true
+  sketchybar --remove "battery.$sid" >/dev/null 2>&1 || true
+done
 
-WM_BACKEND=""
-YABAI_BIN=""
 AEROSPACE_BIN=""
-
-if command -v yabai >/dev/null 2>&1; then
-  YABAI_BIN="yabai"
-  WM_BACKEND="yabai"
-elif command -v aerospace >/dev/null 2>&1; then
+if command -v aerospace >/dev/null 2>&1; then
   AEROSPACE_BIN="aerospace"
-  WM_BACKEND="aerospace"
 elif [ -x "/Applications/AeroSpace.app/Contents/MacOS/AeroSpace" ]; then
   AEROSPACE_BIN="/Applications/AeroSpace.app/Contents/MacOS/AeroSpace"
-  WM_BACKEND="aerospace"
 fi
-
-export WM_BACKEND
-export YABAI_BIN
 export AEROSPACE_BIN
 
 WORKSPACES=""
-if [ "$WM_BACKEND" = "yabai" ] && command -v jq >/dev/null 2>&1; then
-  WORKSPACES="$($YABAI_BIN -m query --spaces 2>/dev/null | jq -r '.[].index' | sort -n | tr '\n' ' ' | xargs)"
-elif [ "$WM_BACKEND" = "aerospace" ]; then
+if [ -n "$AEROSPACE_BIN" ]; then
   WORKSPACES="$($AEROSPACE_BIN list-workspaces --all --format '%{workspace}')"
 fi
-
 if [ -z "$WORKSPACES" ]; then
   WORKSPACES="1 2 3 4 5 6 7 8 9"
 fi
-export WM_WORKSPACES="$WORKSPACES"
 
 for ws in $WORKSPACES; do
-  case "$WM_BACKEND" in
-    yabai)
-      CLICK_SCRIPT="$YABAI_BIN -m space --focus $ws"
-      ;;
-    aerospace)
-      CLICK_SCRIPT="$AEROSPACE_BIN workspace $ws"
-      ;;
-    *)
-      CLICK_SCRIPT="/usr/bin/true"
-      ;;
-  esac
-
   sketchybar --add item "workspace.$ws" left \
              --set "workspace.$ws" label="$ws" \
                  label.padding_left=6 label.padding_right=6 \
-                 click_script="$CLICK_SCRIPT"
+                 script="$PLUGIN_DIR/workspace_item.sh" \
+                 scroll_texts=off \
+             --subscribe "workspace.$ws" mouse.clicked mouse.scrolled
 done
-
-if [ "$WM_BACKEND" = "yabai" ]; then
-  sketchybar --add event yabai_space_changed
-  WS_EVENTS=(space_change display_change space_windows_change system_woke yabai_space_changed)
-else
-  WS_EVENTS=(space_change display_change system_woke)
-fi
 
 # Hidden updater to keep workspace state accurate without animation.
 sketchybar --add item workspace_updater left \
            --set workspace_updater drawing=off \
-                script="$PLUGIN_DIR/workspaces.sh" update_freq=2 \
-           --subscribe workspace_updater "${WS_EVENTS[@]}"
+                script="$PLUGIN_DIR/workspaces.sh" update_freq=1 \
+           --subscribe workspace_updater space_change display_change system_woke
 
 # Front app (left)
-sketchybar --add item front_app left \
+sketchybar --add item front_app right \
            --set front_app script="$PLUGIN_DIR/front_app.sh" \
                 label.max_chars=32 scroll_texts=off \
            --subscribe front_app front_app_switched
 
-# Center: clock (date + time)
-if [ "$WM_BACKEND" = "aerospace" ] && [ -n "$AEROSPACE_BIN" ]; then
-  $AEROSPACE_BIN list-monitors --format '%{monitor-appkit-nsscreen-screens-id} %{monitor-name}' |
-  while read -r sid mname; do
-    clock_pos="center"
-    battery_pos="right"
-    case "$mname" in
-      *Built-in*|*Retina*)
-        clock_pos="e"   # right of notch
-        battery_pos="q" # left of notch
-        ;;
-    esac
-    sketchybar --add item "clock.$sid" "$clock_pos" \
-               --set "clock.$sid" display="$sid" update_freq=60 script="$PLUGIN_DIR/clock.sh" \
-                    label.font="$SB_FONT_STRONG" label.color="$SB_COLOR_FG_BRIGHT" \
-                    label.align=center label.width=220
-    sketchybar --add item "battery.$sid" "$battery_pos" \
-               --set "battery.$sid" display="$sid" update_freq=120 script="$PLUGIN_DIR/battery.sh" \
-                    icon.drawing=on icon="BAT" icon.font="$SB_FONT_STRONG" \
-                    icon.color="$SB_COLOR_DIM" \
-                    label.font="$SB_FONT_STRONG" \
-               --subscribe "battery.$sid" power_source_change system_woke
-  done
-elif [ "$WM_BACKEND" = "yabai" ] && [ -n "$YABAI_BIN" ] && command -v jq >/dev/null 2>&1; then
-  $YABAI_BIN -m query --displays 2>/dev/null | jq -r '.[].index' |
-  while read -r did; do
-    [ -n "$did" ] || continue
-    sketchybar --add item "clock.$did" center \
-               --set "clock.$did" display="$did" update_freq=60 script="$PLUGIN_DIR/clock.sh" \
-                    label.font="$SB_FONT_STRONG" label.color="$SB_COLOR_FG_BRIGHT" \
-                    label.align=center label.width=220
-    sketchybar --add item "battery.$did" right \
-               --set "battery.$did" display="$did" update_freq=120 script="$PLUGIN_DIR/battery.sh" \
-                    icon.drawing=on icon="BAT" icon.font="$SB_FONT_STRONG" \
-                    icon.color="$SB_COLOR_DIM" \
-                    label.font="$SB_FONT_STRONG" \
-               --subscribe "battery.$did" power_source_change system_woke
-  done
-else
-  sketchybar --add item clock center \
-             --set clock update_freq=60 script="$PLUGIN_DIR/clock.sh" \
-                  label.font="$SB_FONT_STRONG" label.color="$SB_COLOR_FG_BRIGHT" \
-                  label.align=center label.width=220
-  sketchybar --add item battery right \
-             --set battery update_freq=120 script="$PLUGIN_DIR/battery.sh" \
-                  icon.drawing=on icon="BAT" icon.font="$SB_FONT_STRONG" \
-                  icon.color="$SB_COLOR_DIM" \
-                  label.font="$SB_FONT_STRONG" \
-             --subscribe battery power_source_change system_woke
-fi
+# Clock (right, notch-safe)
+sketchybar --add item clock right \
+           --set clock update_freq=30 script="$PLUGIN_DIR/clock.sh" \
+                label.font="$SB_FONT_STRONG" \
+                label.color="$SB_COLOR_FG_BRIGHT" \
+                label.padding_left=10 \
+                label.padding_right=8 \
+                scroll_texts=off
 
 "$PLUGIN_DIR/workspaces.sh"
 sketchybar --update

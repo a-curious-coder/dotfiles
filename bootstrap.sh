@@ -48,7 +48,7 @@ main() {
   local -a platform_packages=()
 
   if [[ "$platform" == "macos" ]]; then
-    platform_packages=(yabai skhd sketchybar calibre-macos)
+    platform_packages=(aerospace sketchybar hammerspoon calibre-macos)
   else
     platform_packages=(hypr waybar rofi ags swaync wlogout calibre-linux)
   fi
