@@ -3,3 +3,16 @@
 # Keep defaults predictable and avoid accidental global toggles.
 toggle_key: OFF
 search_shortcut: ALT+SPACE
+
+# Wayland on lp is running in clipboard fallback mode for long expansions.
+# Be explicit about the keyboard layout and give clipboard-based pastes more
+# time so espanso doesn't race stale clipboard contents. Do not restore the
+# previous clipboard automatically, as that can reintroduce stale/sensitive
+# content into terminal pastes on Wayland. Also force the paste chord to the
+# terminal-safe clipboard shortcut instead of Wayland's default Shift+Insert.
+keyboard_layout:
+  layout: us
+pre_paste_delay: 300
+preserve_clipboard: false
+paste_shortcut: CTRL+SHIFT+V
+restore_clipboard_delay: 300

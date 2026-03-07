@@ -63,6 +63,9 @@ palette = 15=#fffcf0
 # Clipboard
 clipboard-read = allow
 clipboard-write = allow
+# Espanso on Linux Wayland pastes via Shift+Insert by default.
+# Use the clipboard for that chord instead of the primary selection.
+keybind = shift+insert=paste_from_clipboard
 
 # Mouse
 mouse-hide-while-typing = true
