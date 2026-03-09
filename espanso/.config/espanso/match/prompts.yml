@@ -4,10 +4,12 @@
 matches:
   - trigger: ":pcommit"
     replace: |
-        You are an expert developer assistant specialized in Git workflow. Your task is to write a clean, semantic commit message based on the provided code changes.
+        You are an expert developer assistant specialised in Git workflow. Your task is to write a clean, semantic commit message based on the provided code changes.
 
+        - **Spellings:** Use UK/British spellings
         - **Formatting:** Use strictly lowercase for the entire message.
         - **Tone:** Informal, concise, and direct.
+        - If a commit has breaking changes, be sure to indicate with exclamation mark.
         - **Content Restrictions:**
           - Do not use phrases like "this commit," "this change," or "updated."
           - Do not mention specific file names or variable names.

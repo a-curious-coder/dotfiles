@@ -130,7 +130,6 @@ stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgre
 | `setup-tmux.sh` | Stow tmux config, install/update TPM, and install plugins |
 | `scripts/setup-espanso-macos.sh` | Link `~/Library/Application Support/espanso` to `~/.config/espanso` on macOS |
 | `ubuntu_install.sh` | Compatibility wrapper that delegates to `install-modern-tools.sh` |
-| `discord_install.sh` | Arch Linux workaround script for Discord updates (suitable for cron) |
 | `scripts/check-shell.sh` | Run `shellcheck` for maintained repo shell scripts |
 | `scripts/run-nvim-text-specs.sh` | Run lightweight Neovim text-spec checks |
 

@@ -19,7 +19,6 @@ HIST_STAMPS="yyyy-mm-dd"  # ISO 8601
 
 # Ensure core system tools are always reachable, even if parent env PATH is empty (e.g. fresh tmux server).
 export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PATH:-}"
-[[ -f "$HOME/.zshrc.env" ]] && source "$HOME/.zshrc.env"
 
 # Codex MCP secrets (only if codex exists on this machine)
 if command -v codex &> /dev/null && [[ -f "$HOME/.secrets/load_codex_secrets.zsh" ]]; then
@@ -56,10 +55,11 @@ load_nvm() {
 add-zsh-hook preexec load_nvm
 
 # rbenv
-command -v rbenv &> /dev/null && eval "$(rbenv init - zsh)"
-
-# Rust
-[[ -f "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
+# - login shells initialize this in ~/.zprofile
+# - non-login interactive shells (e.g. tmux panes) initialize here
+if command -v rbenv &> /dev/null && [[ -z "${RBENV_SHELL:-}" ]]; then
+    eval "$(rbenv init - --no-rehash zsh)"
+fi
 
 # Aliases and functions
 [[ -f ~/.zsh_aliases ]] && source ~/.zsh_aliases
@@ -74,10 +74,6 @@ setopt hist_ignore_dups
 setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_find_no_dups
-
-# Completion - use cached dump for speed
-autoload -Uz compinit
-compinit -C
 
 # zoxide - frecency-based directory jumping
 if command -v zoxide &> /dev/null; then
@@ -107,6 +103,24 @@ fi
 
 # Optional machine-local overrides (not tracked in this repo)
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
+
+# Refresh Wayland session variables from the user systemd environment so
+# shells opened after a compositor restart don't keep a dead Hyprland instance.
+sync_wayland_session_environment() {
+    [[ "$(uname -s)" == "Linux" ]] || return 0
+    [[ -z "${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}" ]] || return 0
+    command -v systemctl >/dev/null 2>&1 || return 0
+
+    local line key value
+    while IFS='=' read -r key value; do
+        case "$key" in
+            HYPRLAND_INSTANCE_SIGNATURE|WAYLAND_DISPLAY|XDG_CURRENT_DESKTOP)
+                [[ -n "$value" ]] && export "$key=$value"
+                ;;
+        esac
+    done < <(systemctl --user show-environment 2>/dev/null)
+}
+sync_wayland_session_environment
 
 # Keep tmux server env aligned with vars managed in ~/.zshrc.env.
 sync_tmux_environment_from_zshrc_env() {
@@ -164,7 +178,7 @@ sync_tmux_environment_from_zshrc_env() {
     done
 
     for var in "${previous_vars[@]}"; do
-        [[ -n "${current_lookup[$var]-}" ]] || stale_vars+=("$var")
+        (( ${+current_lookup["$var"]} )) || stale_vars+=("$var")
     done
 
     for var in "${stale_vars[@]}"; do
@@ -301,4 +315,8 @@ if command -v pyenv 1>/dev/null 2>&1; then
     # Avoid per-shell startup rehash lock contention in new tmux panes/windows.
     eval "$(pyenv init - --no-rehash)"
 fi
-export PATH="/opt/homebrew/opt/postgresql@16/bin:$PATH"
+export PATH="/opt/homebrew/opt/postgresql@16.10/bin:$PATH"
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/callummclennan/.lmstudio/bin"
+# End of LM Studio CLI section

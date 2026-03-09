@@ -100,7 +100,6 @@ zoxide add "$(pwd)/transcription-stack"
 - `move current window to workspace 2`
 - `send vlc to workspace 3`
 - `toggle floating`
-- `update discord`
 
 Command mode now executes on stable repeated command hypotheses while you speak (not only at final silence), which avoids losing valid commands to trailing filler words.
 `open terminal` is mapped to `ghostty`; `open browser` is mapped to `brave` in the default config.
@@ -112,11 +111,7 @@ To scale app support, edit `~/.config/local-voice-commands/config.json` (`apps[*
 Custom commands live under `commands[*]` and support:
 - `dispatch`: Hyprland dispatcher arguments (for example `workspace +1`, `togglefloating`, `fullscreen 1`)
 - `dispatches`: list of Hyprland dispatches executed in order (for example move window then focus monitor)
-- `exec`: shell command/script (for example `~/Projects/personal/dotfiles/discord_install.sh`)
-
-`update discord` now follows deterministic behavior in `discord_install.sh`:
-- if local and remote versions match: no app close and fast exit
-- if update is needed: close Discord, update, and relaunch only if it was running before
+- `exec`: shell command/script
 
 Command mode live execution tuning:
 - `LOCAL_VCMD_COMMAND_CONFIRM_REPETITIONS` (default `1`)

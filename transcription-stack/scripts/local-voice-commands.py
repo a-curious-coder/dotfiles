@@ -221,14 +221,6 @@ DEFAULT_CONFIG: Dict[str, Any] = {
             "dispatch": "fullscreen 1",
             "notify": "Toggle Fullscreen",
         },
-        {
-            "id": "update_discord",
-            "aliases": ["update discord", "upgrade discord", "refresh discord"],
-            "exec": "~/Projects/personal/dotfiles/discord_install.sh",
-            "cwd": "~/Projects/personal/dotfiles",
-            "detached": True,
-            "notify": "Updating Discord",
-        }
     ],
     "search": {
         "default_engine": "duckduckgo",
