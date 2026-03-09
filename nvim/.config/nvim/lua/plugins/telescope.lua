@@ -321,7 +321,7 @@ return {
 
 			vim.keymap.set("n", "<leader>?", builtin.keymaps, { desc = "Find keymaps" })
 
-			vim.keymap.set("n", "<leader><leader>", recent_files_picker, { desc = "Recent files" })
+				vim.keymap.set("n", "<leader>fr", recent_files_picker, { desc = "Recent files" })
 
 			vim.keymap.set("n", "<leader>fT", toggle_scope, { desc = "Toggle find scope (repo/global)" })
 		end,

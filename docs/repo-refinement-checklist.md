@@ -13,8 +13,9 @@
   - [x] Ignore `git/` and stop tracking `git/.gitconfig`
   - [x] Shell/install cleanup pass (`zsh/.zshrc`, `install-modern-tools.sh`)
   - [x] Added `bootstrap.sh` orchestrator (tools + stow + tmux bootstrap)
-  - [x] Added lightweight CI checks (`shellcheck` + Neovim text-specs)
-  - [x] Removed unused CTF/security shell surface and guide docs
+- [x] Added lightweight CI checks (`shellcheck` + Neovim text-specs)
+- [x] Added a single repo doctor command and wired CI through it
+- [x] Removed unused CTF/security shell surface and guide docs
 - In-flight (not committed):
   - [ ] Telescope recent-files fix in `nvim/.config/nvim/lua/plugins/telescope.lua`
 
@@ -48,7 +49,7 @@
 
 ## Nice-to-Have (Later)
 
-- [ ] Add `docs/operations.md` with 5-10 common commands (stow, unstow, tmux bootstrap, calibre checks)
+- [x] Add `docs/operations.md` with 5-10 common commands (stow, unstow, tmux bootstrap, calibre checks)
 - [ ] Add a small script for dead-link checks in markdown docs
 
 ## Definition of Done (for each checklist item)

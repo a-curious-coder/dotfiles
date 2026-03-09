@@ -130,11 +130,13 @@ stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgre
 | `setup-tmux.sh` | Stow tmux config, install/update TPM, and install plugins |
 | `scripts/setup-espanso-macos.sh` | Link `~/Library/Application Support/espanso` to `~/.config/espanso` on macOS |
 | `ubuntu_install.sh` | Compatibility wrapper that delegates to `install-modern-tools.sh` |
+| `scripts/doctor.sh` | Run the main repo health checks in one go |
 | `scripts/check-shell.sh` | Run `shellcheck` for maintained repo shell scripts |
 | `scripts/run-nvim-text-specs.sh` | Run lightweight Neovim text-spec checks |
 
 Docs:
 - `docs/calibre.md` (Calibre profile and validation)
+- `docs/operations.md` (common repo workflows and commands)
 
 ## Neovim
 
