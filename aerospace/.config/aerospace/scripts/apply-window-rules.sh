@@ -2,6 +2,7 @@
 set -euo pipefail
 
 AERO_BIN="${AEROSPACE_BIN:-aerospace}"
+ENFORCE_APP_WORKSPACES="${AEROSPACE_ENFORCE_APP_WORKSPACES:-0}"
 
 if ! command -v "$AERO_BIN" >/dev/null 2>&1; then
   exit 1
@@ -45,7 +46,7 @@ while IFS=$'\t' read -r window_id app_id workspace; do
   # Keep managed apps in tiling mode when reapplying startup/manual rules.
   "$AERO_BIN" focus --window-id "$window_id" >/dev/null 2>&1 || true
   normalize_layout_for_app
-  if [ "$workspace" != "$target_workspace" ]; then
+  if [ "$ENFORCE_APP_WORKSPACES" = "1" ] && [ "$workspace" != "$target_workspace" ]; then
     "$AERO_BIN" move-node-to-workspace --window-id "$window_id" "$target_workspace" >/dev/null 2>&1 || true
     "$AERO_BIN" focus --window-id "$window_id" >/dev/null 2>&1 || true
     normalize_layout_for_app
