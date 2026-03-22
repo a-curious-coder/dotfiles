@@ -101,6 +101,25 @@ window#waybar {
   -gtk-icon-effect: highlight;
 }
 
+/* Tray context menus: restore solid background lost to * { background: transparent } */
+menu {
+  background: @black;
+  color: @base200;
+  border: 1px solid alpha(@base600, 0.4);
+  padding: 2px 0;
+}
+
+menuitem {
+  background: @black;
+  color: @base200;
+  padding: 4px 12px;
+}
+
+menuitem:hover {
+  background: alpha(@base600, 0.25);
+  color: @paper;
+}
+
 /* Dictation model status */
 #custom-dictation-model {
   padding: 0 10px;
