@@ -40,6 +40,7 @@ dotfiles/
 ├── git/            Git config with delta for diffs
 ├── hammerspoon/    macOS automation (cmd+drag, window helpers)
 ├── hypr/           Hyprland compositor
+├── kanshi/         Display profile manager for Wayland
 ├── lazydocker/     Docker TUI
 ├── lazygit/        Git TUI
 ├── nvim/           Neovim
@@ -83,7 +84,7 @@ Tip: if you use zoxide, `z dotfiles` is the quickest way back to this repo.
 
 **Linux (Hyprland)**
 ```bash
-stow hypr waybar rofi ags swaync wlogout calibre-linux
+stow hypr kanshi waybar rofi ags swaync wlogout calibre-linux
 stow pavucontrol
 ```
 

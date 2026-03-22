@@ -37,7 +37,7 @@ stow git zsh starship tmux nvim ghostty espanso
 ### Linux desktop (Hyprland stack)
 
 ```bash
-stow hypr waybar rofi ags swaync wlogout calibre-linux
+stow hypr kanshi waybar rofi ags swaync wlogout calibre-linux
 ```
 
 ### macOS desktop

@@ -29,7 +29,7 @@ stow aerospace sketchybar hammerspoon calibre-macos
 ## Stow Linux desktop packages
 
 ```bash
-stow hypr waybar rofi ags swaync wlogout calibre-linux
+stow hypr kanshi waybar rofi ags swaync wlogout calibre-linux
 ```
 
 ## Set up tmux plugins
