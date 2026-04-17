@@ -137,3 +137,161 @@ show-tools() {
         fi
     done
 }
+
+_obsidian_import_markdown_file() {
+    local file="$1"
+    local vault_root="${OBSIDIAN_VAULT_ROOT:-$HOME/Desktop/the-vault}"
+    local import_root="${OBSIDIAN_EXTERNAL_IMPORT_ROOT:-$vault_root/External Files}"
+    local abs_file="${file:A}"
+    local rel_path target_path
+
+    if [[ ! -f "$abs_file" ]]; then
+        printf '%s\n' "$file"
+        return 0
+    fi
+
+    if [[ "$abs_file" == "$vault_root/"* ]]; then
+        printf '%s\n' "$abs_file"
+        return 0
+    fi
+
+    rel_path="${abs_file#/}"
+    target_path="$import_root/$rel_path"
+    mkdir -p "${target_path:h}" || return 1
+    cp "$abs_file" "$target_path" || return 1
+    printf '%s\n' "$target_path"
+}
+
+open() {
+    local arg lower
+    local -a forwarded_args
+
+    for arg in "$@"; do
+        if [[ "$arg" == -* ]]; then
+            command open "$@"
+            return $?
+        fi
+    done
+
+    for arg in "$@"; do
+        if [[ "$arg" == *://* || "$arg" == mailto:* ]]; then
+            forwarded_args+=("$arg")
+            continue
+        fi
+
+        lower="${arg:l}"
+        if [[ -f "$arg" && ( "$lower" == *.md || "$lower" == *.markdown ) ]]; then
+            forwarded_args+=("$(_obsidian_import_markdown_file "$arg")")
+        else
+            forwarded_args+=("$arg")
+        fi
+    done
+
+    command open "${forwarded_args[@]}"
+}
+
+batdiff() {
+    git diff --name-only --relative --diff-filter=d -z | xargs -0 bat --diff
+}
+
+prompt-style() {
+    local style="$1"
+    local config_dir="$HOME/.config"
+    local candidate detected
+
+    if [[ -z "$style" ]]; then
+        echo "Available prompt styles: lambda zen context"
+        echo "Usage: prompt-style <style>"
+        echo "Current style:"
+
+        if [[ -L "$config_dir/starship.toml" ]]; then
+            readlink "$config_dir/starship.toml" | sed 's/.*starship-/  /; s/\.toml.*//'
+        elif [[ -f "$config_dir/starship.toml" ]]; then
+            detected="custom"
+            for candidate in lambda zen context; do
+                if cmp -s "$config_dir/starship.toml" "$config_dir/starship-${candidate}.toml"; then
+                    detected="$candidate"
+                    break
+                fi
+            done
+            echo "  $detected"
+        else
+            echo "  (unknown)"
+        fi
+
+        return 0
+    fi
+
+    case "$style" in
+        lambda|zen|context) ;;
+        *)
+            echo "Error: Style '$style' not found."
+            echo "Available styles: lambda zen context"
+            return 1
+            ;;
+    esac
+
+    if [[ ! -f "$config_dir/starship-${style}.toml" ]]; then
+        echo "Error: Missing file $config_dir/starship-${style}.toml"
+        return 1
+    fi
+
+    cp "$config_dir/starship-${style}.toml" "$config_dir/starship.toml"
+
+    echo "Switched to prompt style: $style"
+    echo "Reload your shell with: source ~/.zshrc"
+}
+
+ghostty-theme() {
+    local theme_name="$1"
+    local config_file="$HOME/.config/ghostty/config"
+    local current_theme theme_file tmp_file
+
+    if [[ -z "$theme_name" ]]; then
+        echo "Available themes: current minimalist dracula nord"
+        echo "Usage: ghostty-theme <theme-name>"
+        echo "Current theme:"
+
+        if [[ ! -f "$config_file" ]]; then
+            echo "  (config not found)"
+            return 1
+        fi
+
+        current_theme="$(grep -E '^import = .*theme-.*\.conf$' "$config_file" | sed 's/.*theme-//; s/\.conf$//' | tail -n 1)"
+        if [[ -n "$current_theme" ]]; then
+            echo "  $current_theme"
+        else
+            echo "  (no theme import configured)"
+        fi
+
+        return 0
+    fi
+
+    case "$theme_name" in
+        current|minimalist|dracula|nord) ;;
+        *)
+            echo "Error: Theme '$theme_name' not found."
+            echo "Available themes: current minimalist dracula nord"
+            return 1
+            ;;
+    esac
+
+    if [[ ! -f "$config_file" ]]; then
+        echo "Error: Ghostty config not found at $config_file"
+        return 1
+    fi
+
+    theme_file="$HOME/.config/ghostty/themes/theme-${theme_name}.conf"
+    if [[ ! -f "$theme_file" ]]; then
+        echo "Error: Theme file not found at $theme_file"
+        return 1
+    fi
+
+    tmp_file="$(mktemp)" || return 1
+    awk '!/^import = .*theme-.*\.conf$/' "$config_file" > "$tmp_file"
+    printf '\nimport = %s\n' "$theme_file" >> "$tmp_file"
+    mv "$tmp_file" "$config_file"
+
+    echo "Switched to theme: $theme_name"
+    echo "Note: You may need to restart Ghostty or open a new window for changes to take effect."
+}

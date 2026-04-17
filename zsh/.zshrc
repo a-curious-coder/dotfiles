@@ -1,27 +1,44 @@
 autoload -U add-zsh-hook
 
-# Suppress login banner and mail notifications
-[[ -f "$HOME/.hushlogin" ]] || touch "$HOME/.hushlogin"
+# Interactive shell settings.
 MAILCHECK=0
 unset MAIL MAILPATH
 
-# Oh My Zsh
+# Oh My Zsh.
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME=""  # using Starship instead
+ZSH_THEME=""
 
-# Zsh behavior - explicitness over magic
 CASE_SENSITIVE="true"
 HYPHEN_INSENSITIVE="true"
-DISABLE_MAGIC_FUNCTIONS="true"  # prevent pasted URLs from being escaped
+DISABLE_MAGIC_FUNCTIONS="true"
 COMPLETION_WAITING_DOTS="true"
-DISABLE_UNTRACKED_FILES_DIRTY="true"  # faster git status in large repos
-HIST_STAMPS="yyyy-mm-dd"  # ISO 8601
+DISABLE_UNTRACKED_FILES_DIRTY="true"
+HIST_STAMPS="yyyy-mm-dd"
 
-# Ensure core system tools are always reachable, even if parent env PATH is empty (e.g. fresh tmux server).
-export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:${PATH:-}"
+# Keep PATH usable even when inherited PATH is empty, then layer local tools.
+[[ -n "${PATH:-}" ]] || export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+typeset -U path PATH
 
-# Codex MCP secrets (only if codex exists on this machine)
-if command -v codex &> /dev/null && [[ -f "$HOME/.secrets/load_codex_secrets.zsh" ]]; then
+for dir in "$HOME/.local/bin" "$HOME/.cargo/bin"; do
+    [[ -d "$dir" ]] && path=("$dir" $path)
+done
+
+for dir in /opt/homebrew/bin /opt/homebrew/sbin; do
+    [[ -d "$dir" ]] && path=("$dir" $path)
+done
+
+for dir in \
+    "${GOPATH:+$GOPATH/bin}" \
+    "${GOROOT:+$GOROOT/bin}" \
+    /snap/bin \
+    /opt/nvim-linux64/bin \
+    "$HOME/.lmstudio/bin"
+do
+    [[ -n "$dir" && -d "$dir" ]] && path+=("$dir")
+done
+
+# Optional secrets used by Codex on machines that have it installed.
+if (( $+commands[codex] )) && [[ -f "$HOME/.secrets/load_codex_secrets.zsh" ]]; then
     # shellcheck disable=SC1090
     source "$HOME/.secrets/load_codex_secrets.zsh"
 fi
@@ -30,42 +47,41 @@ zstyle ':omz:update' mode auto
 zstyle ':omz:update' frequency 13
 
 plugins=(
-  git
-  docker
-  web-search
-  history-substring-search
-  zsh-autosuggestions
-  zsh-syntax-highlighting
+    git
+    docker
+    web-search
+    history-substring-search
+    zsh-autosuggestions
+    zsh-syntax-highlighting
 )
 
-source "$ZSH/oh-my-zsh.sh"
+[[ -d "$ZSH" ]] && source "$ZSH/oh-my-zsh.sh"
 
-# PATH
-export PATH="$HOME/.local/bin:$HOME/.cargo/bin:${GOPATH:+$GOPATH/bin}:${GOROOT:+$GOROOT/bin}:$PATH:/snap/bin:/opt/nvim-linux64/bin"
-
-# NVM - lazy-loaded to avoid 200ms startup penalty
+# Version managers.
 export NVM_DIR="$HOME/.nvm"
+
 load_nvm() {
-  if [ -s "$NVM_DIR/nvm.sh" ]; then
+    [[ -s "$NVM_DIR/nvm.sh" ]] || return 0
+
     source "$NVM_DIR/nvm.sh"
-    [ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"
+    [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
     add-zsh-hook -d preexec load_nvm
-  fi
 }
 add-zsh-hook preexec load_nvm
 
-# rbenv
-# - login shells initialize this in ~/.zprofile
-# - non-login interactive shells (e.g. tmux panes) initialize here
-if command -v rbenv &> /dev/null && [[ -z "${RBENV_SHELL:-}" ]]; then
+if (( $+commands[rbenv] )) && [[ -z "${RBENV_SHELL:-}" ]]; then
     eval "$(rbenv init - --no-rehash zsh)"
 fi
 
-# Aliases and functions
-[[ -f ~/.zsh_aliases ]] && source ~/.zsh_aliases
-[[ -f ~/.zsh_functions ]] && source ~/.zsh_functions
+if (( $+commands[pyenv] )); then
+    eval "$(pyenv init - --no-rehash)"
+fi
 
-# History - share across sessions, deduplicate
+# User extensions.
+[[ -f "$HOME/.zsh_aliases" ]] && source "$HOME/.zsh_aliases"
+[[ -f "$HOME/.zsh_functions" ]] && source "$HOME/.zsh_functions"
+
+# History.
 HISTSIZE=10000
 SAVEHIST=10000
 setopt inc_append_history
@@ -75,43 +91,47 @@ setopt hist_ignore_all_dups
 setopt hist_save_no_dups
 setopt hist_find_no_dups
 
-# zoxide - frecency-based directory jumping
-if command -v zoxide &> /dev/null; then
+# Tooling.
+if (( $+commands[zoxide] )); then
     eval "$(zoxide init zsh)"
 
     cd() {
-        if [[ "$1" =~ ^-[^L]+ ]]; then
-            echo "cd is aliased to zoxide. Use 'builtin cd' for native cd."
-            return 1
+        if [[ "${1:-}" == -* ]]; then
+            builtin cd "$@"
+        else
+            z "$@"
         fi
-        z "$@"
     }
 fi
 
-# Starship prompt
-if command -v starship &> /dev/null; then
-    if [[ -f "$HOME/.config/starship.toml" ]]; then
-        export STARSHIP_CONFIG="$HOME/.config/starship.toml"
-    elif [[ -f "$HOME/.config/starship-context.toml" ]]; then
-        export STARSHIP_CONFIG="$HOME/.config/starship-context.toml"
-    fi
+if (( $+commands[starship] )); then
+    local_starship_config=""
+
+    for candidate in \
+        "$HOME/.config/starship.toml" \
+        "$HOME/.config/starship-lambda.toml" \
+        "$HOME/.config/starship-context.toml"
+    do
+        if [[ -f "$candidate" ]]; then
+            local_starship_config="$candidate"
+            break
+        fi
+    done
+
+    [[ -n "$local_starship_config" ]] && export STARSHIP_CONFIG="$local_starship_config"
     eval "$(starship init zsh)"
 fi
 
-# fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
-
-# Optional machine-local overrides (not tracked in this repo)
+[[ -f "$HOME/.fzf.zsh" ]] && source "$HOME/.fzf.zsh"
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
-# Refresh Wayland session variables from the user systemd environment so
-# shells opened after a compositor restart don't keep a dead Hyprland instance.
+# Linux desktop sessions can keep stale Wayland variables after compositor restarts.
 sync_wayland_session_environment() {
     [[ "$(uname -s)" == "Linux" ]] || return 0
     [[ -z "${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}" ]] || return 0
-    command -v systemctl >/dev/null 2>&1 || return 0
+    (( $+commands[systemctl] )) || return 0
 
-    local line key value
+    local key value
     while IFS='=' read -r key value; do
         case "$key" in
             HYPRLAND_INSTANCE_SIGNATURE|WAYLAND_DISPLAY|XDG_CURRENT_DESKTOP)
@@ -122,55 +142,46 @@ sync_wayland_session_environment() {
 }
 sync_wayland_session_environment
 
-# Keep tmux server env aligned with vars managed in ~/.zshrc.env.
+# Keep tmux environment in sync with exported vars managed by ~/.zshrc.env.
 sync_tmux_environment_from_zshrc_env() {
     [[ -n "${TMUX:-}" ]] || return 0
-    local tmux_bin="${commands[tmux]-}"
-    if [[ -z "$tmux_bin" ]]; then
-        local candidate
-        for candidate in /opt/homebrew/bin/tmux /usr/local/bin/tmux /usr/bin/tmux; do
-            if [[ -x "$candidate" ]]; then
-                tmux_bin="$candidate"
-                break
-            fi
-        done
-    fi
-    [[ -n "$tmux_bin" ]] || return 0
 
+    local tmux_bin="${commands[tmux]-}"
     local env_file="$HOME/.zshrc.env"
     local managed_key="DOTFILES_ZSHRC_ENV_MANAGED"
-    local previous_line parsed_vars var
+    local parsed_vars previous_line var
     local -a current_vars previous_vars stale_vars
     local -A current_lookup
+
+    [[ -n "$tmux_bin" && -f "$env_file" ]] || return 0
 
     previous_line="$("$tmux_bin" show-environment -g "$managed_key" 2>/dev/null || true)"
     if [[ "$previous_line" == "$managed_key="* ]]; then
         previous_vars=(${=${previous_line#*=}})
+        previous_vars=(${previous_vars:#PATH})
     fi
-    previous_vars=(${previous_vars:#PATH})
 
-    if [[ -f "$env_file" ]]; then
-        parsed_vars="$(awk '
-          /^[[:space:]]*export[[:space:]]+/ {
-            for (i = 2; i <= NF; ++i) {
-              split($i, parts, "=")
-              if (parts[1] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print parts[1]
-            }
-          }
-          /^[[:space:]]*typeset[[:space:]]+-[[:alnum:]]*x[[:alnum:]]*[[:space:]]+/ {
-            for (i = 3; i <= NF; ++i) {
-              split($i, parts, "=")
-              if (parts[1] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print parts[1]
-            }
-          }
-          /^[[:space:]]*unset[[:space:]]+/ {
-            for (i = 2; i <= NF; ++i) {
-              if ($i ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print $i
-            }
-          }
-        ' "$env_file" 2>/dev/null)"
-        current_vars=(${(u)${(f)parsed_vars}})
-    fi
+    parsed_vars="$(awk '
+      /^[[:space:]]*export[[:space:]]+/ {
+        for (i = 2; i <= NF; ++i) {
+          split($i, parts, "=")
+          if (parts[1] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print parts[1]
+        }
+      }
+      /^[[:space:]]*typeset[[:space:]]+-[[:alnum:]]*x[[:alnum:]]*[[:space:]]+/ {
+        for (i = 3; i <= NF; ++i) {
+          split($i, parts, "=")
+          if (parts[1] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print parts[1]
+        }
+      }
+      /^[[:space:]]*unset[[:space:]]+/ {
+        for (i = 2; i <= NF; ++i) {
+          if ($i ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print $i
+        }
+      }
+    ' "$env_file" 2>/dev/null)"
+
+    current_vars=(${(u)${(f)parsed_vars}})
     current_vars=(${current_vars:#PATH})
 
     for var in "${current_vars[@]}"; do
@@ -202,121 +213,10 @@ sync_tmux_environment_from_zshrc_env() {
 }
 sync_tmux_environment_from_zshrc_env
 
-# Better git diff with bat
-batdiff() {
-    git diff --name-only --relative --diff-filter=d -z | xargs -0 bat --diff
+refresh_tmux_status_for_cwd() {
+    [[ -n "${TMUX:-}" && -n "${commands[tmux]-}" ]] || return 0
+    "${commands[tmux]}" refresh-client -S >/dev/null 2>&1 || true
 }
-
-# Prompt style switcher
-prompt-style() {
-    local style="$1"
-    local config_dir="$HOME/.config"
-
-    if [[ -z "$style" ]]; then
-        echo "Available prompt styles:"
-        echo "  lambda  - λ (programmer aesthetic)"
-        echo "  zen     - · (ultra minimal)"
-        echo "  context - λ locally, user@host on SSH"
-        echo ""
-        echo "Usage: prompt-style <style>"
-        echo "Current style:"
-        if [[ -L "$config_dir/starship.toml" ]]; then
-            readlink "$config_dir/starship.toml" | sed 's/.*starship-/  /' | sed 's/\.toml.*//'
-        elif [[ -f "$config_dir/starship.toml" ]]; then
-            local detected="custom"
-            local candidate
-            for candidate in lambda zen context; do
-                if cmp -s "$config_dir/starship.toml" "$config_dir/starship-${candidate}.toml"; then
-                    detected="$candidate"
-                    break
-                fi
-            done
-            echo "  $detected"
-        else
-            echo "  (unknown)"
-        fi
-        return 0
-    fi
-
-    case "$style" in
-        lambda|zen|context) ;;
-        *)
-            echo "Error: Style '$style' not found."
-            echo "Available styles: lambda zen context"
-            return 1
-            ;;
-    esac
-
-    if [[ ! -f "$config_dir/starship-${style}.toml" ]]; then
-        echo "Error: Missing file $config_dir/starship-${style}.toml"
-        return 1
-    fi
-
-    # Copy the selected style to the main config
-    cp "$config_dir/starship-${style}.toml" "$config_dir/starship.toml"
-
-    echo "Switched to prompt style: $style"
-    echo "Reload your shell with: source ~/.zshrc"
-}
-
-# Ghostty theme switcher
-ghostty-theme() {
-    local theme_name="$1"
-    local config_file="$HOME/.config/ghostty/config"
-
-    if [[ -z "$theme_name" ]]; then
-        echo "Available themes: current minimalist dracula nord"
-        echo "Usage: ghostty-theme <theme-name>"
-        echo "Current theme:"
-        if [[ ! -f "$config_file" ]]; then
-            echo "  (config not found)"
-            return 1
-        fi
-        local current_theme
-        current_theme="$(grep -E "^import = .*theme-.*\\.conf$" "$config_file" | sed 's/.*theme-//' | sed 's/\.conf$//' | tail -n 1)"
-        if [[ -n "$current_theme" ]]; then
-            echo "  $current_theme"
-        else
-            echo "  (no theme import configured)"
-        fi
-        return 0
-    fi
-
-    case "$theme_name" in
-        current|minimalist|dracula|nord) ;;
-        *)
-            echo "Error: Theme '$theme_name' not found."
-            echo "Available themes: current minimalist dracula nord"
-            return 1
-            ;;
-    esac
-
-    if [[ ! -f "$config_file" ]]; then
-        echo "Error: Ghostty config not found at $config_file"
-        return 1
-    fi
-
-    local theme_file="$HOME/.config/ghostty/themes/theme-${theme_name}.conf"
-    if [[ ! -f "$theme_file" ]]; then
-        echo "Error: Theme file not found at $theme_file"
-        return 1
-    fi
-
-    local tmp_file
-    tmp_file="$(mktemp)"
-    awk '!/^import = .*theme-.*\.conf$/' "$config_file" > "$tmp_file"
-    printf '\nimport = %s\n' "$theme_file" >> "$tmp_file"
-    mv "$tmp_file" "$config_file"
-
-    echo "Switched to theme: $theme_name"
-    echo "Note: You may need to restart Ghostty or open a new window for changes to take effect."
-}
-if command -v pyenv 1>/dev/null 2>&1; then
-    # Avoid per-shell startup rehash lock contention in new tmux panes/windows.
-    eval "$(pyenv init - --no-rehash)"
-fi
-export PATH="/opt/homebrew/opt/postgresql@16.10/bin:$PATH"
-
-# Added by LM Studio CLI (lms)
-export PATH="$PATH:/Users/callummclennan/.lmstudio/bin"
-# End of LM Studio CLI section
+add-zsh-hook chpwd refresh_tmux_status_for_cwd
+add-zsh-hook precmd refresh_tmux_status_for_cwd
+refresh_tmux_status_for_cwd
