@@ -1,0 +1,9 @@
+# Public repo: ignore everything in ~/.claude by default, allowlist only
+# the portable, secret-free files. Never track credentials, history,
+# transcripts, sessions, telemetry, caches or machine-local settings.
+*
+!.gitignore
+!CLAUDE.md
+!settings.json
+!agents/
+!commands/

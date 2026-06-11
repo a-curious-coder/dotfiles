@@ -1,0 +1,17 @@
+{
+  "env": {
+    "MAX_THINKING_TOKENS": "32000"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(./hack/spec_metadata.sh)",
+      "Bash(hack/spec_metadata.sh)",
+      "Bash(bash hack/spec_metadata.sh)",
+      "mcp__pencil"
+    ]
+  },
+  "enableAllProjectMcpServers": false,
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true,
+  "model": "opus"
+}
