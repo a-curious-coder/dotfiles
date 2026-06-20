@@ -1,10 +1,3 @@
--- ┌─────────────────────────────────────────────────────────────┐
--- │ LSP Server Configurations                                   │
--- │ Purpose: Define settings for each language server           │
--- │ Note: Only include non-default settings here               │
--- │ Servers are auto-installed by Mason                        │
--- └─────────────────────────────────────────────────────────────┘
-
 local M = {}
 
 local vue_language_server_path = vim.fn.stdpath("data")
@@ -23,10 +16,7 @@ local vue_plugin = {
   configNamespace = "typescript",
 }
 
--- Server-specific configurations
--- Empty tables ({}) use default settings from nvim-lspconfig
 M.server_configs = {
-  -- === WEB DEVELOPMENT ===
   html = {},
   jsonls = {},
   tailwindcss = {
@@ -47,7 +37,6 @@ M.server_configs = {
     end
   },
   
-  -- === TYPESCRIPT/JAVASCRIPT ===
   vtsls = {
     filetypes = tsserver_filetypes,
     settings = {
@@ -74,7 +63,6 @@ M.server_configs = {
     },
   },
   
-  -- === VUE ===
   vue_ls = {
     filetypes = { "vue" },
     settings = {
@@ -106,14 +94,9 @@ M.server_configs = {
     },
   },
   
-  -- === LUA ===
   lua_ls = {},
-  
-  -- === PYTHON ===
   pyright = {},
   pylsp = {},
-  
-  -- === RUBY ===
   ruby_lsp = {
     cmd = { "ruby-lsp" },
     settings = {
