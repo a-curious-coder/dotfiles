@@ -220,3 +220,12 @@ refresh_tmux_status_for_cwd() {
 add-zsh-hook chpwd refresh_tmux_status_for_cwd
 add-zsh-hook precmd refresh_tmux_status_for_cwd
 refresh_tmux_status_for_cwd
+
+# Internet Speed Monitor
+export PATH="$PATH:/home/groot/scripts"
+
+# Show boot time once per login (not inside tmux/zellij panes)
+if [[ -z "$TMUX" && -z "$ZELLIJ" && "$SHLVL" -eq 1 ]]; then
+    boot_summary=$(systemd-analyze 2>/dev/null | head -1)
+    [[ -n "$boot_summary" ]] && echo "  $boot_summary"
+fi

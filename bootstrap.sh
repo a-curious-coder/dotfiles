@@ -43,14 +43,12 @@ main() {
 
   local -a common_packages=(
     git zsh starship tmux nvim ghostty
-    btop lazygit lazydocker fastfetch ripgrep vscode espanso
+    btop lazygit lazydocker fastfetch ripgrep
   )
   local -a platform_packages=()
 
-  if [[ "$platform" == "macos" ]]; then
-    platform_packages=(aerospace sketchybar hammerspoon calibre-macos)
-  else
-    platform_packages=(hypr waybar rofi ags swaync wlogout calibre-linux)
+  if [[ "$platform" == "linux" ]]; then
+    platform_packages=(hypr kanshi waybar rofi swaync wlogout calibre-linux)
   fi
 
   echo "Running modern tools installer..."
@@ -59,13 +57,10 @@ main() {
   echo "Stowing common packages..."
   stow_packages "${common_packages[@]}"
 
-  if [[ "$platform" == "macos" ]]; then
-    echo "Linking espanso config for macOS..."
-    "$repo_root/scripts/setup-espanso-macos.sh"
+  if [[ "${#platform_packages[@]}" -gt 0 ]]; then
+    echo "Stowing platform packages for $platform..."
+    stow_packages "${platform_packages[@]}"
   fi
-
-  echo "Stowing platform packages for $platform..."
-  stow_packages "${platform_packages[@]}"
 
   echo "Running tmux bootstrap..."
   "$repo_root/setup-tmux.sh"

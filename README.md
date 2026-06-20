@@ -28,29 +28,21 @@ Each directory is a stow package. Run `stow <package>` to symlink.
 
 ```
 dotfiles/
-├── aerospace/      macOS tiling window manager
-├── sketchybar/     Status bar (macOS)
-├── ags/            Aylur's GTK Shell (Hyprland widgets)
 ├── btop/           Resource monitor
 ├── calibre-linux/  Calibre config for Linux (~/.config/calibre)
-├── calibre-macos/  Calibre config for macOS (~/Library/Preferences/calibre)
-├── espanso/        Text expansion snippets and settings
 ├── fastfetch/      System info (replaces neofetch)
 ├── ghostty/        Terminal emulator
 ├── git/            Git config with delta for diffs
-├── hammerspoon/    macOS automation (cmd+drag, window helpers)
 ├── hypr/           Hyprland compositor
 ├── kanshi/         Display profile manager for Wayland
 ├── lazydocker/     Docker TUI
 ├── lazygit/        Git TUI
 ├── nvim/           Neovim
-├── pavucontrol/    PulseAudio volume control UI state
 ├── ripgrep/        ripgrep config
 ├── rofi/           Application launcher
 ├── starship/       Shell prompt
 ├── swaync/         Notification center (Hyprland)
 ├── tmux/           Terminal multiplexer
-├── vscode/         VS Code settings
 ├── waybar/         Status bar (Wayland)
 ├── wlogout/        Logout menu (Hyprland)
 └── zsh/            Shell config, aliases, functions
@@ -67,7 +59,7 @@ cd ~/.dotfiles
 
 # Or run setup steps manually:
 # Symlink what you need
-stow git zsh starship tmux nvim ghostty espanso
+stow git zsh starship tmux nvim ghostty
 
 # Optional: install modern CLI tools
 ./install-modern-tools.sh
@@ -84,29 +76,13 @@ Tip: if you use zoxide, `z dotfiles` is the quickest way back to this repo.
 
 **Linux (Hyprland)**
 ```bash
-stow hypr kanshi waybar rofi ags swaync wlogout calibre-linux
-stow pavucontrol
+stow hypr kanshi waybar rofi swaync wlogout calibre-linux
 ```
 
-**macOS**
+**Common**
 ```bash
-stow aerospace sketchybar hammerspoon calibre-macos
+stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep
 ```
-
-Then open Hammerspoon once and grant Accessibility permissions (required for `cmd` + drag move/resize behavior).
-
-**Common (both platforms)**
-```bash
-stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep vscode espanso
-```
-
-## Espanso (Text Expansion)
-
-`espanso` snippets live at `espanso/.config/espanso/match/*.yml`.
-
-- Add/edit your prompt snippets in `espanso/.config/espanso/match/prompts.yml`
-- Trigger snippets using their abbreviation (for example `;p-summarize`)
-- On macOS, run `./scripts/setup-espanso-macos.sh` once after `stow espanso` to link espanso's native config path to `~/.config/espanso`
 
 **Calibre (auto-select package by OS)**
 ```bash
@@ -129,7 +105,6 @@ stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgre
 | `bootstrap.sh` | Orchestrate install + stow + tmux bootstrap in one command |
 | `install-modern-tools.sh` | Install CLI tools (glow, zellij, dust, navi, posting, etc.) |
 | `setup-tmux.sh` | Stow tmux config, install/update TPM, and install plugins |
-| `scripts/setup-espanso-macos.sh` | Link `~/Library/Application Support/espanso` to `~/.config/espanso` on macOS |
 | `ubuntu_install.sh` | Compatibility wrapper that delegates to `install-modern-tools.sh` |
 | `scripts/doctor.sh` | Run the main repo health checks in one go |
 | `scripts/check-shell.sh` | Run `shellcheck` for maintained repo shell scripts |

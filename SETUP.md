@@ -28,30 +28,22 @@ This runs:
 - stow for common and platform packages
 - `setup-tmux.sh` (TPM install/update + plugin install)
 
-### Core packages (both macOS and Linux)
+### Core packages
 
 ```bash
-stow git zsh starship tmux nvim ghostty espanso
+stow git zsh starship tmux nvim ghostty
 ```
 
 ### Linux desktop (Hyprland stack)
 
 ```bash
-stow hypr kanshi waybar rofi ags swaync wlogout calibre-linux
+stow hypr kanshi waybar rofi swaync wlogout calibre-linux
 ```
-
-### macOS desktop
-
-```bash
-stow aerospace sketchybar hammerspoon calibre-macos
-```
-
-Open Hammerspoon once after stowing and allow Accessibility permissions.
 
 ### Common optional tools
 
 ```bash
-stow btop lazygit lazydocker fastfetch ripgrep vscode
+stow btop lazygit lazydocker fastfetch ripgrep
 ```
 
 ## Calibre Setup
@@ -76,27 +68,6 @@ Single installer path (cross-platform):
 
 ```bash
 ./install-modern-tools.sh
-```
-
-## Espanso Setup
-
-After `stow espanso`, add your prompt snippets in:
-
-```bash
-~/.config/espanso/match/prompts.yml
-```
-
-On macOS, link espanso's native config path once:
-
-```bash
-./scripts/setup-espanso-macos.sh
-```
-
-Then start espanso:
-
-```bash
-espanso service register
-espanso start
 ```
 
 Legacy Ubuntu entrypoint (kept for compatibility; delegates to the same installer):
@@ -135,7 +106,7 @@ ghostty-theme nord    # switch theme
 
 ```bash
 # Confirm symlinks exist
-stow -nvt "$HOME" git zsh starship tmux nvim ghostty espanso
+stow -nvt "$HOME" git zsh starship tmux nvim ghostty
 
 # Neovim health
 nvim +checkhealth +qa

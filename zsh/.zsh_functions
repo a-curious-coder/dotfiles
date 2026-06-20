@@ -295,3 +295,13 @@ ghostty-theme() {
     echo "Switched to theme: $theme_name"
     echo "Note: You may need to restart Ghostty or open a new window for changes to take effect."
 }
+
+# Arduino IDE 2.x hangs without mapping a window under native Wayland on Hyprland
+# (ELECTRON_OZONE_PLATFORM_HINT=auto). Force XWayland and clear any stale
+# single-instance lock left by a previous crashed/killed run.
+arduino-ide() {
+    rm -f "$HOME/.config/arduino-ide/SingletonLock" \
+          "$HOME/.config/arduino-ide/SingletonSocket" \
+          "$HOME/.config/arduino-ide/SingletonCookie" 2>/dev/null
+    command arduino-ide --ozone-platform=x11 "$@"
+}

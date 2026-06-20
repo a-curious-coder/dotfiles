@@ -17,31 +17,19 @@ z dotfiles
 ## Stow common packages
 
 ```bash
-stow git zsh starship tmux nvim ghostty espanso
-```
-
-## Stow macOS packages
-
-```bash
-stow aerospace sketchybar hammerspoon calibre-macos
+stow git zsh starship tmux nvim ghostty
 ```
 
 ## Stow Linux desktop packages
 
 ```bash
-stow hypr kanshi waybar rofi ags swaync wlogout calibre-linux
+stow hypr kanshi waybar rofi swaync wlogout calibre-linux
 ```
 
 ## Set up tmux plugins
 
 ```bash
 ./setup-tmux.sh
-```
-
-## Link Espanso on macOS
-
-```bash
-./scripts/setup-espanso-macos.sh
 ```
 
 ## Run repo checks

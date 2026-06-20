@@ -80,3 +80,9 @@ alias reload='source ~/.zshrc'
 # Development
 alias serve='python3 -m http.server 8000'
 alias myip='curl -s ifconfig.me'
+
+# Hardware monitoring
+alias monitor='zellij --layout monitor'
+alias temps='sensors'
+alias health='sudo smartctl -H /dev/sda && sudo smartctl -H /dev/sdb && sudo nvme smart-log /dev/nvme0n1'
+alias diskuse='df -h | grep -E "Filesystem|/data|/home|sda|nvme"'

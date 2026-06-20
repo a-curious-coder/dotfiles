@@ -186,52 +186,6 @@ install_noto_serif() {
     log_ok "Noto Serif font installed"
 }
 
-install_espanso() {
-    if has espanso || [[ -d "/Applications/Espanso.app" ]]; then
-        log_skip "espanso (already installed)"
-        return 0
-    fi
-
-    case "$PLATFORM:$PKG_MGR" in
-        macos:brew)
-            log_info "Installing espanso via Homebrew cask..."
-            brew install --cask espanso
-            log_ok "espanso installed"
-            ;;
-        linux:pacman)
-            pkg_install "espanso-wayland" "espanso" \
-                || pkg_install "espanso-x11" "espanso" \
-                || log_skip "espanso package not found on pacman; install manually for your session backend"
-            ;;
-        linux:apt|linux:dnf|linux:brew)
-            pkg_install "espanso" "espanso" \
-                || log_skip "espanso package not found in this package manager; install manually from espanso docs"
-            ;;
-        *)
-            log_skip "espanso auto-install not configured for $PLATFORM/$PKG_MGR"
-            ;;
-    esac
-}
-
-install_hammerspoon() {
-    if [[ "$PLATFORM" != "macos" ]]; then
-        return 0
-    fi
-
-    if [[ -d "/Applications/Hammerspoon.app" ]] || has hs; then
-        log_skip "hammerspoon (already installed)"
-        return 0
-    fi
-
-    if [[ "$PKG_MGR" == "brew" ]]; then
-        log_info "Installing hammerspoon via Homebrew cask..."
-        brew install --cask hammerspoon
-        log_ok "hammerspoon installed"
-    else
-        log_skip "hammerspoon auto-install requires Homebrew on macOS"
-    fi
-}
-
 # Main installation
 main() {
     log_info "Starting modern CLI tools installation"
@@ -365,14 +319,6 @@ main() {
 
     # tldr (simplified man pages)
     pkg_install "tldr" "tldr"
-
-    echo ""
-    log_info "=== Text Expansion ==="
-    install_espanso
-
-    echo ""
-    log_info "=== Window Automation ==="
-    install_hammerspoon
 
     echo ""
     log_info "=== Fonts ==="
