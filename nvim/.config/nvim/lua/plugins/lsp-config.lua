@@ -10,13 +10,13 @@ return {
     end,
   },
 
-  -- Mason-LSPConfig: Auto-install servers
+  -- Mason-LSPConfig: Install servers declared in lsp/servers.lua
   {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim" },
     config = function()
       require("mason-lspconfig").setup({
-        automatic_installation = true,
+        ensure_installed = vim.tbl_keys(require("lsp.servers").server_configs),
       })
     end,
   },

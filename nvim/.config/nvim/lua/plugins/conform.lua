@@ -4,41 +4,52 @@ return {
   cmd = { "ConformInfo" },
   keys = {
     {
-      -- Keep formatting under the Code prefix to avoid Find conflicts
       "<leader>cf",
-      function()
-        require("conform").format({ async = true })
-      end,
+      function() require("conform").format({ async = true }) end,
       mode = { "n", "v" },
       desc = "Format buffer",
     },
   },
-  -- This will provide type hinting with LuaLS
-  ---@module "conform"
-  ---@type conform.setupOpts
   opts = {
-    -- Define your formatters
     formatters_by_ft = {
       lua = { "stylua" },
+      javascript = { "prettier" },
+      javascriptreact = { "prettier" },
+      typescript = { "prettier" },
+      typescriptreact = { "prettier" },
+      vue = { "prettier" },
+      css = { "prettier" },
+      html = { "prettier" },
+      json = { "prettier" },
+      yaml = { "prettier" },
+      markdown = { "prettier" },
     },
-    -- Set default options
     default_format_opts = {
       lsp_format = "fallback",
     },
-    -- Set up format-on-save
     format_on_save = {
       timeout_ms = 500,
       lsp_format = "fallback",
     },
-    -- Customize formatters
     formatters = {
-      shfmt = {
-        prepend_args = { "-i", "2" },
+      -- Only run prettier when the project has a local prettier config.
+      -- Prevents global default rules from overriding project conventions.
+      prettier = {
+        condition = function(_, ctx)
+          return vim.fs.find(
+            {
+              ".prettierrc", ".prettierrc.json", ".prettierrc.js",
+              ".prettierrc.cjs", ".prettierrc.mjs", ".prettierrc.yaml",
+              ".prettierrc.yml", "prettier.config.js", "prettier.config.cjs",
+              "prettier.config.mjs",
+            },
+            { path = ctx.dirname, upward = true }
+          )[1] ~= nil
+        end,
       },
     },
   },
   init = function()
-    -- If you want the formatexpr, here is the place to set it
     vim.o.formatexpr = "v:lua.require'conform'.formatexpr()"
   end,
 }
