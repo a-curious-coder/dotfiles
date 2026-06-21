@@ -1,6 +1,14 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- ponytail: nvim-treesitter query_predicates crash on Nvim 0.12.3 — nil node
+-- passed to get_node_text. Guard here until upstream fixes the incompatibility.
+local _get_node_text = vim.treesitter.get_node_text
+vim.treesitter.get_node_text = function(node, source, opts)
+  if node == nil then return "" end
+  return _get_node_text(node, source, opts)
+end
+
 -- Ensure Mason binaries are on PATH for LSP servers
 local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
 if vim.fn.isdirectory(mason_bin) == 1 and not (vim.env.PATH or ""):find(mason_bin, 1, true) then
