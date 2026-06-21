@@ -5,7 +5,6 @@ local function systemlist_ok(cmd)
 end
 
 -- Search
-vim.keymap.set("n", "<leader>fh", ":nohlsearch<CR>", { desc = "Clear search highlight" })
 vim.keymap.set("n", "<Esc><Esc>", ":nohlsearch<CR>", { desc = "Clear search highlight" })
 
 -- Buffer
