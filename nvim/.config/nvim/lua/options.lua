@@ -1,12 +1,16 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
--- ponytail: nvim-treesitter query_predicates crash on Nvim 0.12.3 — nil node
--- passed to get_node_text. Guard here until upstream fixes the incompatibility.
+-- ponytail: nvim-treesitter query_predicates crash on Nvim 0.12 — match[id]
+-- now returns {TSNode,...} not a bare TSNode. Unwrap and pcall-guard until
+-- nvim-treesitter updates its directive handlers.
 local _get_node_text = vim.treesitter.get_node_text
 vim.treesitter.get_node_text = function(node, source, opts)
   if node == nil then return "" end
-  return _get_node_text(node, source, opts)
+  if type(node) == "table" then node = node[1] end
+  if node == nil then return "" end
+  local ok, result = pcall(_get_node_text, node, source, opts)
+  return ok and result or ""
 end
 
 -- Ensure Mason binaries are on PATH for LSP servers
