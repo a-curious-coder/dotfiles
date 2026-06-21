@@ -108,8 +108,6 @@ return {
         }))
       end, { desc = "Live grep open files" })
 
-      vim.keymap.set("n", "<leader>?", builtin.keymaps, { desc = "Find keymaps" })
-
       vim.keymap.set("n", "<leader>fr", function()
         builtin.oldfiles(vim.tbl_extend("force", scope_opts(), { cwd_only = is_repo_scope() }))
       end, { desc = "Recent files" })

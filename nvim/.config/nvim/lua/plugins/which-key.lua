@@ -5,7 +5,7 @@ return {
 
   init = function()
     vim.o.timeout = true
-    vim.o.timeoutlen = 300
+    vim.o.timeoutlen = 500
   end,
 
   config = function()
@@ -36,5 +36,9 @@ return {
       { "g", group = "Go/LSP" },
       { "z", group = "Folds" },
     })
+
+    vim.keymap.set("n", "<leader>?", function()
+      wk.show({ global = false })
+    end, { desc = "Show keybindings" })
   end,
 }
