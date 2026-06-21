@@ -224,6 +224,11 @@ refresh_tmux_status_for_cwd
 # Internet Speed Monitor
 export PATH="$PATH:/home/groot/scripts"
 
+alias ls='eza --icons=auto'
+alias ll='eza -la --icons=auto --git'
+alias lt='eza --tree --icons=auto'
+alias cat='bat --paging=never'
+
 # Show boot time once per login (not inside tmux/zellij panes)
 if [[ -z "$TMUX" && -z "$ZELLIJ" && "$SHLVL" -eq 1 ]]; then
     boot_summary=$(systemd-analyze 2>/dev/null | head -1)

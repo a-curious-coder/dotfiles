@@ -53,7 +53,7 @@ local function find_wikilink_under_cursor()
 end
 
 local function split_wikilink_target(raw)
-  local target = (raw:gsub("^%s+", ""):gsub("%s+$", ""))
+  local target = vim.trim(raw)
   target = target:match("^[^|]+") or target
   local file_part, anchor = target:match("^(.-)#(.+)$")
   if file_part == nil then file_part = target end
@@ -79,7 +79,7 @@ end
 
 local function jump_to_anchor(anchor)
   if not anchor or anchor == "" then return end
-  local trimmed = anchor:gsub("^%s+", ""):gsub("%s+$", "")
+  local trimmed = vim.trim(anchor)
   for i, line in ipairs(vim.api.nvim_buf_get_lines(0, 0, -1, false)) do
     if trimmed:sub(1, 1) == "^" and line:find(trimmed, 1, true) then
       vim.api.nvim_win_set_cursor(0, { i, 0 })

@@ -2,15 +2,9 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 -- Ensure Mason binaries are on PATH for LSP servers
-do
-  local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
-  if vim.fn.isdirectory(mason_bin) == 1 then
-    local sep = vim.fn.has("win32") == 1 and ";" or ":"
-    local path = vim.env.PATH or ""
-    if not string.find(path, mason_bin, 1, true) then
-      vim.env.PATH = mason_bin .. sep .. path
-    end
-  end
+local mason_bin = vim.fn.stdpath("data") .. "/mason/bin"
+if vim.fn.isdirectory(mason_bin) == 1 and not (vim.env.PATH or ""):find(mason_bin, 1, true) then
+  vim.env.PATH = mason_bin .. ":" .. (vim.env.PATH or "")
 end
 
 vim.opt.expandtab = true
