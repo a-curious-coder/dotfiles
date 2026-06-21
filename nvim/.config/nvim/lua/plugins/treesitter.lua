@@ -8,21 +8,12 @@ return {
 			local treesitter = require("nvim-treesitter.configs")
 
 			-- Setup TreeSitter with common configuration options
+			-- ponytail: highlight disabled — nvim-treesitter query predicates crash on
+			-- Nvim 0.12.3. Nvim's built-in treesitter highlighter takes over automatically.
 			treesitter.setup({
-				-- Automatically install missing parsers
 				auto_install = true,
-
-				highlight = {
-					enable = true,
-					disable = function(_, bufnr)
-						return vim.bo[bufnr].buftype ~= ""
-					end,
-				},
-
-				-- Disable automatic indentation
-				indent = { 
-					enable = false 
-				},
+				highlight = { enable = false },
+				indent = { enable = false },
 			})
 		end
 	}
