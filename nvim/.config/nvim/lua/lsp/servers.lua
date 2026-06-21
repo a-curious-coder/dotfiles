@@ -96,7 +96,6 @@ M.server_configs = {
   
   lua_ls = {},
   pyright = {},
-  pylsp = {},
   ruby_lsp = {
     cmd = { "ruby-lsp" },
     settings = {

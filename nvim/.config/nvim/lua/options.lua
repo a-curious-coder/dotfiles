@@ -55,6 +55,12 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.incsearch = true
 
+vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+  border = "rounded",
+  max_width = math.floor(vim.o.columns * 0.7),
+  max_height = math.floor(vim.o.lines * 0.8),
+})
+
 vim.diagnostic.config({
   virtual_text = { spacing = 2, prefix = "●" },
   signs = true,

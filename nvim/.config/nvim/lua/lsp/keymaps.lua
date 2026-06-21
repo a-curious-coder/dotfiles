@@ -17,27 +17,6 @@ local function get_hover_lines(callback)
   end)
 end
 
-local function hover_float()
-  get_hover_lines(function(lines)
-    local bufnr, winnr = vim.lsp.util.open_floating_preview(lines, "markdown", {
-      border = "rounded",
-      focusable = true,
-      focus_id = "hover",
-      max_width = math.floor(vim.o.columns * 0.7),
-      max_height = math.floor(vim.o.lines * 0.8),
-    })
-
-    if winnr and vim.api.nvim_win_is_valid(winnr) then
-      vim.wo[winnr].wrap = true
-      vim.wo[winnr].linebreak = true
-    end
-    if bufnr and vim.api.nvim_buf_is_valid(bufnr) then
-      vim.keymap.set("n", "q", "<cmd>close<CR>", { buffer = bufnr, silent = true, nowait = true })
-      vim.keymap.set("n", "<Esc>", "<cmd>close<CR>", { buffer = bufnr, silent = true, nowait = true })
-    end
-  end)
-end
-
 local function hover_split()
   get_hover_lines(function(lines)
     local buf = vim.api.nvim_create_buf(false, true)
@@ -61,7 +40,7 @@ end
 M.setup = function(bufnr)
   local opts = { buffer = bufnr }
 
-  vim.keymap.set("n", "K", hover_float, vim.tbl_extend("force", opts, { desc = "Show hover documentation" }))
+  vim.keymap.set("n", "K", vim.lsp.buf.hover, vim.tbl_extend("force", opts, { desc = "Show hover documentation" }))
   vim.keymap.set("n", "<leader>k", hover_split, vim.tbl_extend("force", opts, { desc = "Show hover documentation (split)" }))
   vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
   vim.keymap.set("n", "gr", vim.lsp.buf.references, vim.tbl_extend("force", opts, { desc = "Show references" }))
