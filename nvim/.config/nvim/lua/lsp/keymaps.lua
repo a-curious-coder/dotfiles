@@ -40,6 +40,7 @@ end
 M.setup = function(bufnr)
   local opts = { buffer = bufnr }
 
+  vim.keymap.set("n", "gd", vim.lsp.buf.definition, vim.tbl_extend("force", opts, { desc = "Go to definition" }))
   vim.keymap.set("n", "<leader>k", hover_split, vim.tbl_extend("force", opts, { desc = "Show hover documentation (split)" }))
   vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, vim.tbl_extend("force", opts, { desc = "Code actions" }))
   vim.keymap.set("n", "<leader>cr", vim.lsp.buf.rename, vim.tbl_extend("force", opts, { desc = "Rename symbol" }))
