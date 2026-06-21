@@ -93,6 +93,10 @@ return {
       vim.keymap.set("n", "<leader>fr", function()
         builtin.oldfiles(vim.tbl_extend("force", scope_opts(), { cwd_only = true }))
       end, { desc = "Recent files" })
+
+      vim.keymap.set("n", "<leader>ut", function()
+        builtin.colorscheme({ enable_preview = true })
+      end, { desc = "Pick theme" })
     end,
   },
 }
