@@ -14,6 +14,9 @@ return {
 
 				highlight = {
 					enable = true,
+					disable = function(_, bufnr)
+						return vim.bo[bufnr].buftype ~= ""
+					end,
 				},
 
 				-- Disable automatic indentation

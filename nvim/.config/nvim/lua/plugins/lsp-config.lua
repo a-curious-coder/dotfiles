@@ -27,11 +27,11 @@ return {
     config = function()
       local keymaps = require("lsp.keymaps")
       local servers = require("lsp.servers")
-      local cmp_capabilities = require("cmp_nvim_lsp").default_capabilities()
+      local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       for server_name, server_config in pairs(servers.server_configs) do
         vim.lsp.config(server_name, vim.tbl_deep_extend("force", {
-          capabilities = cmp_capabilities,
+          capabilities = capabilities,
         }, server_config))
         vim.lsp.enable(server_name)
       end
