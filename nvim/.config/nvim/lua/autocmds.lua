@@ -1,3 +1,23 @@
+-- Theme persistence
+local theme_file = vim.fn.stdpath("config") .. "/theme"
+vim.api.nvim_create_autocmd("VimEnter", {
+  once = true,
+  callback = function()
+    local f = io.open(theme_file, "r")
+    local theme = f and f:read("*l") or "flexoki-dark"
+    if f then f:close() end
+    pcall(vim.cmd.colorscheme, theme)
+  end,
+})
+vim.api.nvim_create_autocmd("ColorScheme", {
+  callback = function()
+    if vim.g.colors_name then
+      local f = io.open(theme_file, "w")
+      if f then f:write(vim.g.colors_name) f:close() end
+    end
+  end,
+})
+
 -- Autosave on edit and focus changes
 local function autosave_buffer(bufnr)
   if not vim.api.nvim_buf_is_valid(bufnr) then return end
