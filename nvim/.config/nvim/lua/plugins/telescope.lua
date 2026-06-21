@@ -74,18 +74,8 @@ return {
         return vim.fn.getcwd()
       end
 
-      local function is_repo_scope()
-        if vim.g.telescope_scope_mode == nil then vim.g.telescope_scope_mode = "repo" end
-        return vim.g.telescope_scope_mode == "repo"
-      end
-
       local function scope_opts()
-        return { cwd = is_repo_scope() and project_root() or nil }
-      end
-
-      local function toggle_scope()
-        vim.g.telescope_scope_mode = is_repo_scope() and "global" or "repo"
-        vim.notify("Telescope scope: " .. vim.g.telescope_scope_mode, vim.log.levels.INFO)
+        return { cwd = project_root() }
       end
 
       vim.keymap.set("n", "<leader>ff", function()
@@ -100,19 +90,9 @@ return {
         builtin.live_grep(vim.tbl_extend("force", scope_opts(), { additional_args = { "--hidden" } }))
       end, { desc = "Live grep" })
 
-      vim.keymap.set("n", "<leader>fo", function()
-        builtin.live_grep(vim.tbl_extend("force", scope_opts(), {
-          grep_open_files = true,
-          prompt_title = "Live grep (open files)",
-          additional_args = { "--hidden" },
-        }))
-      end, { desc = "Live grep open files" })
-
       vim.keymap.set("n", "<leader>fr", function()
-        builtin.oldfiles(vim.tbl_extend("force", scope_opts(), { cwd_only = is_repo_scope() }))
+        builtin.oldfiles(vim.tbl_extend("force", scope_opts(), { cwd_only = true }))
       end, { desc = "Recent files" })
-
-      vim.keymap.set("n", "<leader>fT", toggle_scope, { desc = "Toggle find scope (repo/global)" })
     end,
   },
 }
