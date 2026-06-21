@@ -12,10 +12,8 @@ return {
 				-- Automatically install missing parsers
 				auto_install = true,
 
-				-- Enable syntax highlighting
 				highlight = {
 					enable = true,
-					additional_vim_regex_highlighting = true,
 				},
 
 				-- Disable automatic indentation
