@@ -38,6 +38,7 @@ dotfiles/
 ├── lazydocker/     Docker TUI
 ├── lazygit/        Git TUI
 ├── nvim/           Neovim
+├── rbenv/          rbenv default-gems (auto-installs ruby-lsp per Ruby)
 ├── ripgrep/        ripgrep config
 ├── rofi/           Application launcher
 ├── starship/       Shell prompt
@@ -81,7 +82,7 @@ stow hypr kanshi waybar rofi swaync wlogout calibre-linux
 
 **Common**
 ```bash
-stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep
+stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep rbenv
 ```
 
 **Calibre (auto-select package by OS)**

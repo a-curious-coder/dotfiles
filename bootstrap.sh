@@ -34,6 +34,30 @@ stow_packages() {
   done
 }
 
+# Make ruby-lsp follow each project's Ruby version automatically. The stowed
+# ~/.rbenv/default-gems lists the gems; this plugin installs them into every
+# `rbenv install`. Backfill covers Rubies already on disk. Idempotent.
+setup_rbenv_default_gems() {
+  command -v rbenv >/dev/null 2>&1 || {
+    echo "rbenv not found; skipping ruby-lsp setup"
+    return
+  }
+
+  local plugin="$(rbenv root)/plugins/rbenv-default-gems"
+  if [[ ! -d "$plugin" ]]; then
+    echo "Installing rbenv-default-gems plugin..."
+    git clone --depth 1 https://github.com/rbenv/rbenv-default-gems.git "$plugin"
+  fi
+
+  local version
+  for version in $(rbenv versions --bare 2>/dev/null); do
+    echo "Ensuring ruby-lsp in Ruby $version..."
+    RBENV_VERSION="$version" rbenv exec gem install ruby-lsp \
+      || echo "  warn: ruby-lsp install failed for $version (skipping)"
+  done
+  rbenv rehash
+}
+
 main() {
   need_cmd bash
   need_cmd stow
@@ -43,7 +67,7 @@ main() {
 
   local -a common_packages=(
     git zsh starship tmux nvim ghostty
-    btop lazygit lazydocker fastfetch ripgrep
+    btop lazygit lazydocker fastfetch ripgrep rbenv
   )
   local -a platform_packages=()
 
@@ -64,6 +88,9 @@ main() {
 
   echo "Running tmux bootstrap..."
   "$repo_root/setup-tmux.sh"
+
+  echo "Setting up ruby-lsp via rbenv-default-gems..."
+  setup_rbenv_default_gems
 
   echo "Bootstrap complete."
 }
