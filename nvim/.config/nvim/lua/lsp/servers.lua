@@ -97,7 +97,9 @@ M.server_configs = {
   lua_ls = {},
   pyright = {},
   ruby_lsp = {
-    cmd = { "ruby-lsp" },
+    -- rbenv shim resolves each project's .ruby-version, so one config serves every
+    -- Ruby version. Mason can't (shared install, ABI-bound C extensions). See Ruby LSP docs.
+    cmd = { vim.fn.expand("~/.rbenv/shims/ruby-lsp") },
     settings = {
       rubocop = {
         enable = true,

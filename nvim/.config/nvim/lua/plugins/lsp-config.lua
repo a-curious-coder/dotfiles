@@ -11,9 +11,9 @@ return {
     dependencies = { "williamboman/mason.nvim" },
     config = function()
       local servers = require("lsp.servers")
-      require("mason-lspconfig").setup({
-        ensure_installed = vim.tbl_keys(servers.server_configs),
-      })
+      -- ruby_lsp is driven by the rbenv shim, not Mason (per-project Ruby version)
+      local ensure = vim.tbl_filter(function(n) return n ~= "ruby_lsp" end, vim.tbl_keys(servers.server_configs))
+      require("mason-lspconfig").setup({ ensure_installed = ensure })
     end,
   },
 
