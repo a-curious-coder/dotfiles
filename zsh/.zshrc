@@ -69,7 +69,10 @@ load_nvm() {
 }
 add-zsh-hook preexec load_nvm
 
-if (( $+commands[rbenv] )) && [[ -z "${RBENV_SHELL:-}" ]]; then
+# No RBENV_SHELL guard: it's exported and inherited, but macOS login shells
+# rebuild PATH via path_helper, so the guard would skip re-adding the shims.
+# rbenv init is idempotent — always run it (matches the pyenv block below).
+if (( $+commands[rbenv] )); then
     eval "$(rbenv init - --no-rehash zsh)"
 fi
 
