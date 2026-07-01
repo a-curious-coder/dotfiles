@@ -65,6 +65,19 @@ load_nvm() {
 
     source "$NVM_DIR/nvm.sh"
     [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
+    if [[ -n "${DIRENV_DIR:-}" ]]; then
+        direnv_bin="${commands[direnv]:-/opt/homebrew/bin/direnv}"
+        if [[ -x "$direnv_bin" ]]; then
+            unset DIRENV_DIFF DIRENV_WATCHES
+            eval "$("$direnv_bin" export zsh)"
+        fi
+        unset direnv_bin
+    fi
+    if [[ -d /opt/homebrew/opt/postgresql@16.10/bin ]]; then
+        path=(/opt/homebrew/opt/postgresql@16.10/bin ${path:#/opt/homebrew/opt/postgresql@16.10/bin})
+        export PATH
+        rehash
+    fi
     add-zsh-hook -d preexec load_nvm
 }
 add-zsh-hook preexec load_nvm
@@ -95,18 +108,6 @@ setopt hist_save_no_dups
 setopt hist_find_no_dups
 
 # Tooling.
-if (( $+commands[zoxide] )); then
-    eval "$(zoxide init zsh)"
-
-    cd() {
-        if [[ "${1:-}" == -* ]]; then
-            builtin cd "$@"
-        else
-            z "$@"
-        fi
-    }
-fi
-
 if (( $+commands[starship] )); then
     local_starship_config=""
 
@@ -167,12 +168,14 @@ sync_tmux_environment_from_zshrc_env() {
     parsed_vars="$(awk '
       /^[[:space:]]*export[[:space:]]+/ {
         for (i = 2; i <= NF; ++i) {
+          if (index($i, "=") == 0) continue   # skip barewords inside quoted values (e.g. JQL strings)
           split($i, parts, "=")
           if (parts[1] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print parts[1]
         }
       }
       /^[[:space:]]*typeset[[:space:]]+-[[:alnum:]]*x[[:alnum:]]*[[:space:]]+/ {
         for (i = 3; i <= NF; ++i) {
+          if (index($i, "=") == 0) continue
           split($i, parts, "=")
           if (parts[1] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print parts[1]
         }
@@ -192,6 +195,9 @@ sync_tmux_environment_from_zshrc_env() {
     done
 
     for var in "${previous_vars[@]}"; do
+        # Never touch zsh special params (status, path, ...): unsetting a
+        # readonly special aborts the whole .zshrc, killing everything below.
+        [[ ${parameters[$var]:-} == *special* ]] && continue
         (( ${+current_lookup["$var"]} )) || stale_vars+=("$var")
     done
 
@@ -236,4 +242,32 @@ alias cat='bat --paging=never'
 if [[ -z "$TMUX" && -z "$ZELLIJ" && "$SHLVL" -eq 1 ]]; then
     boot_summary=$(systemd-analyze 2>/dev/null | head -1)
     [[ -n "$boot_summary" ]] && echo "  $boot_summary"
+fi
+
+# zoxide must be initialized last so its precmd/chpwd hooks aren't clobbered.
+if (( $+commands[zoxide] )); then
+    eval "$(zoxide init zsh --cmd cd)"
+    # Seed ~/Projects so `cd <name>` works before you've ever visited the dir.
+    # ponytail: top level only; zoxide learns deeper paths as you cd into them.
+    _p=(~/Projects/*(/N)); (( $#_p )) && zoxide add $_p; unset _p
+fi
+
+direnv_bin="${commands[direnv]:-/opt/homebrew/bin/direnv}"
+if [[ -x "$direnv_bin" ]]; then
+    eval "$("$direnv_bin" hook zsh)"
+    _direnv_rehash_hook() {
+        rehash
+    }
+    add-zsh-hook precmd _direnv_rehash_hook
+    add-zsh-hook chpwd _direnv_rehash_hook
+    unset DIRENV_DIFF DIRENV_WATCHES
+    eval "$("$direnv_bin" export zsh)"
+    rehash
+fi
+unset direnv_bin
+
+if [[ -d /opt/homebrew/opt/postgresql@16.10/bin ]]; then
+    path=(/opt/homebrew/opt/postgresql@16.10/bin ${path:#/opt/homebrew/opt/postgresql@16.10/bin})
+    export PATH
+    rehash
 fi
