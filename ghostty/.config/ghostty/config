@@ -29,36 +29,9 @@ shell-integration-features = ssh-terminfo
 # Automatically forward your SSH environment
 shell-integration-features = ssh-env
 
-# Theme colors (Flexoki Dark)
-# Background and foreground
-background = #100f0f
-foreground = #fffcf0
-selection-foreground = #fffcf0
-selection-background = #403e3c
-
-# Cursor colors
-cursor-color = #fffcf0
-cursor-text = #100f0f
-
-# Normal colors
-palette = 0=#100f0f
-palette = 1=#b94943
-palette = 2=#788f28
-palette = 3=#b7921f
-palette = 4=#3b71b1
-palette = 5=#ab4880
-palette = 6=#3e928b
-palette = 7=#f4f2e8
-
-# Bright colors
-palette = 8=#807f7b
-palette = 9=#d76258
-palette = 10=#95a651
-palette = 11=#d6ad31
-palette = 12=#5a94c6
-palette = 13=#d470a3
-palette = 14=#52b3ab
-palette = 15=#fffcf0
+# Theme — active palette is selected by themes/theme-current.conf
+# (currently Dunder Mifflin; switch there to flexoki/dracula/nord/etc).
+config-file = themes/theme-current.conf
 
 # Clipboard
 clipboard-read = allow
