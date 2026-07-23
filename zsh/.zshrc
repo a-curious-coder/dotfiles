@@ -61,40 +61,9 @@ ZSH_DISABLE_COMPFIX="true"
 
 [[ -d "$ZSH" ]] && source "$ZSH/oh-my-zsh.sh"
 
-# Version managers.
-export NVM_DIR="$HOME/.nvm"
-
-load_nvm() {
-    [[ -s "$NVM_DIR/nvm.sh" ]] || return 0
-
-    source "$NVM_DIR/nvm.sh"
-    [[ -s "$NVM_DIR/bash_completion" ]] && source "$NVM_DIR/bash_completion"
-    if [[ -n "${DIRENV_DIR:-}" ]]; then
-        direnv_bin="${commands[direnv]:-/opt/homebrew/bin/direnv}"
-        if [[ -x "$direnv_bin" ]]; then
-            unset DIRENV_DIFF DIRENV_WATCHES
-            eval "$("$direnv_bin" export zsh)"
-        fi
-        unset direnv_bin
-    fi
-    if [[ -d /opt/homebrew/opt/postgresql@16.10/bin ]]; then
-        path=(/opt/homebrew/opt/postgresql@16.10/bin ${path:#/opt/homebrew/opt/postgresql@16.10/bin})
-        export PATH
-        rehash
-    fi
-    add-zsh-hook -d preexec load_nvm
-}
-add-zsh-hook preexec load_nvm
-
-# No RBENV_SHELL guard: it's exported and inherited, but macOS login shells
-# rebuild PATH via path_helper, so the guard would skip re-adding the shims.
-# rbenv init is idempotent — always run it (matches the pyenv block below).
-if (( $+commands[rbenv] )); then
-    cached_init rbenv init - --no-rehash zsh
-fi
-
-if (( $+commands[pyenv] )); then
-    cached_init pyenv init - --no-rehash
+# Version manager (replaces nvm/rbenv/pyenv - one tool, one init).
+if (( $+commands[mise] )); then
+    cached_init mise activate zsh
 fi
 
 # User extensions.
@@ -130,7 +99,7 @@ if (( $+commands[starship] )); then
     cached_init starship init zsh --print-full-init
 fi
 
-[[ -f "$HOME/.fzf.zsh" ]] && source "$HOME/.fzf.zsh"
+(( $+commands[fzf] )) && cached_init fzf --zsh
 [[ -f "$HOME/.zshrc.local" ]] && source "$HOME/.zshrc.local"
 
 # Linux desktop sessions can keep stale Wayland variables after compositor restarts.
@@ -250,8 +219,8 @@ alias ll='eza -la --icons=auto --git'
 alias lt='eza --tree --icons=auto'
 alias cat='bat --paging=never'
 
-# Show boot time once per login (not inside tmux/zellij panes)
-if [[ -z "$TMUX" && -z "$ZELLIJ" && "$SHLVL" -eq 1 ]]; then
+# Show boot time once per login (not inside tmux panes)
+if [[ -z "$TMUX" && "$SHLVL" -eq 1 ]]; then
     boot_summary=$(systemd-analyze 2>/dev/null | head -1)
     [[ -n "$boot_summary" ]] && echo "  $boot_summary"
 fi

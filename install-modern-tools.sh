@@ -253,16 +253,17 @@ main() {
     fi
 
     echo ""
-    log_info "=== Terminal UI Tools ==="
+    log_info "=== Version Manager ==="
 
-    # zellij (terminal multiplexer)
-    if [[ "$PKG_MGR" == "pacman" ]]; then
-        pkg_install "zellij" "zellij"
-    elif [[ "$PKG_MGR" == "brew" ]]; then
-        pkg_install "zellij" "zellij"
+    # mise (replaces nvm, rbenv, pyenv - one tool, one init, direnv-friendly)
+    if [[ "$PKG_MGR" == "brew" || "$PKG_MGR" == "pacman" ]]; then
+        pkg_install "mise" "mise"
     else
-        cargo_install "zellij"
+        script_install "mise" "mise" "https://mise.run"
     fi
+
+    echo ""
+    log_info "=== Terminal UI Tools ==="
 
     # dust (disk usage)
     if [[ "$PKG_MGR" == "pacman" ]]; then

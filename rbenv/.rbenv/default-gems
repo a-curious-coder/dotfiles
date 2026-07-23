@@ -1,3 +1,0 @@
-# Auto-installed into every Ruby by rbenv-default-gems; drives Neovim ruby_lsp.
-# Add ruby-lsp-rails for Rails-aware features.
-ruby-lsp

@@ -28,26 +28,35 @@ Each directory is a stow package. Run `stow <package>` to symlink.
 
 ```
 dotfiles/
-├── btop/           Resource monitor
-├── calibre-linux/  Calibre config for Linux (~/.config/calibre)
-├── fastfetch/      System info (replaces neofetch)
-├── ghostty/        Terminal emulator
-├── git/            Git config with delta for diffs
-├── hypr/           Hyprland compositor
-├── kanshi/         Display profile manager for Wayland
-├── lazydocker/     Docker TUI
-├── lazygit/        Git TUI
-├── nvim/           Neovim
-├── rbenv/          rbenv default-gems (auto-installs ruby-lsp per Ruby)
-├── ripgrep/        ripgrep config
-├── rofi/           Application launcher
-├── starship/       Shell prompt
-├── swaync/         Notification center (Hyprland)
-├── tmux/           Terminal multiplexer
-├── waybar/         Status bar (Wayland)
-├── wlogout/        Logout menu (Hyprland)
-└── zsh/            Shell config, aliases, functions
+├── btop/               Resource monitor
+├── calibre-linux/      Calibre config for Linux (~/.config/calibre)
+├── claude/             Global Claude Code preferences (~/.claude)
+├── direnv/             direnv config
+├── docs/               Repo docs (operations, calibre notes, refinement checklist)
+├── fastfetch/          System info (replaces neofetch)
+├── ghostty/            Terminal emulator
+├── git/                Git config with delta for diffs
+├── herdr/              Herdr TUI config
+├── hypr/               Hyprland compositor
+├── kanshi/             Display profile manager for Wayland
+├── lazydocker/         Docker TUI
+├── lazygit/            Git TUI
+├── nvim/               Neovim
+├── ripgrep/            ripgrep config
+├── rofi/               Application launcher
+├── scripts/            Repo maintenance scripts (doctor.sh, check-shell.sh)
+├── starship/           Shell prompt
+├── swaync/             Notification center (Hyprland)
+├── tmux/               Terminal multiplexer
+├── transcription-stack/ Offline dictation daemon + voice commands (host `lp`)
+├── voxtype/            Voxtype dictation config
+├── waybar/             Status bar (Wayland)
+├── wlogout/            Logout menu (Hyprland)
+├── yazi/               Terminal file manager
+└── zsh/                Shell config, aliases, functions
 ```
+
+See [docs/operations.md](docs/operations.md) for common repo commands (bootstrap, stow, doctor).
 
 ## Install
 
@@ -82,7 +91,7 @@ stow hypr kanshi waybar rofi swaync wlogout calibre-linux
 
 **Common**
 ```bash
-stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep rbenv
+stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep
 ```
 
 **direnv**
@@ -129,7 +138,7 @@ echo "$EXPECTED_PG_DUMP_VERSION"
 | `packages.yaml` | Package catalog/reference (not currently consumed by setup scripts) |
 | `calibre.sh` | Single Calibre entrypoint (`stow`, `apply`, `check`, `where`, `all`) |
 | `bootstrap.sh` | Orchestrate install + stow + tmux bootstrap in one command |
-| `install-modern-tools.sh` | Install CLI tools (glow, zellij, dust, navi, posting, etc.) |
+| `install-modern-tools.sh` | Install CLI tools (glow, mise, dust, navi, posting, etc.) |
 | `setup-tmux.sh` | Stow tmux config, install/update TPM, and install plugins |
 | `ubuntu_install.sh` | Compatibility wrapper that delegates to `install-modern-tools.sh` |
 | `scripts/doctor.sh` | Run the main repo health checks in one go |
