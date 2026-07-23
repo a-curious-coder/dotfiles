@@ -1,4 +1,5 @@
 local M = {}
+local scaffold = require("scaffold-utils")
 
 local function current_path()
   local path = vim.api.nvim_buf_get_name(0)
@@ -14,13 +15,6 @@ end
 
 local function file_exists(path)
   return vim.fn.filereadable(path) == 1
-end
-
-local function ensure_dir(path)
-  local dir = vim.fn.fnamemodify(path, ":p:h")
-  if vim.fn.isdirectory(dir) == 0 then
-    vim.fn.mkdir(dir, "p")
-  end
 end
 
 local function component_file_base(path)
@@ -56,7 +50,7 @@ local function write_vue_test(path, component_path, identifier)
     return
   end
 
-  ensure_dir(path)
+  scaffold.ensure_dir(path)
   local component_file = vim.fn.fnamemodify(component_path, ":t")
   local lines = {
     "import { mount } from \"@vue/test-utils\"",
@@ -72,19 +66,8 @@ local function write_vue_test(path, component_path, identifier)
   vim.fn.writefile(lines, path)
 end
 
-local function open_file(path)
-  vim.cmd("edit " .. vim.fn.fnameescape(path))
-end
-
-local function project_root(start_dir)
-  if vim.fs and vim.fs.find then
-    local found = vim.fs.find(".git", { path = start_dir, upward = true })
-    if found and found[1] then
-      return vim.fn.fnamemodify(found[1], ":h")
-    end
-  end
-  return vim.fn.getcwd()
-end
+local open_file = scaffold.open_file
+local project_root = scaffold.project_root
 
 local function search_repo_for_test(path)
   local root = project_root(vim.fn.fnamemodify(path, ":p:h"))

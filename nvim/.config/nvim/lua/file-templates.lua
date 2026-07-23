@@ -1,4 +1,5 @@
 local M = {}
+local scaffold = require("scaffold-utils")
 
 local templates = {
   { label = "Vue component + Jest test (TS, co-located)", kind = "vue_component_with_test" },
@@ -74,18 +75,11 @@ local function to_kebab(name)
   return base:lower()
 end
 
-local function ensure_dir(path)
-  local dir = vim.fn.fnamemodify(path, ":p:h")
-  if vim.fn.isdirectory(dir) == 0 then
-    vim.fn.mkdir(dir, "p")
-  end
-end
-
 local function write_file(path, lines)
   if vim.fn.filereadable(path) == 1 then
     return false
   end
-  ensure_dir(path)
+  scaffold.ensure_dir(path)
   vim.fn.writefile(lines, path)
   return true
 end
@@ -103,9 +97,7 @@ local function resolve_path(base_dir, name, ext)
   return vim.fn.fnamemodify(path, ":p")
 end
 
-local function open_file(path)
-  vim.cmd("edit " .. vim.fn.fnameescape(path))
-end
+local open_file = scaffold.open_file
 
 local function open_split(path)
   vim.cmd("vsplit " .. vim.fn.fnameescape(path))
@@ -118,15 +110,7 @@ local function ensure_ui_select()
   end
 end
 
-local function project_root(start_dir)
-  if vim.fs and vim.fs.find then
-    local found = vim.fs.find(".git", { path = start_dir, upward = true })
-    if found and found[1] then
-      return vim.fn.fnamemodify(found[1], ":h")
-    end
-  end
-  return vim.fn.getcwd()
-end
+local project_root = scaffold.project_root
 
 local function relative_to_root(path, root)
   local full = vim.fn.fnamemodify(path, ":p")
