@@ -3,23 +3,13 @@ set -euo pipefail
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$repo_root"
+source "$repo_root/detect-platform.sh"
 
 need_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
     echo "Missing required command: $1" >&2
     exit 1
   fi
-}
-
-detect_platform() {
-  case "$(uname -s)" in
-    Darwin) echo "macos" ;;
-    Linux) echo "linux" ;;
-    *)
-      echo "Unsupported OS: $(uname -s)" >&2
-      exit 1
-      ;;
-  esac
 }
 
 stow_packages() {

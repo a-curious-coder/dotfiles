@@ -4,6 +4,9 @@
 
 set -euo pipefail
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$script_dir/detect-platform.sh"
+
 # Logging setup - all output timestamped to file and stdout
 LOG_FILE="${HOME}/.local/log/dotfiles-install-$(date +%Y%m%d-%H%M%S).log"
 mkdir -p "$(dirname "$LOG_FILE")"
@@ -21,15 +24,6 @@ log_info() { log "INFO" "$@"; }
 log_ok() { log " OK " "$@"; }
 log_skip() { log "SKIP" "$@"; }
 log_err() { log "ERR " "$@"; }
-
-# Detect platform
-detect_platform() {
-    case "$OSTYPE" in
-        darwin*) echo "macos" ;;
-        linux*) echo "linux" ;;
-        *) log_err "Unsupported OS: $OSTYPE"; exit 1 ;;
-    esac
-}
 
 # Check if command exists
 has() { command -v "$1" &>/dev/null; }
