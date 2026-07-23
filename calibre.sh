@@ -42,10 +42,6 @@ require_jq() {
   fi
 }
 
-realpath_compat() {
-  perl -MCwd=realpath -e 'print realpath($ARGV[0])' "$1"
-}
-
 run_stow() {
   mkdir -p "$config_dir"
 
@@ -289,8 +285,8 @@ run_check() {
     fi
 
     local resolved_target resolved_expected
-    resolved_target="$(realpath_compat "$target")"
-    resolved_expected="$(realpath_compat "$expected")"
+    resolved_target="$(realpath "$target")"
+    resolved_expected="$(realpath "$expected")"
     if [ "$resolved_target" = "$resolved_expected" ]; then
       pass "$rel symlink points to stow package"
     else
@@ -310,8 +306,8 @@ run_check() {
 
     if [ -L "$target" ]; then
       local resolved_target resolved_expected
-      resolved_target="$(realpath_compat "$target")"
-      resolved_expected="$(realpath_compat "$expected")"
+      resolved_target="$(realpath "$target")"
+      resolved_expected="$(realpath "$expected")"
       if [ "$resolved_target" = "$resolved_expected" ]; then
         pass "$rel symlink points to stow package"
       else
