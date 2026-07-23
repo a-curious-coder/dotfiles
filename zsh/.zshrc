@@ -56,6 +56,9 @@ plugins=(
     zsh-syntax-highlighting
 )
 
+# Single-user machine: skip compaudit's per-startup ownership scan.
+ZSH_DISABLE_COMPFIX="true"
+
 [[ -d "$ZSH" ]] && source "$ZSH/oh-my-zsh.sh"
 
 # Version managers.
@@ -87,11 +90,11 @@ add-zsh-hook preexec load_nvm
 # rebuild PATH via path_helper, so the guard would skip re-adding the shims.
 # rbenv init is idempotent — always run it (matches the pyenv block below).
 if (( $+commands[rbenv] )); then
-    eval "$(rbenv init - --no-rehash zsh)"
+    cached_init rbenv init - --no-rehash zsh
 fi
 
 if (( $+commands[pyenv] )); then
-    eval "$(pyenv init - --no-rehash)"
+    cached_init pyenv init - --no-rehash
 fi
 
 # User extensions.
@@ -124,7 +127,7 @@ if (( $+commands[starship] )); then
     done
 
     [[ -n "$local_starship_config" ]] && export STARSHIP_CONFIG="$local_starship_config"
-    eval "$(starship init zsh)"
+    cached_init starship init zsh --print-full-init
 fi
 
 [[ -f "$HOME/.fzf.zsh" ]] && source "$HOME/.fzf.zsh"
@@ -159,6 +162,13 @@ sync_tmux_environment_from_zshrc_env() {
     local -A current_lookup
 
     [[ -n "$tmux_bin" && -f "$env_file" ]] || return 0
+
+    # Skip the whole sync when .zshrc.env hasn't changed since the last one.
+    local env_stamp
+    env_stamp="$(stat -f %m "$env_file" 2>/dev/null)"
+    if [[ "$("$tmux_bin" show-environment -g "${managed_key}_STAMP" 2>/dev/null)" == *"=$env_stamp" ]]; then
+        return 0
+    fi
 
     previous_line="$("$tmux_bin" show-environment -g "$managed_key" 2>/dev/null || true)"
     if [[ "$previous_line" == "$managed_key="* ]]; then
@@ -220,6 +230,7 @@ sync_tmux_environment_from_zshrc_env() {
     else
         "$tmux_bin" set-environment -gu "$managed_key" >/dev/null 2>&1 || true
     fi
+    "$tmux_bin" set-environment -g "${managed_key}_STAMP" "$env_stamp" >/dev/null 2>&1 || true
 }
 sync_tmux_environment_from_zshrc_env
 
@@ -246,8 +257,10 @@ if [[ -z "$TMUX" && -z "$ZELLIJ" && "$SHLVL" -eq 1 ]]; then
 fi
 
 # zoxide must be initialized last so its precmd/chpwd hooks aren't clobbered.
+# The doctor false-positives on the direnv hook added below (additive, no clobber).
+export _ZO_DOCTOR=0
 if (( $+commands[zoxide] )); then
-    eval "$(zoxide init zsh --cmd cd)"
+    cached_init zoxide init zsh --cmd cd
     # Seed ~/Projects so `cd <name>` works before you've ever visited the dir.
     # ponytail: top level only; zoxide learns deeper paths as you cd into them.
     _p=(~/Projects/*(/N)); (( $#_p )) && zoxide add $_p; unset _p
@@ -255,7 +268,7 @@ fi
 
 direnv_bin="${commands[direnv]:-/opt/homebrew/bin/direnv}"
 if [[ -x "$direnv_bin" ]]; then
-    eval "$("$direnv_bin" hook zsh)"
+    cached_init "$direnv_bin" hook zsh
     _direnv_rehash_hook() {
         rehash
     }
@@ -271,4 +284,11 @@ if [[ -d /opt/homebrew/opt/postgresql@16.10/bin ]]; then
     path=(/opt/homebrew/opt/postgresql@16.10/bin ${path:#/opt/homebrew/opt/postgresql@16.10/bin})
     export PATH
     rehash
+fi
+
+# Only surface startup time when it regresses past 500ms.
+if [[ -n "${ZSH_STARTUP_T0:-}" ]]; then
+    _zsh_startup_ms=$(( (EPOCHREALTIME - ZSH_STARTUP_T0) * 1000 ))
+    (( _zsh_startup_ms > 500 )) && printf 'zsh slow: %.0fms\n' $_zsh_startup_ms
+    unset _zsh_startup_ms ZSH_STARTUP_T0
 fi
