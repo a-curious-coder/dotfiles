@@ -85,6 +85,31 @@ stow hypr kanshi waybar rofi swaync wlogout calibre-linux
 stow git zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep rbenv
 ```
 
+**direnv**
+
+The zsh config initializes `direnv` after `zoxide`, so project `.envrc` files
+load automatically on `cd`.
+
+After creating or changing a project's `.envrc`, run this once from the
+project:
+
+```bash
+direnv allow
+```
+
+For `nourish-organisations`, direnv is required so Rails uses the Docker
+Postgres host and repo-pinned `pg_dump`. A loaded shell should show:
+
+```bash
+which pg_dump
+echo "$EXPECTED_PG_DUMP_VERSION"
+```
+
+```text
+/opt/homebrew/opt/postgresql@16.10/bin/pg_dump
+16.10
+```
+
 **Calibre (auto-select package by OS)**
 ```bash
 # One command: stow + apply reader style + validate
