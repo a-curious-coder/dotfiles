@@ -269,30 +269,32 @@ local function jest_test_template(name)
   }
 end
 
-local function create_vue_files(name, with_test)
+-- Shared by the vue/composable/ts-module template kinds: write the main file,
+-- optionally write or reuse a matching test, then open what's relevant.
+local function create_from_template(name, ext, template_fn, test_template_fn, with_test)
   local base_dir = current_base_dir()
   local root = project_root(base_dir)
-  local component_path = resolve_path(base_dir, name, "vue")
+  local file_path = resolve_path(base_dir, name, ext)
   local test_path = resolve_path(base_dir, name .. ".spec", "ts")
 
-  local created_component = write_file(component_path, vue_component_template(name))
+  local created_file = write_file(file_path, template_fn(name))
   local created_test = false
   local existing_tests = {}
   if with_test then
     existing_tests = find_existing_tests(name, base_dir, root)
     if #existing_tests == 0 then
-      created_test = write_file(test_path, vue_test_template(name, component_path))
+      created_test = write_file(test_path, test_template_fn(name, file_path))
     end
   end
 
-  if not created_component then
-    vim.notify("File exists: " .. component_path, vim.log.levels.WARN)
+  if not created_file then
+    vim.notify("File exists: " .. file_path, vim.log.levels.WARN)
   end
   if with_test and not created_test and #existing_tests == 0 then
     vim.notify("File exists: " .. test_path, vim.log.levels.WARN)
   end
 
-  open_file(component_path)
+  open_file(file_path)
   if with_test then
     if #existing_tests > 0 then
       open_existing_test(existing_tests, root, true)
@@ -300,6 +302,10 @@ local function create_vue_files(name, with_test)
       open_split(test_path)
     end
   end
+end
+
+local function create_vue_files(name, with_test)
+  create_from_template(name, "vue", vue_component_template, vue_test_template, with_test)
 end
 
 local function create_jest_test(name)
@@ -319,69 +325,11 @@ local function create_jest_test(name)
 end
 
 local function create_composable(name, with_test)
-  local base_dir = current_base_dir()
-  local root = project_root(base_dir)
-  local file_path = resolve_path(base_dir, name, "ts")
-  local test_path = resolve_path(base_dir, name .. ".spec", "ts")
-
-  local created_file = write_file(file_path, vue_composable_template(name))
-  local created_test = false
-  local existing_tests = {}
-  if with_test then
-    existing_tests = find_existing_tests(name, base_dir, root)
-    if #existing_tests == 0 then
-      created_test = write_file(test_path, jest_test_template(name))
-    end
-  end
-
-  if not created_file then
-    vim.notify("File exists: " .. file_path, vim.log.levels.WARN)
-  end
-  if with_test and not created_test and #existing_tests == 0 then
-    vim.notify("File exists: " .. test_path, vim.log.levels.WARN)
-  end
-
-  open_file(file_path)
-  if with_test then
-    if #existing_tests > 0 then
-      open_existing_test(existing_tests, root, true)
-    elseif created_test then
-      open_split(test_path)
-    end
-  end
+  create_from_template(name, "ts", vue_composable_template, jest_test_template, with_test)
 end
 
 local function create_ts_module(name, with_test)
-  local base_dir = current_base_dir()
-  local root = project_root(base_dir)
-  local file_path = resolve_path(base_dir, name, "ts")
-  local test_path = resolve_path(base_dir, name .. ".spec", "ts")
-
-  local created_file = write_file(file_path, ts_module_template(name))
-  local created_test = false
-  local existing_tests = {}
-  if with_test then
-    existing_tests = find_existing_tests(name, base_dir, root)
-    if #existing_tests == 0 then
-      created_test = write_file(test_path, jest_test_template(name))
-    end
-  end
-
-  if not created_file then
-    vim.notify("File exists: " .. file_path, vim.log.levels.WARN)
-  end
-  if with_test and not created_test and #existing_tests == 0 then
-    vim.notify("File exists: " .. test_path, vim.log.levels.WARN)
-  end
-
-  open_file(file_path)
-  if with_test then
-    if #existing_tests > 0 then
-      open_existing_test(existing_tests, root, true)
-    elseif created_test then
-      open_split(test_path)
-    end
-  end
+  create_from_template(name, "ts", ts_module_template, jest_test_template, with_test)
 end
 
 function M.prompt()
