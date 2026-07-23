@@ -12,6 +12,7 @@ window-decoration = true
 macos-titlebar-style = hidden
 macos-window-buttons = hidden
 macos-non-native-fullscreen = true
+macos-window-shadow = false
 
 # Performance
 window-vsync = true
