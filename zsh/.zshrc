@@ -43,7 +43,8 @@ if (( $+commands[codex] )) && [[ -f "$HOME/.secrets/load_codex_secrets.zsh" ]]; 
     source "$HOME/.secrets/load_codex_secrets.zsh"
 fi
 
-zstyle ':omz:update' mode auto
+# reminder, not auto: auto mode git-pulls mid-startup and freezes the shell.
+zstyle ':omz:update' mode reminder
 zstyle ':omz:update' frequency 13
 
 plugins=(
