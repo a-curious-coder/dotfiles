@@ -35,11 +35,7 @@ psgrep() {
 
 # Kill process by name
 killnamed() {
-    ps aux | grep -v grep | grep "$@" -i --color=auto;
-    echo ""
-    echo "Type PID to kill:"
-    read -r pid
-    kill ${pid}
+    pkill -i "$@"
 }
 
 # Git clone and cd into directory
@@ -63,9 +59,7 @@ weather() {
 
 # Remove unused Docker resources
 docker-cleanup() {
-    docker system prune -f
-    docker volume prune -f
-    docker image prune -a -f
+    docker system prune -a -f --volumes
 }
 
 # Create project directory with git init
