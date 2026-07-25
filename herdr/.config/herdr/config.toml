@@ -154,6 +154,14 @@ description = "lazygit"
 width = "95%"
 height = "95%"
 
+# herdr-spreader: applies plugins/config/herdr-spreader/config.yaml, the herdr
+# equivalent of tmux/scripts/tmux-session-workspace.sh (term/git/codex tabs).
+[[keys.command]]
+key = "prefix+shift+s"
+type = "shell"
+command = "herdr plugin action invoke apply --plugin herdr-spreader"
+description = "apply spreader layouts"
+
 # Legacy indexed shortcut config is still parsed for compatibility.
 # Prefer switch_tab, switch_workspace, and focus_agent for new configs.
 # [keys.indexed]
