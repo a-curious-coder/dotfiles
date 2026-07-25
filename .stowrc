@@ -8,14 +8,14 @@
 --verbose
 
 # Directories to ignore when stowing
---ignore=README.*
---ignore=LICENSE.*
---ignore=CHANGELOG.*
---ignore=\.git
---ignore=\.gitignore
---ignore=\.DS_Store
---ignore=Thumbs\.db
---ignore=desktop\.ini
+--ignore=^README\..*$
+--ignore=^LICENSE\..*$
+--ignore=^CHANGELOG\..*$
+--ignore=^\.git$
+--ignore=^\.gitignore$
+--ignore=^\.DS_Store$
+--ignore=^Thumbs\.db$
+--ignore=^desktop\.ini$
 
 # Don't follow symlinks when computing stow operations
 --no-folding
