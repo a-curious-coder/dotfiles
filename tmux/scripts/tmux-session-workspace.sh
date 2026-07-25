@@ -32,25 +32,19 @@ attach_or_switch() {
   fi
 }
 
-new_git_window() {
-  session="$1"
-  target_dir="$2"
+# Creates a tmux window for $3 (name), running $2 (cmd) if $1 (tool) is
+# installed, falling back to a bare shell. Remaining args pass through to
+# `tmux new-window`.
+new_tool_window() {
+  tool="$1"
+  cmd="$2"
+  name="$3"
+  shift 3
 
-  if command -v lazygit >/dev/null 2>&1; then
-    tmux new-window -d -t "$session:2" -c "$target_dir" -n "git" env EDITOR=nvim lazygit
+  if command -v "$tool" >/dev/null 2>&1; then
+    tmux new-window "$@" -n "$name" $cmd
   else
-    tmux new-window -d -t "$session:2" -c "$target_dir" -n "git"
-  fi
-}
-
-new_codex_window() {
-  session="$1"
-  target_dir="$2"
-
-  if command -v codex >/dev/null 2>&1; then
-    tmux new-window -d -t "$session:3" -c "$target_dir" -n "codex" codex
-  else
-    tmux new-window -d -t "$session:3" -c "$target_dir" -n "codex"
+    tmux new-window "$@" -n "$name"
   fi
 }
 
@@ -59,8 +53,8 @@ create_workspace_session() {
   target_dir="$2"
 
   tmux new-session -d -s "$session" -c "$target_dir" -n "term"
-  new_git_window "$session" "$target_dir"
-  new_codex_window "$session" "$target_dir"
+  new_tool_window lazygit "env EDITOR=nvim lazygit" git -d -t "$session:2" -c "$target_dir"
+  new_tool_window codex codex codex -d -t "$session:3" -c "$target_dir"
 
   tmux select-window -t "$session:1"
 }
@@ -83,18 +77,8 @@ target_dir="$(cd "$target_dir" && pwd -P)"
 if [ -n "${TMUX:-}" ] && [ -z "$session_name" ]; then
   current_session="$(tmux display-message -p '#S')"
 
-  if command -v codex >/dev/null 2>&1; then
-    tmux new-window -d -b -t "$current_session:1" -c "$target_dir" -n "codex" codex
-  else
-    tmux new-window -d -b -t "$current_session:1" -c "$target_dir" -n "codex"
-  fi
-
-  if command -v lazygit >/dev/null 2>&1; then
-    tmux new-window -d -b -t "$current_session:1" -c "$target_dir" -n "git" env EDITOR=nvim lazygit
-  else
-    tmux new-window -d -b -t "$current_session:1" -c "$target_dir" -n "git"
-  fi
-
+  new_tool_window codex codex codex -d -b -t "$current_session:1" -c "$target_dir"
+  new_tool_window lazygit "env EDITOR=nvim lazygit" git -d -b -t "$current_session:1" -c "$target_dir"
   tmux new-window -b -t "$current_session:1" -c "$target_dir" -n "term"
   exit 0
 fi
