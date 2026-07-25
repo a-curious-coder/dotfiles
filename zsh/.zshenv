@@ -13,8 +13,8 @@ cached_init() {
     source "$cache"
 }
 
-. "$HOME/.cargo/env"
-export PATH="/opt/homebrew/opt/postgresql@16.10/bin:$PATH"
+[[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+[[ -d "/opt/homebrew/opt/postgresql@16.10/bin" ]] && export PATH="/opt/homebrew/opt/postgresql@16.10/bin:$PATH"
 
 # Load machine-local secrets/env overrides (not tracked in git).
 # Sourced here (not just .zshrc) so vars are available in ALL zsh contexts:
