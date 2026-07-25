@@ -32,13 +32,9 @@ setup_ruby_lsp_for_mise() {
     echo "mise not found; skipping ruby-lsp setup"
     return
   }
-  command -v jq >/dev/null 2>&1 || {
-    echo "jq not found; skipping ruby-lsp setup"
-    return
-  }
 
   local version
-  for version in $(mise ls --installed ruby --json | jq -r '.ruby[]?.version // empty'); do
+  for version in $(mise ls --installed ruby | awk '{print $2}'); do
     echo "Ensuring ruby-lsp in Ruby $version..."
     mise exec "ruby@$version" -- gem install ruby-lsp \
       || echo "  warn: ruby-lsp install failed for $version (skipping)"
