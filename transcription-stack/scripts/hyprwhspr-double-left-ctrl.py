@@ -439,6 +439,16 @@ def main() -> int:
                                     last_commands_on_ts = _trigger_voice_commands(tap_time, last_commands_on_ts)
                                 last_trigger_ts[code] = tap_time
                                 last_tap_up_ts[code] = 0.0
+                            elif (
+                                code == LEFT_CTRL_CODE
+                                and _typing_active()
+                                and (tap_time - last_trigger_ts[code]) >= TRIGGER_COOLDOWN
+                            ):
+                                # Single tap stops dictation immediately if it's on;
+                                # a lone tap never starts it (only double-tap does).
+                                last_dictation_on_ts = _trigger_dictation(tap_time, last_dictation_on_ts)
+                                last_trigger_ts[code] = tap_time
+                                last_tap_up_ts[code] = 0.0
                             else:
                                 last_tap_up_ts[code] = tap_time
                         else:
