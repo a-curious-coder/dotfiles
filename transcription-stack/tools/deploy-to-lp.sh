@@ -7,6 +7,7 @@ REPO_ROOT="$(cd "$ROOT/.." && pwd)"
 
 ssh "$HOST" 'mkdir -p ~/.config/local-voice-commands'
 
+scp "$ROOT/scripts/audio_ring_buffer.py" "$HOST":~/.local/bin/audio_ring_buffer.py
 scp "$ROOT/scripts/local-live-dictation.py" "$HOST":~/.local/bin/local-live-dictation.py
 scp "$ROOT/scripts/local-live-dictation-eval.py" "$HOST":~/.local/bin/local-live-dictation-eval.py
 scp "$ROOT/scripts/local-live-dictation-waybar-status.py" "$HOST":~/.local/bin/local-live-dictation-waybar-status.py

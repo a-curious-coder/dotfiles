@@ -6,6 +6,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 
 mkdir -p "$ROOT/scripts" "$ROOT/systemd" "$ROOT/config" "$ROOT/notes"
 
+scp "$HOST":~/.local/bin/audio_ring_buffer.py "$ROOT/scripts/audio_ring_buffer.py"
 scp "$HOST":~/.local/bin/local-live-dictation.py "$ROOT/scripts/local-live-dictation.py"
 scp "$HOST":~/.local/bin/local-live-dictation-eval.py "$ROOT/scripts/local-live-dictation-eval.py"
 scp "$HOST":~/.local/bin/local-live-dictation-waybar-status.py "$ROOT/scripts/local-live-dictation-waybar-status.py"
@@ -18,6 +19,7 @@ scp "$HOST":~/.config/local-voice-commands/config.json "$ROOT/config/local-voice
 (
   cd "$ROOT"
   shasum -a 256 \
+    scripts/audio_ring_buffer.py \
     scripts/local-live-dictation.py \
     scripts/local-live-dictation-eval.py \
     scripts/local-live-dictation-waybar-status.py \
