@@ -38,6 +38,7 @@ RESCAN_INTERVAL = 5.0
 
 LOCAL_DICTATION_CMD = "/home/groot/.local/bin/local-live-dictation.py"
 VOICE_COMMANDS_CMD = "/home/groot/.local/bin/local-voice-commands.py"
+MIC_INDICATOR_CMD = "/home/groot/.local/bin/mic-indicator.py"
 
 UID = os.getuid()
 XDG_RUNTIME_DIR = os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{UID}")
@@ -162,7 +163,19 @@ def _run_mode_cmd(argv: list[str], timeout: float = 20.0) -> tuple[int, str]:
     return rc, out
 
 
+def _show_mic_indicator(on: bool) -> None:
+    try:
+        subprocess.Popen(
+            [MIC_INDICATOR_CMD, "on" if on else "off"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+    except Exception:
+        pass
+
+
 def _play_state_sound(on: bool) -> None:
+    _show_mic_indicator(on)
     if on and not ENABLE_START_SOUND:
         return
     if (not on) and not ENABLE_STOP_SOUND:
