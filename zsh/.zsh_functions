@@ -34,9 +34,7 @@ psgrep() {
 }
 
 # Kill process by name
-killnamed() {
-    pkill -i "$@"
-}
+alias killnamed='pkill -i'
 
 # Git clone and cd into directory
 gclone() {
@@ -58,9 +56,7 @@ weather() {
 }
 
 # Remove unused Docker resources
-docker-cleanup() {
-    docker system prune -a -f --volumes
-}
+alias docker-cleanup='docker system prune -a -f --volumes'
 
 # Create project directory with git init
 newproject() {
