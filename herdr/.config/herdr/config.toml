@@ -155,12 +155,27 @@ width = "95%"
 height = "95%"
 
 # herdr-spreader: applies plugins/config/herdr-spreader/config.yaml, the herdr
-# equivalent of tmux/scripts/tmux-session-workspace.sh (term/git/codex tabs).
+# equivalent of tmux/scripts/tmux-session-workspace.sh (term/git/claude tabs).
 [[keys.command]]
 key = "prefix+shift+s"
-type = "shell"
-command = "herdr plugin action invoke apply --plugin herdr-spreader"
+type = "plugin_action"
+command = "herdr-spreader.apply"
 description = "apply spreader layouts"
+
+# termscope: pick a file or URL visible in the focused pane (the tmux-thumbs job).
+# README suggests ctrl+shift+a / ctrl+e; prefix-based instead so ctrl+e stays
+# zsh's end-of-line and ctrl+shift chords aren't relied on.
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "termscope.open"
+description = "visible-screen file picker"
+
+[[keys.command]]
+key = "prefix+u"
+type = "plugin_action"
+command = "termscope.open-links"
+description = "visible-screen link picker"
 
 # Legacy indexed shortcut config is still parsed for compatibility.
 # Prefer switch_tab, switch_workspace, and focus_agent for new configs.

@@ -1,9 +1,12 @@
 # herdr-spreader layouts — the herdr equivalent of tmux/scripts/tmux-session-workspace.sh
-# Apply with: herdr plugin action invoke herdr-spreader apply
+# Apply with: prefix+shift+s, or `herdr plugin action invoke apply --plugin herdr-spreader`
 # Preview without touching the session: herdr-spreader apply --dry-run
 #
-# Same three tabs as the tmux script: term / git (lazygit) / codex.
+# Three tabs: term / git (lazygit) / claude.
 # Copy a block and change name + root to add a project.
+#
+# Every apply creates a NEW workspace — spreader has no reuse/idempotent mode.
+# Only fire the keybind when you want a fresh space.
 
 workspaces:
   - name: dotfiles
@@ -18,9 +21,9 @@ workspaces:
           - command: lazygit
             env:
               EDITOR: nvim
-      - label: codex
+      - label: claude
         panes:
-          - command: codex
+          - command: claude --allow-dangerously-skip-permissions
 
   # - name: aaw
   #   root: ~/Projects/personal/aaw
@@ -33,6 +36,6 @@ workspaces:
   #         - command: lazygit
   #           env:
   #             EDITOR: nvim
-  #     - label: codex
+  #     - label: claude
   #       panes:
-  #         - command: codex
+  #         - command: claude --allow-dangerously-skip-permissions

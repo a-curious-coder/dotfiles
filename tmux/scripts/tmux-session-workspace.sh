@@ -9,7 +9,7 @@ When run inside tmux with no session_name, inserts a workspace layout at
 windows 1/2/3 in the current session (existing windows are shifted right):
   1: term
   2: git   (runs lazygit when available)
-  3: codex (runs codex when available)
+  3: claude (runs claude when available)
 
 When session_name is provided (or when run outside tmux), creates/switches to
 that named session rooted at target_dir.
@@ -54,7 +54,7 @@ create_workspace_session() {
 
   tmux new-session -d -s "$session" -c "$target_dir" -n "term"
   new_tool_window lazygit "env EDITOR=nvim lazygit" git -d -t "$session:2" -c "$target_dir"
-  new_tool_window codex codex codex -d -t "$session:3" -c "$target_dir"
+  new_tool_window claude "claude --allow-dangerously-skip-permissions" claude -d -t "$session:3" -c "$target_dir"
 
   tmux select-window -t "$session:1"
 }
@@ -77,7 +77,7 @@ target_dir="$(cd "$target_dir" && pwd -P)"
 if [ -n "${TMUX:-}" ] && [ -z "$session_name" ]; then
   current_session="$(tmux display-message -p '#S')"
 
-  new_tool_window codex codex codex -d -b -t "$current_session:1" -c "$target_dir"
+  new_tool_window claude "claude --allow-dangerously-skip-permissions" claude -d -b -t "$current_session:1" -c "$target_dir"
   new_tool_window lazygit "env EDITOR=nvim lazygit" git -d -b -t "$current_session:1" -c "$target_dir"
   tmux new-window -b -t "$current_session:1" -c "$target_dir" -n "term"
   exit 0
