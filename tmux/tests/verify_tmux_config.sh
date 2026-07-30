@@ -160,10 +160,12 @@ help_dump="$(TMUX_SOCKET="$SOCKET_NAME" "$help_script" --dump 2>/dev/null | rg -
 assert_contains "help popup dump includes a display-popup binding row" "$help_dump" "display-popup"
 assert_contains "help popup dump includes tmux-help-popup.sh command path" "$help_dump" "tmux-help-popup.sh"
 
-# Test 7: Flexoki palette and minimal statusline are applied.
+# Test 7: active palette and minimal statusline are applied. The Dunder Mifflin
+# theme sourced at the end of .tmux.conf overrides the inline Flexoki styling,
+# so these assert the theme's values, not Flexoki's.
 status_style="$(tmux -L "$SOCKET_NAME" show-options -g status-style 2>/dev/null || true)"
-assert_contains "status-style uses Flexoki dark background" "$status_style" "#100F0F"
-assert_contains "status-style uses Flexoki text color" "$status_style" "#CECDC3"
+assert_contains "status-style uses Dunder Mifflin navy background" "$status_style" "#0F1826"
+assert_contains "status-style uses Dunder Mifflin beige text" "$status_style" "#D3C6B4"
 
 status_justify="$(tmux -L "$SOCKET_NAME" show-options -g status-justify 2>/dev/null || true)"
 assert_contains "window tabs are centered horizontally" "$status_justify" "centre"
@@ -173,8 +175,8 @@ assert_contains "pane border status text is disabled for minimal UI" "$pane_bord
 
 pane_border_style="$(tmux -L "$SOCKET_NAME" show-options -g pane-border-style 2>/dev/null || true)"
 pane_active_border_style="$(tmux -L "$SOCKET_NAME" show-options -g pane-active-border-style 2>/dev/null || true)"
-assert_contains "inactive pane border uses Flexoki ui color" "$pane_border_style" "#343331"
-assert_contains "active pane border uses Flexoki blue accent" "$pane_active_border_style" "#4385BE"
+assert_contains "inactive pane border uses Dunder Mifflin ui color" "$pane_border_style" "#33445C"
+assert_contains "active pane border uses Dunder Mifflin blue accent" "$pane_active_border_style" "#4B8BBE"
 
 status_left="$(tmux -L "$SOCKET_NAME" show-options -g status-left 2>/dev/null || true)"
 status_right="$(tmux -L "$SOCKET_NAME" show-options -g status-right 2>/dev/null || true)"
@@ -220,7 +222,7 @@ assert_contains "matryoshka recursive up keybind is configured" "$matryoshka_up_
 matryoshka_inactive_style_strategy="$(tmux -L "$SOCKET_NAME" show-options -gqv @matryoshka_inactive_status_style_strategy 2>/dev/null || true)"
 assert_contains "matryoshka inactive status style strategy is configured" "$matryoshka_inactive_style_strategy" "assignment"
 matryoshka_inactive_style="$(tmux -L "$SOCKET_NAME" show-options -gqv @matryoshka_inactive_status_style 2>/dev/null || true)"
-assert_contains "matryoshka inactive status style aligns with Flexoki palette" "$matryoshka_inactive_style" "bg=#282726,fg=#878580"
+assert_contains "matryoshka inactive status style aligns with Dunder Mifflin palette" "$matryoshka_inactive_style" "bg=#223651,fg=#9A907C"
 
 thumbs_key="$(tmux -L "$SOCKET_NAME" show-options -gqv @thumbs-key 2>/dev/null || true)"
 assert_contains "tmux-thumbs key is configured to prefix+T" "$thumbs_key" "T"
