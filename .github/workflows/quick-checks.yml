@@ -16,5 +16,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y shellcheck lua5.4 tmux ripgrep
 
+      # tmux/.tmux.conf resolves its scripts and themes through this absolute
+      # path, so the checkout has to be reachable there for the tmux checks.
+      - name: Link checkout to the path tmux/.tmux.conf expects
+        run: |
+          mkdir -p "$HOME/Projects/personal"
+          ln -sfn "$GITHUB_WORKSPACE" "$HOME/Projects/personal/dotfiles"
+
       - name: Repo doctor
         run: ./scripts/doctor.sh
