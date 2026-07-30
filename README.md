@@ -99,6 +99,7 @@ Not stow packages:
 | `ubuntu_install.sh` | Wrapper that delegates to `install-modern-tools.sh` |
 | `scripts/doctor.sh` | Run the repo health checks |
 | `scripts/check-shell.sh` | `shellcheck` the maintained shell scripts |
+| `scripts/check-stow-targets.sh` | Assert every package installs only dot-prefixed paths |
 
 ## Neovim
 
