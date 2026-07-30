@@ -14,14 +14,12 @@ jobs:
       - name: Install tooling
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck lua5.4 tmux ripgrep
+          sudo apt-get install -y shellcheck lua5.4 tmux ripgrep stow
 
-      # tmux/.tmux.conf resolves its scripts and themes through this absolute
-      # path, so the checkout has to be reachable there for the tmux checks.
-      - name: Link checkout to the path tmux/.tmux.conf expects
-        run: |
-          mkdir -p "$HOME/Projects/personal"
-          ln -sfn "$GITHUB_WORKSPACE" "$HOME/Projects/personal/dotfiles"
+      # tmux/.tmux.conf resolves its scripts and themes through ~/.tmux, so the
+      # package has to be stowed before the tmux checks run.
+      - name: Stow the tmux package
+        run: stow tmux
 
       - name: Repo doctor
         run: ./scripts/doctor.sh

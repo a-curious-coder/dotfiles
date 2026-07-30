@@ -149,7 +149,7 @@ help_popup_binding="$(tmux -L "$SOCKET_NAME" list-keys -T prefix H 2>/dev/null |
 assert_contains "prefix+H opens the reference help popup" "$help_popup_binding" "display-popup"
 assert_contains "prefix+H reference popup uses tmux-help-popup.sh" "$help_popup_binding" "tmux-help-popup.sh"
 
-help_script="$ROOT_DIR/scripts/tmux-help-popup.sh"
+help_script="$ROOT_DIR/.tmux/scripts/tmux-help-popup.sh"
 if [[ -x "$help_script" ]]; then
   pass "tmux help popup script exists and is executable"
 else
@@ -229,7 +229,7 @@ assert_contains "tmux-thumbs key is configured to prefix+T" "$thumbs_key" "T"
 thumbs_osc52="$(tmux -L "$SOCKET_NAME" show-options -gqv @thumbs-osc52 2>/dev/null || true)"
 assert_contains "tmux-thumbs OSC52 clipboard integration is enabled" "$thumbs_osc52" "1"
 
-bootstrap_script="$ROOT_DIR/scripts/tmux-plugin-bootstrap.sh"
+bootstrap_script="$ROOT_DIR/.tmux/scripts/tmux-plugin-bootstrap.sh"
 if [[ -x "$bootstrap_script" ]]; then
   pass "plugin bootstrap script exists and is executable"
 else
