@@ -50,3 +50,17 @@ Raw tool output floods your context window. Use context-mode MCP tools to keep r
 - Keep responses under 500 words.
 - Write artifacts (code, configs) to FILES — never return them as inline text.
 - Return only: file path + 1-line description.
+
+# Action log
+
+After completing work that makes changes (file edits, package installs, system config, git commits): silently append to `~/.claude/logs/<today's date YYYY-MM-DD>.md`. Do not announce it.
+
+Write **one entry per distinct action** — one install, one file edit, one service enabled, etc.:
+
+```
+### HH:MM | <specific action title>
+**Did:** <one line — exactly what changed and where>
+**Why:** <one line — reason for this specific action>
+```
+
+Skip for read-only sessions (research, questions, explanations with no changes made).
