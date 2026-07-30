@@ -27,7 +27,7 @@ for package in */; do
 
   stray="$(stow -n -v -t "$target_dir" "$package" 2>&1 | rg '^(LINK|MKDIR): [^.]' || true)"
   if [ -n "$stray" ]; then
-    printf 'FAIL: %s links non-dotfile paths into $HOME\n' "$package" >&2
+    printf 'FAIL: %s links non-dotfile paths into the home directory\n' "$package" >&2
     printf '%s\n' "$stray" >&2
     fail_count=$((fail_count + 1))
   else
