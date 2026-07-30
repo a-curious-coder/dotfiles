@@ -14,9 +14,13 @@
 --ignore=^\.git$
 --ignore=^\.gitignore$
 --ignore=^\.DS_Store$
-# Repo-only directories that should never be linked into $HOME.
+# Repo-only directories that should never be linked into $HOME. A package
+# installs through its dot-prefixed paths (.config/, .local/, …); anything else
+# at the top level is source material for the repo, not for the home directory.
 --ignore=^docs$
 --ignore=^tests$
+--ignore=^scripts$
+--ignore=^systemd$
 --ignore=^Thumbs\.db$
 --ignore=^desktop\.ini$
 

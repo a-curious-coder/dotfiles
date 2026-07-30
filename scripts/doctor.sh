@@ -20,6 +20,7 @@ run_check() {
 }
 
 run_check "shellcheck" ./scripts/check-shell.sh
+run_check "stow targets" ./scripts/check-stow-targets.sh
 run_check "tmux config" ./tmux/tests/verify_tmux_config.sh
 
 if [ "$fail_count" -ne 0 ]; then
