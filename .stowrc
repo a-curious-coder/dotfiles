@@ -14,6 +14,9 @@
 --ignore=^\.git$
 --ignore=^\.gitignore$
 --ignore=^\.DS_Store$
+# Repo-only directories that should never be linked into $HOME.
+--ignore=^docs$
+--ignore=^tests$
 --ignore=^Thumbs\.db$
 --ignore=^desktop\.ini$
 
