@@ -159,14 +159,6 @@ description = "lazygit"
 width = "95%"
 height = "95%"
 
-# herdr-spreader: applies plugins/config/herdr-spreader/config.yaml, the herdr
-# equivalent of tmux/scripts/tmux-session-workspace.sh (term/git/claude tabs).
-[[keys.command]]
-key = "prefix+shift+s"
-type = "plugin_action"
-command = "herdr-spreader.apply"
-description = "apply spreader layouts"
-
 # termscope: pick a file or URL visible in the focused pane (the tmux-thumbs job).
 # README suggests ctrl+shift+a / ctrl+e; prefix-based instead so ctrl+e stays
 # zsh's end-of-line and ctrl+shift chords aren't relied on.
@@ -249,6 +241,22 @@ key = "prefix+shift+g"
 type = "plugin_action"
 command = "gh-pr.refresh"
 description = "refresh PR status"
+
+# command-palette: fzf-pick and run any plugin action. README suggests
+# prefix+p, but that's already this config's previous_workspace.
+[[keys.command]]
+key = "prefix+shift+p"
+type = "plugin_action"
+command = "jt.command-palette.open"
+description = "command palette (fzf)"
+
+# compose: docker-compose status for the focused workspace. The ps popup
+# already has start/stop/up/down/restart bound inside it, so one key is enough.
+[[keys.command]]
+key = "prefix+alt+d"
+type = "plugin_action"
+command = "compose.ps"
+description = "docker compose status"
 
 # Legacy indexed shortcut config is still parsed for compatibility.
 # Prefer switch_tab, switch_workspace, and focus_agent for new configs.
@@ -347,16 +355,28 @@ show_agent_labels_on_pane_borders = true
 # claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"], ["agent"]]
 
 # $pr adds the gh-pr plugin's PR status badge (#123 with a check/cross/dot icon).
+# Second row uses terminal_title_stripped (not "agent") so multiple same-type
+# agents (e.g. two Claude panes) in one workspace show their distinct task
+# titles instead of all displaying the same generic "claude" label.
 [ui.sidebar.agents]
-rows = [["state_icon", "workspace", "$pr"], ["agent"]]
+rows = [["state_icon", "workspace", "$pr"], ["agent", "terminal_title_stripped"]]
 
 # Expanded space rows. Built-ins are state_icon, state_text, workspace, branch, and git_status.
 # Custom values reported through workspace metadata use a $name token, for example $jj_status.
 # Inline token styles accept strict #RGB/#RRGGBB foregrounds plus bold and dim booleans.
-# [ui.sidebar.spaces]
-# Blank rows between space entries. Set to 1 to restore the previous spacing.
-# row_gap = 0
-# rows = [["state_icon", "workspace"], ["branch", "git_status"]]
+# $ports: herdr-ports plugin (active dev server ports per space).
+# $git_clean/$git_dirty/$git_conflict: ez-corp.git-status plugin (colored, ahead/behind aware;
+# replaces the plain built-in git_status token — see plugins/config/ez-corp.git-status/config.toml).
+# $claude_usage: claude-usage plugin (session/week quota %).
+[ui.sidebar.spaces]
+rows = [
+  ["state_icon", "workspace", "$ports"],
+  ["branch",
+    { token = "$git_clean", fg = "#a6e3a1" },
+    { token = "$git_dirty", fg = "#f9e2af" },
+    { token = "$git_conflict", fg = "#f38ba8" }],
+  ["$claude_usage"],
+]
 
 # Accent color for highlights, borders, and navigation UI.
 # Accepts: hex (#89b4fa), named colors (cyan, blue, magenta), or rgb(r,g,b)
