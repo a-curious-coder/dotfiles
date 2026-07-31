@@ -295,3 +295,11 @@ arduino-ide() {
           "$HOME/.config/arduino-ide/SingletonCookie" 2>/dev/null
     command arduino-ide --ozone-platform=x11 "$@"
 }
+
+# GITHUB_TOKEN is exported globally for Codex MCP (~/.secrets/github.env) but
+# would otherwise shadow gh's stored account login everywhere. Strip it so gh
+# always uses the stored login (work by default; personal repos override via
+# GH_CONFIG_DIR in ~/Projects/personal/.envrc).
+gh() {
+    GITHUB_TOKEN= GH_TOKEN= command gh "$@"
+}
