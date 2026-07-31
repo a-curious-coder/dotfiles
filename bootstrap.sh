@@ -45,6 +45,9 @@ main() {
   need_cmd bash
   need_cmd stow
 
+  echo "Enabling git hooks (.githooks)..."
+  git -C "$repo_root" config core.hooksPath .githooks
+
   local platform
   platform="$(detect_platform)"
 
