@@ -85,3 +85,4 @@ alias myip='curl -s ifconfig.me'
 alias temps='sensors'
 alias health='sudo smartctl -H /dev/sda && sudo smartctl -H /dev/sdb && sudo nvme smart-log /dev/nvme0n1'
 alias diskuse='df -h | grep -E "Filesystem|/data|/home|sda|nvme"'
+alias watermark="$HOME/.c2pa/visible_watermark.sh"

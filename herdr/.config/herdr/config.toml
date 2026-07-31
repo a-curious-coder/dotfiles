@@ -182,6 +182,74 @@ type = "plugin_action"
 command = "termscope.open-links"
 description = "visible-screen link picker"
 
+# vim-herdr-navigation: Ctrl+h/j/k/l crosses between Neovim splits and herdr
+# panes as one space. Bare ctrl (not prefix+) so it works without pressing
+# prefix first, matching vim-tmux-navigator's feel. Editor side is wired in
+# ../nvim/.config/nvim/lua/herdr-nav.lua (kept separate from the vendored
+# editor/nvim.lua so it still falls back to nvim-tmux-navigation, not
+# vim-tmux-navigator's :TmuxNavigate*, when outside herdr).
+[[keys.command]]
+key = "ctrl+h"
+type = "plugin_action"
+command = "vim-herdr-navigation.left"
+description = "navigate left (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+j"
+type = "plugin_action"
+command = "vim-herdr-navigation.down"
+description = "navigate down (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+k"
+type = "plugin_action"
+command = "vim-herdr-navigation.up"
+description = "navigate up (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+l"
+type = "plugin_action"
+command = "vim-herdr-navigation.right"
+description = "navigate right (vim/herdr)"
+
+# herdr-keys: fuzzy keybinding cheatsheet, reads this file plus nvim/ghostty/
+# tmux configs. prefix+y for a split pane, ctrl+alt+y for a full tab.
+[[keys.command]]
+key = "prefix+y"
+type = "plugin_action"
+command = "herdr-keys.open-keys"
+description = "keybinding cheatsheet"
+
+[[keys.command]]
+key = "ctrl+alt+y"
+type = "plugin_action"
+command = "herdr-keys.open-keys-tab"
+description = "keybinding cheatsheet (tab)"
+
+# herdr-triage: ranks agent panes by who's been waiting longest. No default
+# binding upstream; prefix+a ("attention") opens its live pane.
+[[keys.command]]
+key = "prefix+a"
+type = "pane"
+command = "herdr plugin pane open --plugin triage --entrypoint list --placement split"
+description = "agent attention triage"
+
+# gh-pr: PR status badge lives in ui.sidebar.agents.rows below ($pr token).
+# prefix+o opens the PR in your browser; prefix+shift+g forces a refresh
+# (auto-refresh already runs on pane focus / worktree events, throttled to
+# 30s, so this is only for "I just pushed, check now").
+[[keys.command]]
+key = "prefix+o"
+type = "plugin_action"
+command = "gh-pr.open-pr"
+description = "open PR for focused pane"
+
+[[keys.command]]
+key = "prefix+shift+g"
+type = "plugin_action"
+command = "gh-pr.refresh"
+description = "refresh PR status"
+
 # Legacy indexed shortcut config is still parsed for compatibility.
 # Prefer switch_tab, switch_workspace, and focus_agent for new configs.
 # [keys.indexed]
@@ -277,6 +345,10 @@ show_agent_labels_on_pane_borders = true
 # Optional canonical agent IDs replace the default rows for matching agents.
 # [ui.sidebar.agents.rows_by_agent]
 # claude = [["state_icon", "workspace", "tab"], ["terminal_title_stripped"], ["agent"]]
+
+# $pr adds the gh-pr plugin's PR status badge (#123 with a check/cross/dot icon).
+[ui.sidebar.agents]
+rows = [["state_icon", "workspace", "$pr"], ["agent"]]
 
 # Expanded space rows. Built-ins are state_icon, state_text, workspace, branch, and git_status.
 # Custom values reported through workspace metadata use a $name token, for example $jj_status.
