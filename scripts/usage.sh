@@ -41,18 +41,21 @@ keybound() {
     hypr/.config/hypr tmux/.tmux.conf 2>/dev/null
 }
 
-# One pass over history -> "count command" pairs, sudo stripped.
-declare -A runs=()
-if [[ -r "$history_file" ]]; then
-  while read -r count command; do
-    [[ -n "$command" ]] || continue
-    runs["$command"]="$count"
-  done < <(
+# One pass over history -> a "count command" table, sudo stripped. Kept as a
+# plain string rather than an associative array so this still runs on macOS's
+# bash 3.2, which is the machine most likely to need the report.
+runs_table=""
+if [ -r "$history_file" ]; then
+  runs_table="$(
     sed -e 's/^: [0-9]*:[0-9]*;//' "$history_file" 2>/dev/null |
       awk '{ if ($1 == "sudo") print $2; else print $1 }' |
       sort | uniq -c
-  )
+  )"
 fi
+
+runs_for() {
+  printf '%s\n' "$runs_table" | awk -v want="$1" '$2 == want { print $1; exit }'
+}
 
 printf '%-22s %6s  %5s  %s\n' PACKAGE RUNS PROC VERDICT
 for package in */; do
@@ -61,7 +64,8 @@ for package in */; do
   [[ -n "$(find "$package" -maxdepth 1 -name '.*' ! -name '.' ! -name '.gitignore' -print -quit)" ]] || continue
 
   command="$(command_for "$package")"
-  count="${runs[$command]:-0}"
+  count="$(runs_for "$command")"
+  count="${count:-0}"
 
   if pgrep -x "$command" >/dev/null 2>&1 || pgrep -f "^$command" >/dev/null 2>&1; then
     proc=yes
