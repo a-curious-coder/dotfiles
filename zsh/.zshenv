@@ -14,6 +14,7 @@ cached_init() {
 }
 
 [[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+[[ -d "$HOME/.local/share/mise/shims" ]] && export PATH="$HOME/.local/share/mise/shims:$PATH"
 [[ -d "/opt/homebrew/opt/postgresql@16.10/bin" ]] && export PATH="/opt/homebrew/opt/postgresql@16.10/bin:$PATH"
 
 # Load machine-local secrets/env overrides (not tracked in git).
