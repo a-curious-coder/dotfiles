@@ -226,6 +226,14 @@ type = "pane"
 command = "herdr plugin pane open --plugin triage --entrypoint list --placement split"
 description = "agent attention triage"
 
+# athenaeum: fuzzy cheatsheet of AI agent skills/rules, filtered to the
+# focused pane's detected agent when herdr reports one (else shows all).
+[[keys.command]]
+key = "prefix+k"
+type = "pane"
+command = "herdr plugin pane open --plugin cmc.athenaeum --entrypoint list --placement popup"
+description = "skills cheatsheet (Athenaeum)"
+
 # gh-pr: PR status badge lives in ui.sidebar.agents.rows below ($pr token).
 # prefix+o opens the PR in your browser; prefix+shift+g forces a refresh
 # (auto-refresh already runs on pane focus / worktree events, throttled to

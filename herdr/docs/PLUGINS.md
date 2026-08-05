@@ -399,6 +399,40 @@ gaps:
 Check the default rules yourself before you trust this plugin with
 high-risk work.
 
+## athenaeum — Athenaeum
+
+Source: local (`herdr/plugins/athenaeum` in this repo)
+
+### Purpose
+
+This plugin lists AI agent skills as a fuzzy cheatsheet: name and
+description, one per line. It reads Claude Code's `SKILL.md` frontmatter
+today. It has a stub row for every other herdr-recognised agent (codex,
+gemini, cursor, opencode, copilot, cline, devin, droid, amp, grok, kimi,
+kiro, kilo, qoder, qodercli, pi, hermes) until each one gets a real reader.
+
+### How it picks which agent to show
+
+1. It asks herdr which agent owns the pane you pressed the key from.
+2. If herdr reports an agent (for example `claude`), it shows only that
+   agent's skills.
+3. If herdr reports no agent (a plain shell pane, or no pane context), it
+   shows every known agent's skills, grouped by agent.
+
+### How to use it
+
+1. Press `prefix+k`.
+2. A popup opens. Type to fuzzy-filter.
+3. Press `Enter` to close, or `Esc`.
+
+### Setup notes
+
+This plugin is linked, not installed (`herdr plugin link`). It lives in
+this repo, so `git pull` is enough to update it — no `herdr plugin
+uninstall`/`install` cycle needed. To add a real skill reader for another
+agent, add a `list_<agent>` function and a matching `case` arm in
+`list-skills.sh`.
+
 ## New keybindings added for this setup
 
 | Key | Plugin | Action |
@@ -409,5 +443,6 @@ high-risk work.
 | `prefix+a` | triage | open agent attention list |
 | `prefix+o` | gh-pr | open focused pane's pull request |
 | `prefix+shift+g` | gh-pr | force-refresh pull request status |
+| `prefix+k` | athenaeum | open skills cheatsheet |
 
 `prefix+i` still opens Flock Farm. It has not changed.
