@@ -15,6 +15,6 @@ format = "[@$hostname]($style) "
 style = "bold green"
 
 [character]
-success_symbol = "[λ](bold cyan) "
-error_symbol = "[λ](bold red) "
-vimcmd_symbol = "[λ](bold green) "
+success_symbol = "[](bold cyan) "
+error_symbol = "[](bold red) "
+vimcmd_symbol = "[](bold green) "
