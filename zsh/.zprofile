@@ -1,5 +1,6 @@
 
 cached_init /opt/homebrew/bin/brew shellenv
+[[ -d "$HOME/.local/share/mise/shims" ]] && export PATH="$HOME/.local/share/mise/shims:$PATH"
 
 # Added by Toolbox App
 export PATH="$PATH:/Users/callummclennan/Library/Application Support/JetBrains/Toolbox/scripts"

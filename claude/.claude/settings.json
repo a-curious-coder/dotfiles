@@ -1,56 +1,57 @@
 {
-  "env": {
-    "MAX_THINKING_TOKENS": "32000"
-  },
-  "permissions": {
-    "allow": [
-      "Bash(./hack/spec_metadata.sh)",
-      "Bash(hack/spec_metadata.sh)",
-      "Bash(bash hack/spec_metadata.sh)",
-      "mcp__pencil"
-    ]
-  },
-  "model": "sonnet",
+  "effortLevel": "medium",
   "enableAllProjectMcpServers": false,
-  "hooks": {
-    "SessionStart": [
-      {
-        "matcher": "*",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash '/home/groot/.claude/hooks/herdr-agent-state.sh' session",
-            "timeout": 10
-          }
-        ]
-      }
-    ]
-  },
-  "statusLine": {
-    "type": "command",
-    "command": "bash \"/home/groot/.claude/plugins/cache/ponytail/ponytail/4.7.0/hooks/ponytail-statusline.sh\""
-  },
   "enabledPlugins": {
     "i-have-adhd@i-have-adhd": true,
+    "lua-lsp@claude-plugins-official": true,
     "ponytail@ponytail": true,
-    "mattpocock-skills@claude-plugins-official": true
+    "ruby-lsp@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "env": {
+    "MAX_THINKING_TOKENS": "32000"
   },
   "extraKnownMarketplaces": {
     "i-have-adhd": {
       "source": {
-        "source": "github",
-        "repo": "ayghri/i-have-adhd"
+        "repo": "ayghri/i-have-adhd",
+        "source": "github"
       }
     },
     "ponytail": {
       "source": {
-        "source": "github",
-        "repo": "DietrichGebert/ponytail"
+        "repo": "DietrichGebert/ponytail",
+        "source": "github"
       }
     }
   },
-  "effortLevel": "medium",
-  "tui": "fullscreen",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bash '/Users/callummclennan/.claude/hooks/herdr-agent-state.sh' session",
+            "timeout": 10,
+            "type": "command"
+          }
+        ],
+        "matcher": "*"
+      }
+    ]
+  },
+  "model": "sonnet",
+  "outputStyle": "Concise",
+  "permissions": {
+    "allow": [
+      "mcp__pencil"
+    ]
+  },
   "skipDangerousModePermissionPrompt": true,
-  "systemPrompt": "Ensure your responses align with the principles you can distill from the following excerpt: If you want to progress faster, write concise explanations. Explain ideas in simple terms, strongly and clearly, so that they can be rebutted, remixed, reworked — or built upon. Concise explanations spread faster because they are easier to read and understand. The sooner your idea is understood, the sooner others can build on it. Concise explanations accelerate decision-making. They help everyone understand the idea and decide whether to agree with it or not. Concise explanations make ideas useful. One idea can more easily be combined with another idea to form a third idea. Concise explanations work at every scale. From your own thinking, to the progress of an entire organization, community, or civilization. Leadership is built on concise explanations. Without concise explanations you have no foundation to build on."
+  "skipWorkflowUsageWarning": true,
+  "statusLine": {
+    "command": "bash \"/Users/callummclennan/.claude/statusline-command.sh\"",
+    "type": "command"
+  },
+  "theme": "dark",
+  "tui": "fullscreen"
 }

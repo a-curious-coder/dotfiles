@@ -399,6 +399,32 @@ gaps:
 Check the default rules yourself before you trust this plugin with
 high-risk work.
 
+## iris — Iris
+
+Source: `github:a-curious-coder/herdr-iris` — its own repo, not part of this
+one. See that repo's README for full docs; this is just the local pointer.
+
+### Purpose
+
+Fuzzy cheatsheet of AI agent skills, scoped to the agent detected on the
+pane you opened it from. Full description on `?`, Enter types the
+selected skill's invocation into that pane as literal text (you still
+press Enter yourself to run it).
+
+### How to use it
+
+1. Press `prefix+shift+k`.
+2. `/` to search (literal substring), `?` to toggle the description.
+3. `Enter` to type the selection into your pane, `q`/`Esc` to close.
+
+### Setup notes
+
+Installed with `herdr plugin install a-curious-coder/herdr-iris` once
+published. During local development it's linked instead
+(`herdr plugin link ~/Projects/personal/herdr-iris`) — check
+`herdr plugin list` to see which mode is active. To add a skill reader
+for another agent, see that repo's `list-skills.sh`.
+
 ## New keybindings added for this setup
 
 | Key | Plugin | Action |
@@ -409,5 +435,6 @@ high-risk work.
 | `prefix+a` | triage | open agent attention list |
 | `prefix+o` | gh-pr | open focused pane's pull request |
 | `prefix+shift+g` | gh-pr | force-refresh pull request status |
+| `prefix+shift+k` | iris | open skills cheatsheet |
 
 `prefix+i` still opens Flock Farm. It has not changed.
