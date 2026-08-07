@@ -14,6 +14,7 @@ cached_init() {
 }
 
 [[ -f "$HOME/.cargo/env" ]] && . "$HOME/.cargo/env"
+[[ -d "/opt/homebrew/bin" ]] && export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 [[ -d "$HOME/.local/share/mise/shims" ]] && export PATH="$HOME/.local/share/mise/shims:$PATH"
 [[ -d "/opt/homebrew/opt/postgresql@16.10/bin" ]] && export PATH="/opt/homebrew/opt/postgresql@16.10/bin:$PATH"
 
