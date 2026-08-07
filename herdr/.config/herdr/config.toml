@@ -230,8 +230,8 @@ description = "agent attention triage"
 # focused pane's detected agent when herdr reports one (else shows all).
 [[keys.command]]
 key = "prefix+shift+k"
-type = "pane"
-command = "herdr plugin pane open --plugin cmc.iris --entrypoint list --placement popup"
+type = "plugin_action"
+command = "cmc.iris.open"
 description = "skills cheatsheet (Iris)"
 
 # gh-pr: PR status badge lives in ui.sidebar.agents.rows below ($pr token).
