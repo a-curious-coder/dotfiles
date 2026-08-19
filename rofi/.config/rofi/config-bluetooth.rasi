@@ -1,0 +1,30 @@
+/* ---- 💫 https://github.com/JaKooLit 💫 ---- */
+/* Main Config - Bluetooth */
+
+@import "~/.config/rofi/config.rasi"
+
+/* ---- Mainbox ---- */
+mainbox {
+  children: [ "inputbar", "message", "listview"];
+}
+
+/* ---- Window ---- */
+window {
+  width: 30%;
+  height: inherit;
+}
+
+/* ---- Entry ---- */
+entry {
+  placeholder: " 󰂯 Bluetooth";
+  horizontal-align: 0.0;
+}
+
+/* ---- Listview ---- */
+listview {
+  columns: 1;
+  lines: 8;
+  fixed-height: false;
+  scrollbar: true;
+  cycle: true;
+}
