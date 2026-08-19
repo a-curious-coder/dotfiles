@@ -9,6 +9,18 @@
   "model": "sonnet",
   "enableAllProjectMcpServers": false,
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/vault-private-guard.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "matcher": "*",
