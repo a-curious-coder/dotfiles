@@ -131,6 +131,19 @@ Requires Neovim >= 0.11, Node.js, ripgrep, fd, and a Nerd Font.
 zsh initialises `direnv` after `zoxide`, so project `.envrc` files load on `cd`.
 Run `direnv allow` once per project after creating or changing an `.envrc`.
 
+For `nourish-organisations`, direnv is required so Rails uses the Docker
+Postgres host and repo-pinned `pg_dump`. A loaded shell should show:
+
+```bash
+which pg_dump
+echo "$EXPECTED_PG_DUMP_VERSION"
+```
+
+```text
+/opt/homebrew/opt/postgresql@16.10/bin/pg_dump
+16.10
+```
+
 ## License
 
 [MIT](LICENSE)
