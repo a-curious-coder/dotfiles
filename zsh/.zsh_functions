@@ -296,6 +296,31 @@ arduino-ide() {
     command arduino-ide --ozone-platform=x11 "$@"
 }
 
+# Restart the llama.cpp model router cleanly, via launchd (com.callum.llama-router)
+# rather than a manual nohup background job: nohup only survives SIGHUP, but
+# closing a terminal window often kills the whole process group directly, which
+# nohup does not protect against. launchd runs it independent of any terminal
+# and restarts it on crash (KeepAlive). A stale/crashed model stays marked
+# "failed" until the router restarts, so this always force-restarts it.
+# Idempotent: bootstraps the agent if it's not loaded yet, kickstarts it if it
+# already is, so it's safe to run repeatedly regardless of prior state. Then
+# tails the log in this terminal; Ctrl-C only stops watching, launchd keeps
+# the router running.
+llamad() {
+    local target="gui/$(id -u)/com.callum.llama-router"
+    local plist="$HOME/Library/LaunchAgents/com.callum.llama-router.plist"
+    local log="$HOME/Library/Logs/llama-router.log"
+
+    if launchctl print "$target" >/dev/null 2>&1; then
+        launchctl kickstart -k "$target"
+    else
+        launchctl bootstrap "gui/$(id -u)" "$plist"
+    fi
+
+    echo "llama router restarted, tailing $log (Ctrl-C stops watching, not the router):"
+    tail -f "$log"
+}
+
 # GITHUB_TOKEN is exported globally for Codex MCP (~/.secrets/github.env) but
 # would otherwise shadow gh's stored account login everywhere. Strip it so gh
 # always uses the stored login (work by default; personal repos override via

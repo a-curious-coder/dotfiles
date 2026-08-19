@@ -80,6 +80,7 @@ alias reload='source ~/.zshrc'
 # Development
 alias serve='python3 -m http.server 8000'
 alias myip='curl -s ifconfig.me'
+alias localcode='opencode'
 
 # Hardware monitoring
 alias temps='sensors'
