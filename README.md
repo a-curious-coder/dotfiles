@@ -29,8 +29,11 @@ Stow packages by hand instead:
 # Everyday
 stow zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep
 
-# Hyprland desktop
-stow hypr kanshi waybar rofi swaync wlogout calibre-linux
+# Hyprland desktop (Linux only)
+stow hypr kanshi waybar rofi swaync wlogout
+
+# macOS only
+stow llama opencode
 ```
 
 Remove a package with `stow -D <package>`.
@@ -50,40 +53,53 @@ Style and decision guidance lives in [style-guide.md](style-guide.md).
 ## Structure
 
 Each directory below is a stow package — `stow <package>` symlinks it into
-`$HOME`.
+`$HOME`. Grouped by which OS(es) it applies to; `bootstrap.sh` gates
+installation the same way.
 
-```
-dotfiles/
-├── btop/               Resource monitor
-├── calibre-linux/      Calibre config (~/.config/calibre)
-├── claude/             Global Claude Code preferences (~/.claude)
-├── direnv/             direnv config
-├── fastfetch/          System info
-├── ghostty/            Terminal emulator
-├── herdr/              Herdr TUI config + user service
-├── hypr/               Hyprland compositor
-├── kanshi/             Wayland display profiles
-├── lazydocker/         Docker TUI
-├── lazygit/            Git TUI
-├── nvim/               Neovim
-├── ripgrep/            ripgrep config
-├── rofi/               Application launcher
-├── starship/           Shell prompt
-├── swaync/             Notification centre
-├── tmux/               Terminal multiplexer
-├── voxtype/            Voxtype dictation config
-├── waybar/             Status bar
-├── wlogout/            Logout menu
-├── yazi/               Terminal file manager
-└── zsh/                Shell config, aliases, functions
-```
+**Shared (any OS)**
+
+| Package | Contents |
+|---------|----------|
+| `btop/` | Resource monitor |
+| `claude/` | Global Claude Code preferences (`~/.claude`) |
+| `direnv/` | direnv config |
+| `fastfetch/` | System info |
+| `ghostty/` | Terminal emulator |
+| `herdr/` | Herdr TUI config + user service |
+| `lazydocker/` | Docker TUI |
+| `lazygit/` | Git TUI |
+| `nvim/` | Neovim |
+| `ripgrep/` | ripgrep config |
+| `starship/` | Shell prompt |
+| `tmux/` | Terminal multiplexer |
+| `yazi/` | Terminal file manager |
+| `zsh/` | Shell config, aliases, functions |
+
+**Linux / Hyprland only**
+
+| Package | Contents |
+|---------|----------|
+| `hypr/` | Hyprland compositor |
+| `kanshi/` | Wayland display profiles |
+| `rofi/` | Application launcher |
+| `swaync/` | Notification centre |
+| `voxtype/` | Voxtype dictation config |
+| `waybar/` | Status bar |
+| `wlogout/` | Logout menu |
+
+**macOS only**
+
+| Package | Contents |
+|---------|----------|
+| `llama/` | llama.cpp local model server config |
+| `opencode/` | opencode config (routed through the local llama.cpp server) |
 
 Not stow packages:
 
 | Path | Contents |
 |------|----------|
 | `bin/` | Standalone utilities (`cloak.py`) |
-| `docs/` | Repo docs (operations, Calibre, refinement checklist) |
+| `docs/` | Repo docs (operations, refinement checklist) |
 | `scripts/` | Repo maintenance (`doctor.sh`, `check-shell.sh`) |
 | `transcription-stack/` | Offline dictation daemon — see its own [README](transcription-stack/README.md) |
 
@@ -94,7 +110,6 @@ Not stow packages:
 | `bootstrap.sh` | Install + stow + tmux bootstrap in one command |
 | `install-modern-tools.sh` | Install CLI tools (glow, mise, dust, navi, posting, …) |
 | `setup-tmux.sh` | Stow tmux config, install/update TPM and plugins |
-| `calibre.sh` | Calibre entrypoint (`stow`, `apply`, `check`, `where`, `all`) |
 | `detect-platform.sh` | Platform detection used by the setup scripts |
 | `ubuntu_install.sh` | Wrapper that delegates to `install-modern-tools.sh` |
 | `scripts/doctor.sh` | Run the repo health checks |

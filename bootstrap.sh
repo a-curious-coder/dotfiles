@@ -58,7 +58,9 @@ main() {
   local -a platform_packages=()
 
   if [[ "$platform" == "linux" ]]; then
-    platform_packages=(hypr kanshi waybar rofi swaync wlogout calibre-linux)
+    platform_packages=(hypr kanshi waybar rofi swaync wlogout)
+  elif [[ "$platform" == "macos" ]]; then
+    platform_packages=(llama opencode)
   fi
 
   echo "Running modern tools installer..."

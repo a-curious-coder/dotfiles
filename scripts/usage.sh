@@ -18,7 +18,6 @@ history_file="${HISTFILE:-$HOME/.zsh_history}"
 # Packages whose command name differs from the directory name.
 command_for() {
   case "$1" in
-    calibre-linux) echo calibre ;;
     ripgrep) echo rg ;;
     hypr) echo Hyprland ;;
     transcription-stack) echo hyprwhspr ;;

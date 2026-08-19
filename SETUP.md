@@ -37,7 +37,13 @@ stow git zsh starship tmux nvim ghostty
 ### Linux desktop (Hyprland stack)
 
 ```bash
-stow hypr kanshi waybar rofi swaync wlogout calibre-linux
+stow hypr kanshi waybar rofi swaync wlogout
+```
+
+### macOS only
+
+```bash
+stow llama opencode
 ```
 
 ### Common optional tools
@@ -45,22 +51,6 @@ stow hypr kanshi waybar rofi swaync wlogout calibre-linux
 ```bash
 stow btop lazygit lazydocker fastfetch ripgrep
 ```
-
-## Calibre Setup
-
-Use the single helper script to keep platform differences and runtime rewrites manageable:
-
-```bash
-./calibre.sh
-
-# Optional explicit subcommands
-./calibre.sh stow
-./calibre.sh apply
-./calibre.sh check
-./calibre.sh where
-```
-
-Details: `docs/calibre.md`.
 
 ## Install Modern CLI Tools
 
