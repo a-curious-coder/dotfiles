@@ -214,9 +214,6 @@ refresh_tmux_status_for_cwd
 # Internet Speed Monitor
 export PATH="$PATH:/home/groot/scripts"
 
-alias ls='eza --icons=auto'
-alias ll='eza -la --icons=auto --git'
-alias lt='eza --tree --icons=auto'
 alias cat='bat --paging=never'
 
 # Show boot time once per login (not inside tmux panes)
