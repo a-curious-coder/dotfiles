@@ -261,4 +261,7 @@ if [[ -n "${ZSH_STARTUP_T0:-}" ]]; then
     (( _zsh_startup_ms > 500 )) && printf 'zsh slow: %.0fms\n' $_zsh_startup_ms
     unset _zsh_startup_ms ZSH_STARTUP_T0
 fi
-export PATH="$HOME/dotfiles/bin:$PATH"
+# hecaton and bun (incl. sd/seeds-cli, preliminary software) install here.
+for dir in "$HOME/hecaton/bin" "$HOME/.bun/bin"; do
+    [[ -d "$dir" ]] && path=("$dir" $path)
+done
