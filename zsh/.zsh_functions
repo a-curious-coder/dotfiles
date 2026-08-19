@@ -118,7 +118,7 @@ update-all() {
 show-tools() {
     echo "CLI Tools Status:"
     echo "================"
-    local tools=(nvim tmux zsh git lazygit btop eza zoxide fzf rg fd bat delta)
+    local tools=(nvim tmux zsh git lazygit btop zoxide fzf rg fd bat delta)
     for tool in "${tools[@]}"; do
         if command -v "$tool" &> /dev/null; then
             printf "%-12s %s\n" "$tool" "$(command -v $tool)"

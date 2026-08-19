@@ -205,9 +205,6 @@ main() {
         log_skip "bat (already installed)"
     fi
 
-    # eza (ls replacement)
-    pkg_install "eza" "eza"
-
     echo ""
     log_info "=== Git Tools ==="
 
