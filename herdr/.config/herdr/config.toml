@@ -266,6 +266,14 @@ type = "plugin_action"
 command = "compose.ps"
 description = "docker compose status"
 
+# cmc.plugins: manage installed plugins and browse the public registry
+# (herdr.dev) in one popup — press tab inside it to switch views.
+[[keys.command]]
+key = "prefix+m"
+type = "plugin_action"
+command = "cmc.plugins.open"
+description = "manage plugins"
+
 # Legacy indexed shortcut config is still parsed for compatibility.
 # Prefer switch_tab, switch_workspace, and focus_agent for new configs.
 # [keys.indexed]
