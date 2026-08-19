@@ -1,5 +1,10 @@
 # Global Claude Code preferences
 
+## Session boundaries (agent workload health)
+Cap concurrent agents/subagents/forks at 5 at any one time — do not spawn a 6th until one finishes. If asked to run more, say so and ask which to drop instead of silently scaling up.
+After 11:00 PM local time, before starting any new agent-driven work (not a quick question), ask Callum to confirm he wants to keep going rather than assuming yes.
+Reason: unbounded agent fan-out at night is the specific pattern ("AI vampire") that trades sleep for throughput. The cap and the time check exist to interrupt that escalation before it starts, not to slow down daytime work.
+
 ## Git commits and pushes require explicit permission
 Never run `git commit` or `git push` (including creating/pushing new branches) unless the user has explicitly told you to do so in that instance. Staging changes and preparing a diff is fine; committing or pushing is not, even for small, unrelated, or "obviously safe" fixes. Always stop and ask before committing or pushing.
 
@@ -52,6 +57,16 @@ Write **one entry per distinct action** — one install, one file edit, one serv
 
 Skip for read-only sessions (research, questions, explanations with no changes made).
 
+## Engineering taste (Obsidian vault)
+
+Callum's engineering-judgment calls — not session mechanics, those live above
+in this file — are collected in the vault, starting from the hub note
+"Engineering taste comes from corrected mistakes, not abstract rules.md"
+(vault root). It links out to one evergreen note per principle, each with the
+incident that produced it. Consult it for code-shape, comment, review, and
+PR-communication judgment calls; add a new child note there (not here) when a
+new correction or confirmation happens on a project.
+
 ## Recipe notes (Obsidian vault, not the local memory dir)
 
 A recipe records a named process or workflow (e.g. "run process X", "the Y release
@@ -101,3 +116,18 @@ Rotate staging DB credentials without downtime.
 4. Redeploy the app. Confirm it connects.
 5. Delete the old credential.
 ```
+
+## Issue tracking: use `sd` (seeds)
+
+`sd` (`@os-eco/seeds-cli`, git-native issue tracker) is the issue tracker for every
+project. Use it instead of markdown TODO files or ad-hoc issue lists.
+
+- Run `sd prime` at the start of a session (and after compaction) to load the full
+  command reference — do not guess flags from memory.
+- `sd ready` to find work, `sd create --title="..." --type=task --priority=2` to file,
+  `sd update <id> --status=in_progress` to claim, `sd close <id>` when done.
+- If a repo has no `.seeds/`, run `sd init` before filing anything.
+- `sd sync` stages and commits `.seeds/` — it is a `git commit`, so the
+  "commits require explicit permission" rule above applies. Ask first.
+- Session task checklists (the harness task tool) are still fine for
+  within-turn progress. Anything outliving the session goes in `sd`.
