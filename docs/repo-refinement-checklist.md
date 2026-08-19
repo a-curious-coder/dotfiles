@@ -4,7 +4,7 @@
 
 ## Progress Snapshot
 
-- Date: 2026-02-12
+- Date: 2026-08-19
 - Status: active
 - Recent completed milestones:
   - [x] Baseline snapshot commit (excluding `git/`)
@@ -13,9 +13,10 @@
   - [x] Ignore `git/` and stop tracking `git/.gitconfig`
   - [x] Shell/install cleanup pass (`zsh/.zshrc`, `install-modern-tools.sh`)
   - [x] Added `bootstrap.sh` orchestrator (tools + stow + tmux bootstrap)
-- [x] Added lightweight CI checks (`shellcheck` + Neovim text-specs)
-- [x] Added a single repo doctor command and wired CI through it
-- [x] Removed unused CTF/security shell surface and guide docs
+  - [x] Added lightweight CI checks (`shellcheck` + Neovim text-specs)
+  - [x] Added a single repo doctor command and wired CI through it
+  - [x] Removed unused CTF/security shell surface and guide docs
+  - [x] Removed calibre (confirmed cold on every machine via `scripts/usage.sh`), grouped README/SETUP/operations.md package lists into Shared/Linux-Hyprland-only/macOS-only tables, wired `llama`/`opencode` into `bootstrap.sh`'s platform gating
 - In-flight (not committed):
   - [ ] Telescope recent-files fix in `nvim/.config/nvim/lua/plugins/telescope.lua`
 
@@ -49,7 +50,7 @@
 
 ## Nice-to-Have (Later)
 
-- [x] Add `docs/operations.md` with 5-10 common commands (stow, unstow, tmux bootstrap, calibre checks)
+- [x] Add `docs/operations.md` with 5-10 common commands (stow, unstow, tmux bootstrap)
 - [ ] Add a small script for dead-link checks in markdown docs
 
 ## Definition of Done (for each checklist item)
