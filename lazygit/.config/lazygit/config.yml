@@ -9,9 +9,9 @@ gui:
     selectedRangeBgColor: [default, bold]
     unstagedChangesColor: [yellow]
 git:
-  pagers:
+  diffRenderers:
     - colorArg: always
-      pager: delta --dark --paging=never # syntax-highlighted diffs
+      command: delta --dark --paging=never # syntax-highlighted diffs
 os:
   editCommand: nvim
 customCommands:
