@@ -9,3 +9,5 @@
 !skills.md
 !agents/
 !commands/
+!hooks/
+!hooks/*.sh

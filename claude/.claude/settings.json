@@ -3,13 +3,24 @@
     "MAX_THINKING_TOKENS": "32000"
   },
   "permissions": {
-    "allow": [
-      "mcp__pencil"
-    ]
+    "allow": [],
+    "defaultMode": "auto"
   },
   "model": "sonnet",
   "enableAllProjectMcpServers": false,
   "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read|Grep|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/vault-private-guard.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "SessionStart": [
       {
         "matcher": "*",
@@ -33,7 +44,9 @@
     "ponytail@ponytail": true,
     "ruby-lsp@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "diagram-design@diagram-design": true
+    "diagram-design@diagram-design": true,
+    "mattpocock-skills@claude-plugins-official": true,
+    "rust-analyzer-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "i-have-adhd": {
@@ -46,13 +59,21 @@
       "source": {
         "source": "github",
         "repo": "DietrichGebert/ponytail"
-      }
+      },
+      "autoUpdate": true
     },
     "diagram-design": {
       "source": {
         "source": "github",
         "repo": "cathrynlavery/diagram-design"
       }
+    },
+    "mattpocock": {
+      "source": {
+        "source": "github",
+        "repo": "mattpocock/skills"
+      },
+      "autoUpdate": true
     }
   },
   "outputStyle": "Concise",
