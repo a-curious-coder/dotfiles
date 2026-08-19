@@ -18,6 +18,9 @@ cached_init() {
 [[ -d "$HOME/.local/share/mise/shims" ]] && export PATH="$HOME/.local/share/mise/shims:$PATH"
 [[ -d "/opt/homebrew/opt/postgresql@16.10/bin" ]] && export PATH="/opt/homebrew/opt/postgresql@16.10/bin:$PATH"
 
+# Enable OpenCode's no-key Exa web-search tool for local models.
+export OPENCODE_ENABLE_EXA=1
+
 # Load machine-local secrets/env overrides (not tracked in git).
 # Sourced here (not just .zshrc) so vars are available in ALL zsh contexts:
 # interactive, non-interactive, login, non-login — including tmux run-shell
