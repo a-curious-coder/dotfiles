@@ -32,6 +32,18 @@
           }
         ]
       }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$HOME/.claude/hooks/log-skill-usage.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   },
   "statusLine": {
