@@ -11,3 +11,6 @@
 !commands/
 !hooks/
 !hooks/*.sh
+!skills/
+!skills/youtube-insights/
+!skills/youtube-insights/SKILL.md
