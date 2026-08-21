@@ -3,10 +3,7 @@ local theme_file = vim.fn.stdpath("config") .. "/theme"
 vim.api.nvim_create_autocmd("VimEnter", {
   once = true,
   callback = function()
-    local f = io.open(theme_file, "r")
-    local theme = f and f:read("*l") or "flexoki-dark"
-    if f then f:close() end
-    pcall(vim.cmd.colorscheme, theme)
+    pcall(vim.cmd.colorscheme, require("theme").get())
   end,
 })
 vim.api.nvim_create_autocmd("ColorScheme", {
