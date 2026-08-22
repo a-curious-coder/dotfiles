@@ -116,3 +116,7 @@ vim.keymap.set("n", "<leader>ud", function()
     vim.notify("Diagnostics disabled", vim.log.levels.WARN)
   end
 end, { desc = "Toggle diagnostics" })
+
+vim.keymap.set("n", "<leader>ut", function()
+  require("telescope.builtin").colorscheme()
+end, { desc = "Switch theme" })
