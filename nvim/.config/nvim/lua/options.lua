@@ -28,6 +28,9 @@ vim.opt.number = true
 vim.opt.relativenumber = false
 vim.opt.signcolumn = "yes"
 
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()"
 vim.opt.foldlevel = 99
@@ -67,11 +70,13 @@ vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.incsearch = true
 
-vim.lsp.handlers["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
-  border = "rounded",
-  max_width = math.floor(vim.o.columns * 0.7),
-  max_height = math.floor(vim.o.lines * 0.8),
-})
+vim.lsp.handlers["textDocument/hover"] = function(err, result, ctx, config)
+  return vim.lsp.handlers.hover(err, result, ctx, vim.tbl_deep_extend("force", config or {}, {
+    border = "rounded",
+    max_width = math.floor(vim.o.columns * 0.7),
+    max_height = math.floor(vim.o.lines * 0.8),
+  }))
+end
 
 vim.diagnostic.config({
   virtual_text = { spacing = 2, prefix = "●" },

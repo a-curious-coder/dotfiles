@@ -7,6 +7,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
   end,
 })
 vim.api.nvim_create_autocmd("ColorScheme", {
+  group = vim.api.nvim_create_augroup("theme-persistence", { clear = true }),
   callback = function()
     if vim.g.colors_name then
       local f = io.open(theme_file, "w")
