@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+# Switch nvim + ghostty + tmux together. Usage: office-theme <light|dark|flexoki>
+#
+# herdr isn't wired in here yet — its [theme] block in
+# ~/.config/herdr/config.toml has no native dunder-mifflin/flexoki theme,
+# only custom hex overrides on top of a builtin base, so a safe per-mode
+# mapping needs to be designed first rather than guessed.
+set -euo pipefail
+
+mode="${1:-}"
+case "$mode" in
+  light|dark|flexoki) ;;
+  *)
+    echo "usage: office-theme <light|dark|flexoki>" >&2
+    exit 1
+    ;;
+esac
+
+ghostty_themes="$HOME/.config/ghostty/themes"
+tmux_themes="$HOME/.tmux/themes"
+nvim_theme_file="$HOME/.config/nvim/theme"
+
+case "$mode" in
+  light)
+    ghostty_file="theme-dunder-mifflin.conf"
+    tmux_file="dunder-mifflin.conf"
+    nvim_scheme="flexoki-light"
+    ;;
+  dark)
+    ghostty_file="theme-dunder-mifflin-dark.conf"
+    tmux_file="dunder-mifflin-dark.conf"
+    nvim_scheme="flexoki-dark"
+    ;;
+  flexoki)
+    ghostty_file="theme-flexoki.conf"
+    tmux_file=""
+    nvim_scheme="flexoki-dark"
+    ;;
+esac
+
+echo "# Active theme pointer — set by \`office-theme\` (light|dark|flexoki)." > "$ghostty_themes/theme-current.conf"
+echo "config-file = $ghostty_file" >> "$ghostty_themes/theme-current.conf"
+
+{
+  echo "# Active theme pointer — set by \`office-theme\` (light|dark|flexoki)."
+  if [ -n "$tmux_file" ]; then
+    echo "source-file \"\$HOME/.tmux/themes/$tmux_file\""
+  else
+    echo "# flexoki mode: no override, falls back to the inline Flexoki styling in .tmux.conf"
+  fi
+} > "$tmux_themes/theme-current.conf"
+
+echo -n "$nvim_scheme" > "$nvim_theme_file"
+
+if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
+  tmux source-file "$HOME/.tmux.conf" >/dev/null 2>&1 || true
+fi
+
+echo "office-theme: $mode (ghostty/tmux apply to new windows; nvim applies on next launch)"
