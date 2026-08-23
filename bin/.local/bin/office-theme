@@ -1,10 +1,5 @@
 #!/usr/bin/env bash
-# Switch nvim + ghostty + tmux together. Usage: office-theme <light|dark|flexoki>
-#
-# herdr isn't wired in here yet — its [theme] block in
-# ~/.config/herdr/config.toml has no native dunder-mifflin/flexoki theme,
-# only custom hex overrides on top of a builtin base, so a safe per-mode
-# mapping needs to be designed first rather than guessed.
+# Switch nvim + ghostty + tmux + herdr together. Usage: office-theme <light|dark|flexoki>
 set -euo pipefail
 
 mode="${1:-}"
@@ -25,16 +20,31 @@ case "$mode" in
     ghostty_file="theme-dunder-mifflin.conf"
     tmux_file="dunder-mifflin.conf"
     nvim_scheme="flexoki-light"
+    herdr_name="catppuccin-latte"
+    herdr_bg="#DDD3BE"     # dm_bg_2, tmux/.tmux/themes/dunder-mifflin.conf
+    herdr_accent="#17459D" # dm_blue, same file
+    herdr_yellow="#86680C" # dm_yellow, same file
+    herdr_extra=""
     ;;
   dark)
     ghostty_file="theme-dunder-mifflin-dark.conf"
     tmux_file="dunder-mifflin-dark.conf"
     nvim_scheme="flexoki-dark"
+    herdr_name="catppuccin"
+    herdr_bg="#16233A"     # dm_bg_2, tmux/.tmux/themes/dunder-mifflin-dark.conf
+    herdr_accent="#4B8BBE" # dm_blue, same file
+    herdr_yellow="#F6EB61" # dm_yellow, same file
+    herdr_extra=""
     ;;
   flexoki)
     ghostty_file="theme-flexoki.conf"
     tmux_file=""
     nvim_scheme="flexoki-dark"
+    herdr_name="catppuccin"
+    herdr_bg="#100F0F"     # flexoki_bg, tmux.conf inline Flexoki vars
+    herdr_accent="#4385BE" # flexoki_blue, same
+    herdr_yellow="#D0A215" # flexoki_yellow, same
+    herdr_extra=$'green = "#879A39"\nred = "#AF3029"'
     ;;
 esac
 
@@ -52,8 +62,44 @@ echo "config-file = $ghostty_file" >> "$ghostty_themes/theme-current.conf"
 
 echo -n "$nvim_scheme" > "$nvim_theme_file"
 
+herdr_config="$HOME/.config/herdr/config.toml"
+if [ -f "$herdr_config" ]; then
+  herdr_tmp="$(mktemp)"
+  in_custom=0
+  while IFS= read -r line || [ -n "$line" ]; do
+    if [ "$in_custom" = 1 ]; then
+      case "$line" in
+        \[*|"") in_custom=0 ;;
+        *) continue ;;
+      esac
+    fi
+    case "$line" in
+      'name = "catppuccin"'|'name = "catppuccin-latte"')
+        echo "name = \"$herdr_name\""
+        continue
+        ;;
+      '[theme.custom]')
+        echo "$line"
+        echo "panel_bg = \"$herdr_bg\""
+        echo "accent = \"$herdr_accent\""
+        echo "blue = \"$herdr_accent\""
+        [ -n "$herdr_extra" ] && echo "$herdr_extra"
+        echo "yellow = \"$herdr_yellow\""
+        in_custom=1
+        continue
+        ;;
+    esac
+    echo "$line"
+  done < "$herdr_config" > "$herdr_tmp"
+  mv "$herdr_tmp" "$herdr_config"
+fi
+
 if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
   tmux source-file "$HOME/.tmux.conf" >/dev/null 2>&1 || true
 fi
 
-echo "office-theme: $mode (ghostty/tmux apply to new windows; nvim applies on next launch)"
+if command -v herdr >/dev/null 2>&1 && herdr status server >/dev/null 2>&1; then
+  herdr server reload-config >/dev/null 2>&1 || true
+fi
+
+echo "office-theme: $mode (ghostty/tmux/herdr apply live where a server is running; nvim applies on next launch)"

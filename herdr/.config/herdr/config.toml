@@ -20,16 +20,15 @@ onboarding = false
 
 # Override individual color tokens on top of the base theme.
 # Accepts: hex (#rrggbb), named colors, rgb(r,g,b), or panel_bg = "reset"
-# Flexoki dark, matching ../tmux/.tmux.conf and ghostty.
+# name/panel_bg/accent/blue/yellow/green/red below are rewritten by
+# `office-theme` (../bin/.local/bin/office-theme) to match nvim/ghostty/tmux.
 name = "catppuccin"
 auto_switch = false
 [theme.custom]
-panel_bg = "#100F0F"
-accent = "#4385BE"
-blue = "#4385BE"
-green = "#879A39"
-yellow = "#D0A215"
-red = "#AF3029"
+panel_bg = "#16233A"
+accent = "#4B8BBE"
+blue = "#4B8BBE"
+yellow = "#F6EB61"
 
 [terminal]
 # Executable used for new interactive panes.
