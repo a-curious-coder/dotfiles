@@ -25,10 +25,12 @@ onboarding = false
 name = "catppuccin"
 auto_switch = false
 [theme.custom]
-panel_bg = "#16233A"
-accent = "#4B8BBE"
-blue = "#4B8BBE"
-yellow = "#F6EB61"
+panel_bg = "#100F0F"
+accent = "#4385BE"
+blue = "#4385BE"
+green = "#879A39"
+red = "#AF3029"
+yellow = "#D0A215"
 
 [terminal]
 # Executable used for new interactive panes.

@@ -91,7 +91,8 @@ if [ -f "$herdr_config" ]; then
     esac
     echo "$line"
   done < "$herdr_config" > "$herdr_tmp"
-  mv "$herdr_tmp" "$herdr_config"
+  cat "$herdr_tmp" > "$herdr_config"
+  rm -f "$herdr_tmp"
 fi
 
 if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
