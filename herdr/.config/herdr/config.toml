@@ -20,16 +20,15 @@ onboarding = false
 
 # Override individual color tokens on top of the base theme.
 # Accepts: hex (#rrggbb), named colors, rgb(r,g,b), or panel_bg = "reset"
-# Flexoki dark, matching ../tmux/.tmux.conf and ghostty.
-name = "catppuccin"
+name = "gruvbox"
 auto_switch = false
-[theme.custom]
-panel_bg = "#100F0F"
-accent = "#4385BE"
-blue = "#4385BE"
-green = "#879A39"
-yellow = "#D0A215"
-red = "#AF3029"
+# [theme.custom]
+# panel_bg = "#100F0F"
+# accent = "#4385BE"
+# blue = "#4385BE"
+# green = "#879A39"
+# yellow = "#D0A215"
+# red = "#AF3029"
 
 [terminal]
 # Executable used for new interactive panes.
@@ -307,7 +306,7 @@ description = "manage plugins"
 # Capture mouse input for Herdr's mouse UI.
 # Set false to let the terminal handle normal clicks, such as Cmd-clicking URLs.
 # Pane apps like lazygit and btop can still receive mouse when they request it.
-mouse_capture = false
+mouse_capture = true
 
 # Automatically copy text selected by mouse drag.
 # Set false to keep drag selection visible without copying; double-click still copies a word.
