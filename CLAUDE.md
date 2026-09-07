@@ -4,17 +4,7 @@ Global agent rules live in `~/.claude/CLAUDE.md`. This file adds repo-specific r
 
 ## Branching
 
-`main` is protected by convention: **do not commit or push new work directly to it.**
-
-1. Branch first: `git switch -c <type>/<short-description>` (`feat/`, `fix/`, `chore/`, `docs/`).
-2. Commit on the branch, push with `git push -u origin <branch>`.
-3. Open a PR (`gh pr create`) and wait for review.
-4. Merge with `gh pr merge --squash --delete-branch` — squash only, one commit per PR on `main`.
-
-Exceptions, no branch needed:
-
-- Commits already on local `main` as of 2026-07-30 (the pre-rule backlog) — push those directly.
-- Nothing else. If a change feels too small for a PR, it still gets a branch.
+Personal repo, single user — commit and push directly to `main`. No branch, no PR required.
 
 Never `git push --force` to `main`.
 
