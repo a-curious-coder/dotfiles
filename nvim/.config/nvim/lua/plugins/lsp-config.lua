@@ -11,9 +11,13 @@ return {
     dependencies = { "williamboman/mason.nvim" },
     config = function()
       local servers = require("lsp.servers")
-      -- ruby_lsp is driven by the rbenv shim, not Mason (per-project Ruby version)
+      -- ruby_lsp is installed via mise (per Ruby version), not Mason
       local ensure = vim.tbl_filter(function(n) return n ~= "ruby_lsp" end, vim.tbl_keys(servers.server_configs))
-      require("mason-lspconfig").setup({ ensure_installed = ensure })
+      -- automatic_enable=false: our own vim.lsp.enable loop below (with capabilities
+      -- + custom settings) is the single source of truth. Left on, mason-lspconfig
+      -- races it on every fresh install, re-enabling servers with its bare config and
+      -- silently dropping capabilities/settings until restart.
+      require("mason-lspconfig").setup({ ensure_installed = ensure, automatic_enable = false })
     end,
   },
 

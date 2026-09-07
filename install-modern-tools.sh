@@ -257,6 +257,22 @@ main() {
         pkg_install "mise" "mise"
     else
         script_install "mise" "mise" "https://mise.run"
+        export PATH="$HOME/.local/bin:$PATH"
+    fi
+
+    # Global Node runtime via mise - Mason's npm-based LSP installers (pyright,
+    # vtsls, html/json/tailwindcss language servers) need npm on PATH and were
+    # silently failing with no runtime provisioned at all.
+    if has mise; then
+        if ! has node; then
+            log_info "Installing Node LTS via mise..."
+            mise use -g node@lts
+            log_ok "Node LTS installed via mise"
+        else
+            log_skip "node (already installed)"
+        fi
+    else
+        log_err "mise not on PATH; skipping Node install"
     fi
 
     echo ""
