@@ -311,24 +311,25 @@ command = "clauth.open"
 description = "Claude account switcher / usage (clauth)"
 
 # gitview: replaces ez-corp.git-status — interactive stage/diff/commit panel
-# instead of a sidebar token. resize_mode never got bound (still commented
-# above), so prefix+r was free.
+# instead of a sidebar token. prefix+r/prefix+shift+r/prefix+w are already
+# reload_config/resize_mode/workspace_picker (see [keys] above) — kept those,
+# picked unused keys instead.
 [[keys.command]]
-key = "prefix+r"
+key = "prefix+shift+v"
 type = "plugin_action"
 command = "chmarax.gitview.toggle"
 description = "git status/diff panel (gitview)"
 
 # reviewr: review agent-authored diffs and send comments back to the agent.
 [[keys.command]]
-key = "prefix+shift+r"
+key = "alt+r"
 type = "plugin_action"
 command = "persiyanov.reviewr.toggle"
 description = "diff review panel (reviewr)"
 
 # terminal-browser: real browser split alongside the agent pane.
 [[keys.command]]
-key = "prefix+w"
+key = "prefix+shift+b"
 type = "plugin_action"
 command = "zenbu-labs.terminal-browser.open-split"
 description = "open browser split"
@@ -503,6 +504,7 @@ resume_agents_on_restore = true
 # manage_ssh_config = true
 
 [experimental]
+kitty_graphics = true
 # Allow launching herdr from inside a herdr-managed pane.
 # allow_nested = false
 # Experimental local Kitty graphics rendering for attached clients.
