@@ -97,9 +97,10 @@ M.server_configs = {
   lua_ls = {},
   pyright = {},
   ruby_lsp = {
-    -- rbenv shim resolves each project's .ruby-version, so one config serves every
-    -- Ruby version. Mason can't (shared install, ABI-bound C extensions). See Ruby LSP docs.
-    cmd = { vim.fn.expand("~/.rbenv/shims/ruby-lsp") },
+    -- No custom cmd: default lspconfig cmd spawns bare "ruby-lsp" via PATH, which
+    -- mise's shell hook (bootstrap.sh installs ruby-lsp per Ruby version via mise)
+    -- already resolves correctly per-project. Mason can't manage this gem (shared
+    -- install, ABI-bound C extensions), hence the exclusion from ensure_installed below.
     settings = {
       rubocop = {
         enable = true,

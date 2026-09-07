@@ -104,7 +104,7 @@ split_horizontal = ["prefix+minus", "f6", "prefix+quote"] # f6 matches your F6; 
 close_pane = ["prefix+x", "f12"]          # f12 matches tmux -n F12 kill-pane
 zoom = ["prefix+z", "f11"]                # f11 matches tmux -n F11 resize-pane -Z
 # resize_mode = "prefix+r"
-# toggle_sidebar = "prefix+b"
+toggle_sidebar = "prefix+b"
 
 # Navigate-mode movement. These local shortcuts win while navigate mode is open.
 # They are independent from focus_pane_*. Do not include prefix+, esc, enter, tab, or 1..9 here.
@@ -273,6 +273,43 @@ type = "plugin_action"
 command = "cmc.plugins.open"
 description = "manage plugins"
 
+# sesh: zoxide-backed workspace picker. open-picker fuzzy-picks a frecent dir
+# and spins up a workspace from it; last reopens whichever one you left.
+[[keys.command]]
+key = "prefix+s"
+type = "plugin_action"
+command = "fullerzz.sesh.open-picker"
+description = "zoxide workspace picker (sesh)"
+
+[[keys.command]]
+key = "prefix+shift+s"
+type = "plugin_action"
+command = "fullerzz.sesh.last"
+description = "reopen last sesh workspace"
+
+# worktrunk: git worktree picker/remover. Only binding the two most-used
+# actions; open-current/open-with-remotes are reachable via the command
+# palette (prefix+shift+p) if needed.
+[[keys.command]]
+key = "prefix+t"
+type = "plugin_action"
+command = "worktrunk.open"
+description = "worktree picker (worktrunk)"
+
+[[keys.command]]
+key = "alt+t"
+type = "plugin_action"
+command = "worktrunk.remove"
+description = "remove a worktree (worktrunk)"
+
+# clauth: Claude Code account switcher + usage dashboard popup. Profile
+# reporting itself is automatic (bound to pane.agent_detected/status events).
+[[keys.command]]
+key = "alt+c"
+type = "plugin_action"
+command = "clauth.open"
+description = "Claude account switcher / usage (clauth)"
+
 # Legacy indexed shortcut config is still parsed for compatibility.
 # Prefer switch_tab, switch_workspace, and focus_agent for new configs.
 # [keys.indexed]
@@ -297,7 +334,7 @@ description = "manage plugins"
 # sidebar_start_collapsed = false
 
 # Collapsed sidebar presentation: "compact" keeps the narrow status rail, "hidden" uses zero width.
-# sidebar_collapsed_mode = "compact"
+sidebar_collapsed_mode = "hidden"
 
 # Terminal width at or below which Herdr uses the mobile single-column layout.
 # Increase this for foldables, tablets, or wide phone terminals.
