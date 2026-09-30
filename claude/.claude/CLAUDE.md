@@ -131,3 +131,7 @@ project. Use it instead of markdown TODO files or ad-hoc issue lists.
   "commits require explicit permission" rule above applies. Ask first.
 - Session task checklists (the harness task tool) are still fine for
   within-turn progress. Anything outliving the session goes in `sd`.
+- Exception: do not file or suggest an `sd` issue for a straightforward task
+  (e.g. "drag two notes", "check one tag", "fix one link"). Name it in one line
+  in the reply instead. `sd` is for work that needs a plan or spans sessions.
+  Reason: filing trivial follow-ups adds tracking overhead with no benefit.
