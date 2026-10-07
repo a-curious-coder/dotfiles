@@ -287,20 +287,14 @@ type = "plugin_action"
 command = "fullerzz.sesh.last"
 description = "reopen last sesh workspace"
 
-# worktrunk: git worktree picker/remover. Only binding the two most-used
-# actions; open-current/open-with-remotes are reachable via the command
-# palette (prefix+shift+p) if needed.
+# memex: search past Claude Code/Codex/Pi/OpenCode/Copilot/Cursor transcripts,
+# resume sessions, track tokens. prefix+t freed by dropping worktrunk (repo
+# doesn't use worktrees).
 [[keys.command]]
 key = "prefix+t"
 type = "plugin_action"
-command = "worktrunk.open"
-description = "worktree picker (worktrunk)"
-
-[[keys.command]]
-key = "alt+t"
-type = "plugin_action"
-command = "worktrunk.remove"
-description = "remove a worktree (worktrunk)"
+command = "nicosuave.memex.toggle"
+description = "transcript search (memex)"
 
 # clauth: Claude Code account switcher + usage dashboard popup. Profile
 # reporting itself is automatic (bound to pane.agent_detected/status events).
