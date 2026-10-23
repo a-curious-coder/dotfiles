@@ -2,7 +2,7 @@ cached_init /opt/homebrew/bin/brew shellenv
 [[ -d "$HOME/.local/share/mise/shims" ]] && export PATH="$HOME/.local/share/mise/shims:$PATH"
 
 # Added by Toolbox App
-export PATH="$PATH:/Users/callummclennan/Library/Application Support/JetBrains/Toolbox/scripts"
+[[ -d "/Users/callummclennan/Library/Application Support/JetBrains/Toolbox/scripts" ]] && export PATH="$PATH:/Users/callummclennan/Library/Application Support/JetBrains/Toolbox/scripts"
 
 if [[ -z "${TMUX:-}" ]]; then
   # Avoid startup lock contention from implicit `pyenv rehash`.
@@ -10,7 +10,7 @@ if [[ -z "${TMUX:-}" ]]; then
 fi
 
 # Added by Obsidian
-export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
+[[ -d "/Applications/Obsidian.app/Contents/MacOS" ]] && export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"
 
 # direnv + pg16 PATH setup live in .zshrc (interactive shells source it right
 # after this file); .zshenv covers non-interactive shells' PATH.
