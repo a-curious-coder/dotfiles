@@ -25,17 +25,14 @@ If you make a fix or do work that's unrelated to the current feature branch (e.g
 
 ## Shell tools
 
-`fd` and `rg` are installed and are the preferred CLI tools on this machine.
+Use `rg` not `grep` and `fd` not `find`, everywhere, including mid-pipe. If the
+harness has Grep or Glob tools, prefer them. `fd` skips gitignored and hidden
+files; add `-H -I` for a full sweep.
 
-- Searching file *contents*: use the **Grep** tool. It is ripgrep already, and it
-  does not spend a Bash call. Shell out to `rg` only for flags Grep lacks.
-- Finding files *by name*: use the **Glob** tool. When a shell call is genuinely
-  needed, use `fd`, never `find`.
-- In any Bash command, pipeline, or script: `rg` not `grep`, `fd` not `find`.
-  This includes the middle of a pipe.
-- `fd` skips `.gitignore`d paths and hidden files by default. Add `-H` for hidden
-  and `-I` for ignored when a full sweep is the point — a bare `fd` is not a
-  drop-in `find .`.
+## Reply endings
+
+ADHD mode and ponytail both claim the last line. The last line is the next
+action. Put what was skipped and any risk on the line before it.
 
 **`cd` is zoxide.** `.zshrc` runs `zoxide init zsh --cmd cd`, and this applies
 inside agent shells too. `cd <name>` does frecency matching, so a path that does
@@ -57,6 +54,11 @@ Write **one entry per distinct action** — one install, one file edit, one serv
 
 Skip for read-only sessions (research, questions, explanations with no changes made).
 
+## Obsidian vault
+
+Vault root: `~/Desktop/the-vault`. Before writing or editing a note there, read
+`Vault style guide.md` at the vault root.
+
 ## Engineering taste (Obsidian vault)
 
 Callum's engineering-judgment calls — not session mechanics, those live above
@@ -72,7 +74,7 @@ new correction or confirmation happens on a project.
 A recipe records a named process or workflow (e.g. "run process X", "the Y release
 flow") that you had to leave the current task to go figure out, with no context
 otherwise available. Recipes do not go in the per-project memory dir — they go in the
-Obsidian vault, using the `access-obsidian-vault` skill to resolve its path, so Callum's
+Obsidian vault (path above), so Callum's
 existing vault tooling (Dataview, the `ai-drafted` filter, etc.) already works on them.
 
 **Trigger — save only when both are true:**

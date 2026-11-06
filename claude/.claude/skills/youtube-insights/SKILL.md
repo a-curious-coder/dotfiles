@@ -16,7 +16,7 @@ restating the whole transcript.
 
 The raw transcript can be tens of thousands of characters — don't let it land
 in the calling conversation's context. Do steps 1-3 inside a subagent (the
-`Agent` tool, `general-purpose` type, no isolation needed) and have it return
+`Agent` tool, `general-purpose` type, `model: "sonnet"`, no isolation needed) and have it return
 only the finished Markdown from Step 3. The caller passes the URL or pasted
 transcript into the subagent prompt; the subagent fetches, classifies, and
 formats, then reports back just the summary.
