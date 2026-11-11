@@ -40,3 +40,6 @@ git/
 
 # Cache files
 .cache/
+
+# Global git ignore excludes .hwf/ everywhere; this repo ships the global workflows
+!/herdr/.hwf/

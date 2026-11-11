@@ -30,5 +30,9 @@ install natori-hrj/herdr-triage              20e8f562656479b7ca70a6b95fa3f0bf664
 install alejodelosrios/herdr-claude-usage    67b13e892c851d8665303284d6259b4d939e48f9
 install paulbkim-dev/vim-herdr-navigation    53e318c772c4d3b7fbd904ac43bcf3e5b5d8b244
 install a-curious-coder/herdr-iris           04bdb5dc536ec6af83743e8e9e2ab958d77f063b
+install furkankly/zoetrope/herdr-plugin      b1f31dd26bd4e9e513885e39edb78d0850a5d1fe
+install razajamil/herdr-plugin-workspace-manager 8302970a088b8dff4aca9a3d9034907d66be80a7
+install aorumbayev/herdr-workflows           6b876283e6c926db039b60cf75ebfa13274e439a
+install chappse6/herdr-blueprint             062bf6543107ef981e4f2399d0dce5889bd442b6
 
 echo "Installed."

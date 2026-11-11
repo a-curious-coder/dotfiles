@@ -1,0 +1,8 @@
+profiles:
+  claude:
+    kind: "claude"
+  codex:
+    kind: "codex"
+  opencode:
+    kind: "opencode"
+default_profile: "claude"

@@ -1,0 +1,15 @@
+# Applies once to each fresh worktree workspace (one tab, one pane), never to
+# a repo's main checkout. No servers auto-start: several worktrees of one repo
+# would fight over the same ports.
+globalLayout: agent
+
+layouts:
+  - id: agent
+    tabs:
+      - title: work
+        panes:
+          - title: claude
+            agent: claude
+          - title: shell
+            split: vertical
+            size: "35%"
