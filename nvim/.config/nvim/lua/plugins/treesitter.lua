@@ -2,6 +2,7 @@ return {
 	{
 		-- TreeSitter plugin (main branch: parser manager only, no `configs` module)
 		"nvim-treesitter/nvim-treesitter",
+		branch = "main", -- old clones still track master, which this config breaks on
 		lazy = false,
 		build = ":TSUpdate",
 		config = function()
