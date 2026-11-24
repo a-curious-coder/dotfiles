@@ -11,28 +11,40 @@ install() {
   herdr plugin install "$1" --ref "$2" -y
 }
 
-install mo-arvan/herdr-claude-auto-retry     5c43811e3fd94f33e271c3550a378ce2d4bb43c2
-install mattyan1053/herdr-compose            008162eef69ca393ee329e57e5aed97ffbcfa554
-install jlimas/herdr-worktree-seed           b2fb6aaa865c17580cd72bc6b66c674d86ef809d
-install ezcorp-org/herdr-git-status          297744d68b8a6bced5b96eb56530487308ec6c7b
-install ragamo/herdr-flock                   ae24844b3c8b1cf7cf3dfc3d6e6bc701b6e048a3
-install wyattjoh/herdr-plugin-gh-pr          6fe22de9a90c569f2186595cfddc3707f55ba1bd
-install JacquesvanWyk/herdr-keys             ecdfa459730bf757b9d017a511a9c64356d2969f
-install AltanS/collie                        ded605c6d20e7d7732279cd9e90ebac095bb564b
-install JanTvrdik/herdr-command-palette      eab940018c2135ac23718efa11e23e9dddcd2a75
-install ntindle/herdr-resurrect              461e866cc772e156e39b94d085701972e24761af
-install Numbered-com/herdr-ports             bada711cac11c2243600019446c8a68216415569
-install StructuPath/herdr-guard              7327dc4f310987e05059a20cec7d8fc50bbf0cc5
-install iurysza/herdr-tab-smart-rename       a580a9ef248357ea9d85cf0f2131acb2e3fae240
-install tdi/herdr-worktree-setup             4527a11bd5444dbce34c3d4f459b49d704cc12a7
-install iurysza/termscope                    cbc6da8103c263343b7082e27e804cc91312f944
-install natori-hrj/herdr-triage              20e8f562656479b7ca70a6b95fa3f0bf6642de64
-install alejodelosrios/herdr-claude-usage    67b13e892c851d8665303284d6259b4d939e48f9
-install paulbkim-dev/vim-herdr-navigation    53e318c772c4d3b7fbd904ac43bcf3e5b5d8b244
-install a-curious-coder/herdr-iris           04bdb5dc536ec6af83743e8e9e2ab958d77f063b
-install furkankly/zoetrope/herdr-plugin      b1f31dd26bd4e9e513885e39edb78d0850a5d1fe
-install razajamil/herdr-plugin-workspace-manager 8302970a088b8dff4aca9a3d9034907d66be80a7
-install aorumbayev/herdr-workflows           6b876283e6c926db039b60cf75ebfa13274e439a
-install chappse6/herdr-blueprint             062bf6543107ef981e4f2399d0dce5889bd442b6
+# Regenerate the list below from the live install (keeps it from drifting):
+#   jq -r '.[] | select(.source.kind=="github") | "install \(.source.owner)/\(.source.repo)\(if .source.subdir then "/"+.source.subdir else "" end) \(.source.resolved_commit)"' ~/.config/herdr/plugins.json | sort -f
+
+install alexarthurs/herdr-sidebar/plugins/herdr-sidebar  d2fedf522079a0cca67e9aada8ab84e991ec1fcc
+install aorumbayev/herdr-workflows                       6b876283e6c926db039b60cf75ebfa13274e439a
+install chappse6/herdr-blueprint                         062bf6543107ef981e4f2399d0dce5889bd442b6
+install ChmaraX/herdr-nvim                               e2ec32e7bbbb1eefd64363414b5806f84eedd6bc
+install devswha/ovis                                     c3361acb771b28c29b5a6b02cf9a536d250b0510
+install fullerzz/herdr-plugin-sesh                       0433c043301d126163a9e29b266a06f4648a5239
+install furkankly/zoetrope/herdr-plugin                  b1f31dd26bd4e9e513885e39edb78d0850a5d1fe
+install iurysza/termscope                                cbc6da8103c263343b7082e27e804cc91312f944
+install JacquesvanWyk/herdr-keys                         ecdfa459730bf757b9d017a511a9c64356d2969f
+install JanTvrdik/herdr-command-palette                  eab940018c2135ac23718efa11e23e9dddcd2a75
+install kryptamine/herdr-auto-title                      d01fe9f8d453120d17f6ea37845def420bcced9e
+install mattyan1053/herdr-compose                        008162eef69ca393ee329e57e5aed97ffbcfa554
+install mo-arvan/herdr-claude-auto-retry                 5c43811e3fd94f33e271c3550a378ce2d4bb43c2
+install natori-hrj/herdr-triage                          20e8f562656479b7ca70a6b95fa3f0bf6642de64
+install nicosuave/memex                                  649355e4b442de9b63c24a3702f5c765233a84e4
+install ntindle/herdr-resurrect                          461e866cc772e156e39b94d085701972e24761af
+install Numbered-com/herdr-ports                         bada711cac11c2243600019446c8a68216415569
+install paulbkim-dev/vim-herdr-navigation                820d48f5d9c9a7dece6a4bebfa3982ec30bbfbb7
+install persiyanov/herdr-reviewr                         4c090225af706bf3aaa24b39fea890a72994f40f
+install plannotator/herdr-annotate                       e3ca7e88ada0c77baf5714c006a5abe36798349c
+install razajamil/herdr-plugin-workspace-manager         8302970a088b8dff4aca9a3d9034907d66be80a7
+install robbyrussell/herdr-ohmyzsh                       bbc072ada531e6306276900a866a4b44a9b92e74
+install StructuPath/herdr-guard                          7327dc4f310987e05059a20cec7d8fc50bbf0cc5
+install tdi/herdr-worktree-setup                         c13ef573452b211b6097ddd0ce197be88e9a4b53
+install uwuclxdy/clauth/herdr-plugin                     823b89a07f958ccb5055696eda73f07b6f59bb99
+install wyattjoh/herdr-plugin-gh-pr                      6fe22de9a90c569f2186595cfddc3707f55ba1bd
+install yankewei/herdr-focus-notify                      f931db5090ded54086e365dfb8db896c3a3e1a05
+install zenbu-labs/terminal-browser/herdr-plugin         56337421b85e1ec01f340373dde85c7e1862f2a4
+
+# Local plugins (own repos, linked not installed):
+#   herdr plugin link ~/Projects/personal/herdr-iris
+#   herdr plugin link ~/Projects/personal/herdr-plugin-manager
 
 echo "Installed."

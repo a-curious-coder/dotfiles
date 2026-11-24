@@ -52,8 +52,8 @@ main() {
   platform="$(detect_platform)"
 
   local -a common_packages=(
-    git zsh starship tmux nvim ghostty
-    btop lazygit lazydocker fastfetch ripgrep
+    git zsh starship nvim ghostty claude direnv herdr yazi
+    btop lazygit lazydocker fastfetch
   )
   local -a platform_packages=()
 
@@ -73,9 +73,6 @@ main() {
     echo "Stowing platform packages for $platform..."
     stow_packages "${platform_packages[@]}"
   fi
-
-  echo "Running tmux bootstrap..."
-  "$repo_root/setup-tmux.sh"
 
   echo "Setting up ruby-lsp via mise..."
   setup_ruby_lsp_for_mise

@@ -1,59 +1,34 @@
 #!/usr/bin/env bash
-# Switch nvim + ghostty + tmux together. Usage: office-theme <light|dark|flexoki>
+# office-theme  light | dark | flexoki
 #
-# herdr isn't wired in here yet — its [theme] block in
-# ~/.config/herdr/config.toml has no native dunder-mifflin/flexoki theme,
-# only custom hex overrides on top of a builtin base, so a safe per-mode
-# mapping needs to be designed first rather than guessed.
+# Switches ghostty and nvim together through the dotfiles' own switch points:
+#   ghostty: repoints themes/theme-current.conf (the active-theme pointer),
+#            then reloads it if it's the frontmost app (no CLI reload, so this
+#            best-effort sends its cmd+shift+, shortcut)
+#   nvim:    writes ~/.config/nvim/theme, read on next launch
+# herdr isn't wired in: its [theme] block has no dunder-mifflin/flexoki theme.
 set -euo pipefail
 
-mode="${1:-}"
-case "$mode" in
-  light|dark|flexoki) ;;
-  *)
-    echo "usage: office-theme <light|dark|flexoki>" >&2
-    exit 1
-    ;;
+case "${1:-}" in
+  light)   g="theme-dunder-mifflin.conf";      n="flexoki-light" ;;
+  dark)    g="theme-dunder-mifflin-dark.conf"; n="flexoki-dark" ;;
+  flexoki) g="theme-flexoki.conf";             n="flexoki-dark" ;;
+  *) echo "usage: office-theme light|dark|flexoki" >&2; exit 1 ;;
 esac
 
-ghostty_themes="$HOME/.config/ghostty/themes"
-tmux_themes="$HOME/.tmux/themes"
-nvim_theme_file="$HOME/.config/nvim/theme"
+# ">" writes through the stow symlink, preserving it
+{ printf '# Active theme pointer — set by `office-theme` (light|dark|flexoki).\n'
+  printf 'config-file = %s\n' "$g"
+} > "$HOME/.config/ghostty/themes/theme-current.conf"
 
-case "$mode" in
-  light)
-    ghostty_file="theme-dunder-mifflin.conf"
-    tmux_file="dunder-mifflin.conf"
-    nvim_scheme="flexoki-light"
-    ;;
-  dark)
-    ghostty_file="theme-dunder-mifflin-dark.conf"
-    tmux_file="dunder-mifflin-dark.conf"
-    nvim_scheme="flexoki-dark"
-    ;;
-  flexoki)
-    ghostty_file="theme-flexoki.conf"
-    tmux_file=""
-    nvim_scheme="flexoki-dark"
-    ;;
-esac
+printf '%s' "$n" > "$HOME/.config/nvim/theme"
 
-echo "# Active theme pointer — set by \`office-theme\` (light|dark|flexoki)." > "$ghostty_themes/theme-current.conf"
-echo "config-file = $ghostty_file" >> "$ghostty_themes/theme-current.conf"
-
-{
-  echo "# Active theme pointer — set by \`office-theme\` (light|dark|flexoki)."
-  if [ -n "$tmux_file" ]; then
-    echo "source-file \"\$HOME/.tmux/themes/$tmux_file\""
-  else
-    echo "# flexoki mode: no override, falls back to the inline Flexoki styling in .tmux.conf"
-  fi
-} > "$tmux_themes/theme-current.conf"
-
-echo -n "$nvim_scheme" > "$nvim_theme_file"
-
-if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
-  tmux source-file "$HOME/.tmux.conf" >/dev/null 2>&1 || true
+grel="open a new window or press cmd+shift+,"
+if osascript -e 'tell application "System Events" to name of first process whose frontmost is true' 2>/dev/null | rg -qi ghostty; then
+  osascript -e 'tell application "System Events" to keystroke "," using {command down, shift down}' 2>/dev/null \
+    && grel="reloaded" || grel="press cmd+shift+, (Accessibility not granted)"
 fi
 
-echo "office-theme: $mode (ghostty/tmux apply to new windows; nvim applies on next launch)"
+echo "office-theme: switched to '$1'"
+echo "  ghostty -> $grel"
+echo "  nvim    -> applies on next launch"

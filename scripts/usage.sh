@@ -9,6 +9,8 @@
 # Deliberately does NOT use file access times: relatime leaves a running
 # daemon's config reading as months-cold, so atime reports live packages dead.
 set -euo pipefail
+# zsh_history holds non-UTF-8 bytes (metafied); BSD sed/sort choke on them otherwise.
+export LC_ALL=C
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
@@ -18,7 +20,6 @@ history_file="${HISTFILE:-$HOME/.zsh_history}"
 # Packages whose command name differs from the directory name.
 command_for() {
   case "$1" in
-    ripgrep) echo rg ;;
     hypr) echo Hyprland ;;
     transcription-stack) echo hyprwhspr ;;
     *) echo "$1" ;;
@@ -33,11 +34,11 @@ always_on() {
   esac
 }
 
-# Launched from a keybind, never typed. Without this rofi, wlogout and tmux all
+# Launched from a keybind, never typed. Without this rofi and wlogout
 # report cold: nothing invokes them from a prompt and they hold no daemon.
 keybound() {
   grep -rqilE "^[^#]*(bind|exec).*\b$1\b" \
-    hypr/.config/hypr tmux/.tmux.conf 2>/dev/null
+    hypr/.config/hypr 2>/dev/null
 }
 
 # One pass over history -> a "count command" table, sudo stripped. Kept as a

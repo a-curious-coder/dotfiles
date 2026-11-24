@@ -1,7 +1,7 @@
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/header/graph.svg?title=dotfiles&subtitle=Plain-text+configs+for+Hyprland%2C+Neovim+and+zsh%2C+managed+with+GNU+Stow&logo=archlinux&align=left&mode=dark" />
-    <img alt="dotfiles" src="https://shieldcn.dev/header/graph.svg?title=dotfiles&subtitle=Plain-text+configs+for+Hyprland%2C+Neovim+and+zsh%2C+managed+with+GNU+Stow&logo=archlinux&align=left&mode=light" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://shieldcn.dev/header/graph.svg?title=dotfiles&subtitle=Plain-text+configs+for+macOS+and+Linux%2C+Neovim%2C+herdr+and+zsh%2C+managed+with+GNU+Stow&logo=gnu&align=left&mode=dark" />
+    <img alt="dotfiles" src="https://shieldcn.dev/header/graph.svg?title=dotfiles&subtitle=Plain-text+configs+for+macOS+and+Linux%2C+Neovim%2C+herdr+and+zsh%2C+managed+with+GNU+Stow&logo=gnu&align=left&mode=light" />
   </picture>
 </p>
 
@@ -20,14 +20,14 @@ version-controlled.
 ```bash
 git clone git@github.com:a-curious-coder/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./bootstrap.sh            # tools + stow + tmux plugins
+./bootstrap.sh            # tools + stow
 ```
 
 Stow packages by hand instead:
 
 ```bash
 # Everyday
-stow zsh starship tmux nvim ghostty btop lazygit lazydocker fastfetch ripgrep
+stow zsh starship nvim ghostty claude direnv herdr yazi btop lazygit lazydocker fastfetch
 
 # Hyprland desktop (Linux only)
 stow hypr kanshi waybar rofi swaync wlogout
@@ -65,13 +65,11 @@ installation the same way.
 | `direnv/` | direnv config |
 | `fastfetch/` | System info |
 | `ghostty/` | Terminal emulator |
-| `herdr/` | Herdr TUI config + user service |
+| `herdr/` | Herdr terminal multiplexer config + user service (replaced tmux) |
 | `lazydocker/` | Docker TUI |
 | `lazygit/` | Git TUI |
 | `nvim/` | Neovim |
-| `ripgrep/` | ripgrep config |
 | `starship/` | Shell prompt |
-| `tmux/` | Terminal multiplexer |
 | `yazi/` | Terminal file manager |
 | `zsh/` | Shell config, aliases, functions |
 
@@ -107,11 +105,9 @@ Not stow packages:
 
 | File | Purpose |
 |------|---------|
-| `bootstrap.sh` | Install + stow + tmux bootstrap in one command |
+| `bootstrap.sh` | Install + stow in one command |
 | `install-modern-tools.sh` | Install CLI tools (glow, mise, dust, navi, posting, …) |
-| `setup-tmux.sh` | Stow tmux config, install/update TPM and plugins |
 | `detect-platform.sh` | Platform detection used by the setup scripts |
-| `ubuntu_install.sh` | Wrapper that delegates to `install-modern-tools.sh` |
 | `scripts/doctor.sh` | Run the repo health checks |
 | `scripts/check-shell.sh` | `shellcheck` the maintained shell scripts |
 | `scripts/check-stow-targets.sh` | Assert every package installs only dot-prefixed paths |

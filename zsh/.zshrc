@@ -54,6 +54,7 @@ plugins=(
     history-substring-search
     zsh-autosuggestions
     zsh-syntax-highlighting
+    herdr
 )
 
 # Single-user machine: skip compaudit's per-startup ownership scan.
@@ -61,9 +62,11 @@ ZSH_DISABLE_COMPFIX="true"
 
 [[ -d "$ZSH" ]] && source "$ZSH/oh-my-zsh.sh"
 
-# Version manager (replaces nvm/rbenv/pyenv - one tool, one init).
+# Version manager (replaces nvm/rbenv/pyenv). --shims: no mise.toml here uses
+# [env], so the per-prompt hook (18-220ms) buys nothing; this just puts the
+# shims back in front of the Homebrew dirs prepended above.
 if (( $+commands[mise] )); then
-    cached_init mise activate zsh
+    cached_init mise activate zsh --shims
 fi
 
 # User extensions.
@@ -104,7 +107,7 @@ fi
 
 # Linux desktop sessions can keep stale Wayland variables after compositor restarts.
 sync_wayland_session_environment() {
-    [[ "$(uname -s)" == "Linux" ]] || return 0
+    [[ $OSTYPE == linux* ]] || return 0
     [[ -z "${SSH_CONNECTION:-}${SSH_CLIENT:-}${SSH_TTY:-}" ]] || return 0
     (( $+commands[systemctl] )) || return 0
 
@@ -119,105 +122,13 @@ sync_wayland_session_environment() {
 }
 sync_wayland_session_environment
 
-# Keep tmux environment in sync with exported vars managed by ~/.zshrc.env.
-sync_tmux_environment_from_zshrc_env() {
-    [[ -n "${TMUX:-}" ]] || return 0
-
-    local tmux_bin="${commands[tmux]-}"
-    local env_file="$HOME/.zshrc.env"
-    local managed_key="DOTFILES_ZSHRC_ENV_MANAGED"
-    local parsed_vars previous_line var
-    local -a current_vars previous_vars stale_vars
-    local -A current_lookup
-
-    [[ -n "$tmux_bin" && -f "$env_file" ]] || return 0
-
-    # Skip the whole sync when .zshrc.env hasn't changed since the last one.
-    local env_stamp
-    env_stamp="$(stat -f %m "$env_file" 2>/dev/null)"
-    if [[ "$("$tmux_bin" show-environment -g "${managed_key}_STAMP" 2>/dev/null)" == *"=$env_stamp" ]]; then
-        return 0
-    fi
-
-    previous_line="$("$tmux_bin" show-environment -g "$managed_key" 2>/dev/null || true)"
-    if [[ "$previous_line" == "$managed_key="* ]]; then
-        previous_vars=(${=${previous_line#*=}})
-        previous_vars=(${previous_vars:#PATH})
-    fi
-
-    parsed_vars="$(awk '
-      /^[[:space:]]*export[[:space:]]+/ {
-        for (i = 2; i <= NF; ++i) {
-          if (index($i, "=") == 0) continue   # skip barewords inside quoted values (e.g. JQL strings)
-          split($i, parts, "=")
-          if (parts[1] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print parts[1]
-        }
-      }
-      /^[[:space:]]*typeset[[:space:]]+-[[:alnum:]]*x[[:alnum:]]*[[:space:]]+/ {
-        for (i = 3; i <= NF; ++i) {
-          if (index($i, "=") == 0) continue
-          split($i, parts, "=")
-          if (parts[1] ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print parts[1]
-        }
-      }
-      /^[[:space:]]*unset[[:space:]]+/ {
-        for (i = 2; i <= NF; ++i) {
-          if ($i ~ /^[A-Za-z_][A-Za-z0-9_]*$/) print $i
-        }
-      }
-    ' "$env_file" 2>/dev/null)"
-
-    current_vars=(${(u)${(f)parsed_vars}})
-    current_vars=(${current_vars:#PATH})
-
-    for var in "${current_vars[@]}"; do
-        current_lookup["$var"]=1
-    done
-
-    for var in "${previous_vars[@]}"; do
-        # Never touch zsh special params (status, path, ...): unsetting a
-        # readonly special aborts the whole .zshrc, killing everything below.
-        [[ ${parameters[$var]:-} == *special* ]] && continue
-        (( ${+current_lookup["$var"]} )) || stale_vars+=("$var")
-    done
-
-    for var in "${stale_vars[@]}"; do
-        unset -v "$var" >/dev/null 2>&1 || true
-        "$tmux_bin" set-environment -gr "$var" >/dev/null 2>&1 || true
-    done
-
-    for var in "${current_vars[@]}"; do
-        if [[ -n "${(P)var+set}" ]]; then
-            "$tmux_bin" set-environment -g "$var" "${(P)var}" >/dev/null 2>&1 || true
-        else
-            "$tmux_bin" set-environment -gr "$var" >/dev/null 2>&1 || true
-        fi
-    done
-
-    if (( ${#current_vars[@]} > 0 )); then
-        "$tmux_bin" set-environment -g "$managed_key" "${(j: :)current_vars}" >/dev/null 2>&1 || true
-    else
-        "$tmux_bin" set-environment -gu "$managed_key" >/dev/null 2>&1 || true
-    fi
-    "$tmux_bin" set-environment -g "${managed_key}_STAMP" "$env_stamp" >/dev/null 2>&1 || true
-}
-sync_tmux_environment_from_zshrc_env
-
-refresh_tmux_status_for_cwd() {
-    [[ -n "${TMUX:-}" && -n "${commands[tmux]-}" ]] || return 0
-    "${commands[tmux]}" refresh-client -S >/dev/null 2>&1 || true
-}
-add-zsh-hook chpwd refresh_tmux_status_for_cwd
-add-zsh-hook precmd refresh_tmux_status_for_cwd
-refresh_tmux_status_for_cwd
-
-# Internet Speed Monitor
-export PATH="$PATH:/home/groot/scripts"
+# Internet Speed Monitor (Linux box only)
+[[ -d /home/groot/scripts ]] && path+=(/home/groot/scripts)
 
 alias cat='bat --paging=never'
 
-# Show boot time once per login (not inside tmux panes)
-if [[ -z "$TMUX" && "$SHLVL" -eq 1 ]]; then
+# Show boot time once per login (Linux only)
+if (( $+commands[systemd-analyze] )) && [[ "$SHLVL" -eq 1 ]]; then
     boot_summary=$(systemd-analyze 2>/dev/null | head -1)
     [[ -n "$boot_summary" ]] && echo "  $boot_summary"
 fi
@@ -228,8 +139,13 @@ export _ZO_DOCTOR=0
 if (( $+commands[zoxide] )); then
     cached_init zoxide init zsh --cmd cd
     # Seed ~/Projects so `cd <name>` works before you've ever visited the dir.
-    # ponytail: top level only; zoxide learns deeper paths as you cd into them.
-    _p=(~/Projects/*(/N)); (( $#_p )) && zoxide add $_p; unset _p
+    # Only when ~/Projects changed since the last seed: skips a db write per shell.
+    _stamp="$HOME/.cache/zsh-init/zoxide-projects.stamp"
+    if [[ ! -e $_stamp || ~/Projects -nt $_stamp ]]; then
+        _p=(~/Projects/*(/N)); (( $#_p )) && zoxide add $_p && mkdir -p ${_stamp:h} && touch $_stamp
+        unset _p
+    fi
+    unset _stamp
 fi
 
 direnv_bin="${commands[direnv]:-/opt/homebrew/bin/direnv}"
@@ -252,12 +168,6 @@ if [[ -d /opt/homebrew/opt/postgresql@16.10/bin ]]; then
     rehash
 fi
 
-# Only surface startup time when it regresses past 500ms.
-if [[ -n "${ZSH_STARTUP_T0:-}" ]]; then
-    _zsh_startup_ms=$(( (EPOCHREALTIME - ZSH_STARTUP_T0) * 1000 ))
-    (( _zsh_startup_ms > 500 )) && printf 'zsh slow: %.0fms\n' $_zsh_startup_ms
-    unset _zsh_startup_ms ZSH_STARTUP_T0
-fi
 # hecaton and bun (incl. sd/seeds-cli, preliminary software) install here.
 for dir in "$HOME/hecaton/bin" "$HOME/.bun/bin"; do
     [[ -d "$dir" ]] && path=("$dir" $path)
@@ -265,15 +175,60 @@ done
 
 export PATH="$HOME/.local/bin:$PATH"
 
-# >>> mamba initialize >>>
-# !! Contents within this block are managed by 'micromamba shell init' !!
-export MAMBA_EXE='/opt/homebrew/bin/micromamba';
-export MAMBA_ROOT_PREFIX='/Users/callummclennan/mamba';
-__mamba_setup="$("$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__mamba_setup"
-else
-    alias micromamba="$MAMBA_EXE"  # Fallback on help from micromamba activate
+# micromamba (cached; was spawned on every start). Not `micromamba shell init`'s
+# block on purpose: re-running that command will re-add the uncached version.
+if [[ -x /opt/homebrew/bin/micromamba ]]; then
+    export MAMBA_EXE=/opt/homebrew/bin/micromamba MAMBA_ROOT_PREFIX="$HOME/mamba"
+    cached_init "$MAMBA_EXE" shell hook --shell zsh --root-prefix "$MAMBA_ROOT_PREFIX" || alias micromamba="$MAMBA_EXE"
 fi
-unset __mamba_setup
-# <<< mamba initialize <<<
+alias p='pwd'
+alias c='clear'
+# a function, not an alias: an alias cannot take the port as an argument
+killport() { lsof -ti "tcp:${1:?usage: killport <port>}" -sTCP:LISTEN | xargs kill; }
+
+# clauth completions
+[[ -f "$HOME/.clauth/completions/clauth.zsh" ]] && source "$HOME/.clauth/completions/clauth.zsh"
+
+# Nourish AWS SSO helper
+export PATH="${PATH}:${HOME}/bin"
+function av {
+    ROLE=$1
+    shift
+    aws-vault exec "$ROLE" -- "$@"
+}
+
+# rc <stage>: Rails console on that stage, read-only DB
+rc() {
+  [[ -n "$1" ]] || { echo "usage: rc <stage>"; return 1; }
+  (
+    builtin cd ~/Projects/work/nourish-organisations || exit 1
+    local creds  # captured first: eval of empty output would return 0 and hide an expired login
+    creds="$(aws configure export-credentials --profile nc --format env)" || {
+      echo "run: aws sso login --profile nc"; exit 1; }
+    eval "$creds"
+    export SHELL=/bin/bash
+    DISABLE_DB_WRITER=true bundle exec cap "$1" rails:console
+  )
+}
+
+# rlog <stage> [pattern]: follow that stage's Rails log, optionally only lines matching pattern
+rlog() {
+  [[ -n "$1" ]] || { echo "usage: rlog <stage> [pattern]"; return 1; }
+  (
+    builtin cd ~/Projects/work/nourish-organisations || exit 1
+    local creds  # captured first: eval of empty output would return 0 and hide an expired login
+    creds="$(aws configure export-credentials --profile nc --format env)" || {
+      echo "run: aws sso login --profile nc"; exit 1; }
+    eval "$creds"
+    export SHELL=/bin/bash
+    echo "following $1 log for '${2:-everything}' (silent until a line matches, Ctrl+C to stop)"
+    bundle exec cap "$1" logs:unicorn 2>&1 | rg --line-buffered -- "${2:-.}"
+  )
+}
+
+# Only surface startup time when it regresses past 500ms.
+if [[ -n "${ZSH_STARTUP_T0:-}" ]]; then
+    _zsh_startup_ms=$(( (EPOCHREALTIME - ZSH_STARTUP_T0) * 1000 ))
+    (( _zsh_startup_ms > 500 )) && printf 'zsh slow: %.0fms\n' $_zsh_startup_ms
+    unset _zsh_startup_ms ZSH_STARTUP_T0
+fi

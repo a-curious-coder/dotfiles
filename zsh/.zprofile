@@ -2,12 +2,7 @@ cached_init /opt/homebrew/bin/brew shellenv
 [[ -d "$HOME/.local/share/mise/shims" ]] && export PATH="$HOME/.local/share/mise/shims:$PATH"
 
 # Added by Toolbox App
-[[ -d "/Users/callummclennan/Library/Application Support/JetBrains/Toolbox/scripts" ]] && export PATH="$PATH:/Users/callummclennan/Library/Application Support/JetBrains/Toolbox/scripts"
-
-if [[ -z "${TMUX:-}" ]]; then
-  # Avoid startup lock contention from implicit `pyenv rehash`.
-  cached_init pyenv init --path --no-rehash
-fi
+[[ -d "$HOME/Library/Application Support/JetBrains/Toolbox/scripts" ]] && export PATH="$PATH:$HOME/Library/Application Support/JetBrains/Toolbox/scripts"
 
 # Added by Obsidian
 [[ -d "/Applications/Obsidian.app/Contents/MacOS" ]] && export PATH="$PATH:/Applications/Obsidian.app/Contents/MacOS"

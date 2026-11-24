@@ -79,7 +79,7 @@ github_install() {
 
     log_info "Installing $binary from $repo..."
     local version
-    version=$(curl -sL "https://api.github.com/repos/$repo/releases/latest" | grep '"tag_name"' | cut -d'"' -f4)
+    version=$(curl -fsSL "https://api.github.com/repos/$repo/releases/latest" | grep '"tag_name"' | cut -d'"' -f4)
     if [[ -z "$version" ]]; then
         log_err "Could not detect latest release for $repo"
         return 1
@@ -90,7 +90,7 @@ github_install() {
 
     local tmp_dir
     tmp_dir=$(mktemp -d)
-    curl -sL "$url" -o "$tmp_dir/archive.tar.gz"
+    curl -fsSL "$url" -o "$tmp_dir/archive.tar.gz"
     tar xzf "$tmp_dir/archive.tar.gz" -C "$tmp_dir"
 
     # Find and install binary
@@ -120,12 +120,18 @@ script_install() {
     fi
 
     log_info "Installing $name..."
-    if [[ -n "$args" ]]; then
-        read -r -a arg_array <<<"$args"
-        curl -sS "$url" | bash -s -- "${arg_array[@]}"
-    else
-        curl -sS "$url" | bash
+    # Download fully before running: with `curl | bash` an HTTP error page or a
+    # dropped connection gets executed as a half-script.
+    local script
+    script="$(mktemp)"
+    if ! curl -fsSL --proto '=https' --tlsv1.2 "$url" -o "$script"; then
+        rm -f "$script"
+        log_err "$name: download failed ($url), skipping"
+        return 0
     fi
+    [[ -n "$args" ]] && read -r -a arg_array <<<"$args"
+    bash "$script" ${arg_array[@]+"${arg_array[@]}"}
+    rm -f "$script"
     log_ok "$name installed"
 }
 
@@ -196,7 +202,6 @@ main() {
     pkg_install "ripgrep" "rg"
     pkg_install "fzf" "fzf"
     pkg_install "btop" "btop"
-    pkg_install "tmux" "tmux"
 
     # bat (different names on some systems)
     if ! has bat && ! has batcat; then
@@ -238,7 +243,11 @@ main() {
     log_info "=== Navigation & Search ==="
 
     # zoxide (smarter cd)
-    script_install "zoxide" "zoxide" "https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh"
+    if [[ "$PKG_MGR" == "brew" || "$PKG_MGR" == "pacman" ]]; then
+        pkg_install "zoxide" "zoxide"
+    else
+        script_install "zoxide" "zoxide" "https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh"
+    fi
 
     # navi (cheatsheets)
     if [[ "$PKG_MGR" == "pacman" ]]; then
@@ -320,7 +329,11 @@ main() {
     log_info "=== Shell & Prompt ==="
 
     # starship prompt
-    script_install "starship" "starship" "https://starship.rs/install.sh" "-y"
+    if [[ "$PKG_MGR" == "brew" || "$PKG_MGR" == "pacman" ]]; then
+        pkg_install "starship" "starship"
+    else
+        script_install "starship" "starship" "https://starship.rs/install.sh" "-y"
+    fi
 
     # fastfetch (system info)
     pkg_install "fastfetch" "fastfetch"

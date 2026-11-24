@@ -3,7 +3,6 @@
 # Organized by domain. Prefer explicit over clever.
 
 alias v='nvim'
-alias t='tmux attach'
 
 # Git aliases
 alias g='git'
@@ -16,14 +15,6 @@ alias gd='git diff'
 alias gb='git branch'
 alias gco='git checkout'
 alias gcb='git checkout -b'
-
-# Tmux aliases
-alias tn='tmux new -s'
-alias ta='tmux attach'
-alias tl='tmux ls'
-alias tk='tmux kill-session -t'
-alias tka='tmux kill-server'
-alias ts='tmux switch -t'
 
 # Docker aliases
 alias d='docker'
@@ -44,7 +35,7 @@ alias rm='rm -i'
 alias mkdir='mkdir -p'
 
 # System monitoring
-if command -v btop &> /dev/null; then
+if (( $+commands[btop] )); then
     alias top='btop'
     alias htop='btop'
 else
@@ -52,14 +43,14 @@ else
 fi
 alias df='df -h'
 alias du='du -h'
-if command -v free &> /dev/null; then
+if (( $+commands[free] )); then
     alias free='free -h'
 fi
 
 # Network
-if command -v ss &> /dev/null; then
+if (( $+commands[ss] )); then
     alias ports='ss -tulanp'
-elif command -v netstat &> /dev/null; then
+elif (( $+commands[netstat] )); then
     alias ports='netstat -tulanp'
 fi
 alias ping='ping -c 5'

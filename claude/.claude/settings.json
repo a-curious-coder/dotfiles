@@ -1,12 +1,13 @@
 {
   "env": {
-    "MAX_THINKING_TOKENS": "32000"
+    "MAX_THINKING_TOKENS": "32000",
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
     "allow": [],
     "defaultMode": "auto"
   },
-  "model": "sonnet",
+  "model": "haiku",
   "enableAllProjectMcpServers": false,
   "hooks": {
     "PreToolUse": [
@@ -28,6 +29,16 @@
           {
             "type": "command",
             "command": "bash \"$HOME/.claude/hooks/herdr-agent-state.sh\" session",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "matcher": "^(startup|resume|clear|compact|fork)$",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '/Users/callummclennan/.claude/hooks/herdr-agent-state.sh' session",
             "timeout": 10
           }
         ]
@@ -58,7 +69,8 @@
     "typescript-lsp@claude-plugins-official": true,
     "diagram-design@diagram-design": true,
     "mattpocock-skills@claude-plugins-official": true,
-    "rust-analyzer-lsp@claude-plugins-official": true
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "vibe-wise@vibe-wise": true
   },
   "extraKnownMarketplaces": {
     "i-have-adhd": {
@@ -71,8 +83,7 @@
       "source": {
         "source": "github",
         "repo": "DietrichGebert/ponytail"
-      },
-      "autoUpdate": true
+      }
     },
     "diagram-design": {
       "source": {
@@ -86,16 +97,73 @@
         "repo": "mattpocock/skills"
       },
       "autoUpdate": true
+    },
+    "vibe-wise": {
+      "source": {
+        "source": "github",
+        "repo": "nykooi1/vibe-wise"
+      }
+    },
+    "claude-plugins-official": {
+      "source": {
+        "source": "github",
+        "repo": "anthropics/claude-plugins-official"
+      }
     }
   },
   "effortLevel": "medium",
   "modelSettings": {
     "claude-opus-5": {
+      "effortLevel": "xhigh"
+    },
+    "claude-sonnet-5": {
+      "effortLevel": "medium"
+    },
+    "claude-opus-5-5": {
       "effortLevel": "high"
+    },
+    "claude-sonnet-5-5": {
+      "effortLevel": "medium"
+    },
+    "claude-fable-5-2": {
+      "effortLevel": "medium"
     }
   },
   "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
-  "theme": "dark"
+  "theme": "dark",
+  "autoMode": {
+    "soft_deny": [
+      "$defaults",
+      "Bash(git push --force:*) on origin/main in this repo — CLAUDE.md explicitly forbids force-push to main even though direct pushes are otherwise normal here"
+    ],
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: PUBLIC — a-curious-coder/dotfiles (confirmed via gh)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: Default branch is `main`; no classic protected branches and no rulesets listed via gh (repo is public — treat any push to `main` as publishing)",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine with open internet",
+      "**Source control**: The trusted repo and its remote(s) only — github.com:a-curious-coder/dotfiles.git (no additional orgs configured)",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: None configured",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar — note: .gitignore excludes .env, .env.local, .zshrc.env, and one unusual redacted name, suggesting local secrets are handled outside the repo",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment (hyphen/underscore/dot-delimited)",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development (personal dotfiles management — Hyprland, Neovim, zsh configs via GNU Stow)",
+      "**Trusted repo**: /Users/callummclennan/Projects/personal/dotfiles (working directory) and its remote github.com:a-curious-coder/dotfiles.git — PUBLIC repo, single personal user; per CLAUDE.md, commit/push directly to main is normal for this repo, but only this repo's own work belongs here — content ported from elsewhere is not automatically clearable for a public push",
+      "**Org-specific CLIs**: None configured — `sd` (seeds issue tracker) and `herdr` are personal-workflow CLIs used routinely in this environment, not org-specific",
+      "routine under callummclennan/ prefix: local paths under /Users/callummclennan/Projects/personal/dotfiles and /Users/callummclennan/.claude are routine working locations for this user"
+    ]
+  }
 }

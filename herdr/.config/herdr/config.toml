@@ -57,7 +57,7 @@ auto_switch = false
 # manifest_check = true
 
 [keys]
-# Matches the tmux prefix (see ../tmux/.tmux.conf). Requires stty -ixon in
+# Matches the old tmux prefix (tmux config since removed). Requires stty -ixon in
 # zshrc (added) so ctrl+s doesn't freeze the terminal outside tmux.
 prefix = "ctrl+s"
 
@@ -127,13 +127,23 @@ toggle_sidebar = "prefix+b"
 # command = "lazygit"
 # width = "80%"
 # height = "80%"
+# herdr-sidebar: VS Code-style file explorer + source control docked beside the
+# agent. Replaces herdr-file-viewer and gitview. Settings live inside it (F8).
 [[keys.command]]
 key = "prefix+i"
 type = "plugin_action"
-command = "flock.farm.open"
-description = "Open Flock Farm"
+command = "herdr-sidebar.open-sidebar"
+description = "Toggle file explorer sidebar"
 
-# Matches tmux M-z/M-b/M-g scratch popups (see ../tmux/.tmux.conf).
+# ohmyzsh.shell: send `omz reload` to every idle zsh pane after editing .zshrc.
+# README suggests prefix+shift+r, but that's resize_mode here.
+[[keys.command]]
+key = "prefix+alt+r"
+type = "plugin_action"
+command = "ohmyzsh.shell.reload-all"
+description = "Reload Oh My Zsh in idle panes"
+
+# Matches the old tmux M-z/M-b/M-g scratch popups.
 [[keys.command]]
 key = "alt+z"
 type = "popup"
@@ -176,9 +186,8 @@ description = "visible-screen link picker"
 # vim-herdr-navigation: Ctrl+h/j/k/l crosses between Neovim splits and herdr
 # panes as one space. Bare ctrl (not prefix+) so it works without pressing
 # prefix first, matching vim-tmux-navigator's feel. Editor side is wired in
-# ../nvim/.config/nvim/lua/herdr-nav.lua (kept separate from the vendored
-# editor/nvim.lua so it still falls back to nvim-tmux-navigation, not
-# vim-tmux-navigator's :TmuxNavigate*, when outside herdr).
+# ../nvim/.config/nvim/lua/herdr-nav.lua (instead of the vendored
+# editor/nvim.lua, whose fallback calls vim-tmux-navigator's :TmuxNavigate*).
 [[keys.command]]
 key = "ctrl+h"
 type = "plugin_action"
@@ -304,15 +313,12 @@ type = "plugin_action"
 command = "clauth.open"
 description = "Claude account switcher / usage (clauth)"
 
-# gitview: replaces ez-corp.git-status — interactive stage/diff/commit panel
-# instead of a sidebar token. prefix+r/prefix+shift+r/prefix+w are already
-# reload_config/resize_mode/workspace_picker (see [keys] above) — kept those,
-# picked unused keys instead.
+# herdr-sidebar source control: stage/diff/commit panel. Same key gitview had.
 [[keys.command]]
 key = "prefix+shift+v"
 type = "plugin_action"
-command = "chmarax.gitview.toggle"
-description = "git status/diff panel (gitview)"
+command = "herdr-sidebar.open-git"
+description = "Toggle source control sidebar"
 
 # reviewr: review agent-authored diffs and send comments back to the agent.
 [[keys.command]]

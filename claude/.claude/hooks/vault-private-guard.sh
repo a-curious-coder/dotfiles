@@ -1,8 +1,11 @@
 #!/bin/bash
-# Blocks reads of vault notes tagged "private" in frontmatter, regardless of
-# which agent/session/cwd triggered it. Covers Read, Grep, and simple Bash
-# file-dumping commands (cat/head/tail/less/bat).
+# Blocks reads of vault notes tagged "private" in frontmatter, and of
+# .obsidian/plugins files, regardless of which agent/session/cwd triggered it.
+# Covers Read, Grep, and any Bash command that names a vault path.
+# Fails closed: if it cannot parse its input, it blocks (exit 2).
 VAULT="$HOME/Desktop/the-vault"
+
+command -v jq >/dev/null 2>&1 || { echo "vault-private-guard: jq not found, blocking to be safe" >&2; exit 2; }
 
 is_private() {
   local f="$1"
@@ -11,47 +14,77 @@ is_private() {
   awk '/^---$/{n++; next} n==1' "$f" | grep -qE '^\s*-\s*private\s*$|^\s*private\s*:\s*true\s*$'
 }
 
+# Plugin code and settings: secrets in data.json, minified noise in main.js.
+# manifest.json is fine. User opts in with: touch ~/.claude/.allow-vault-plugins
+is_plugin_file() {
+  [ -e "$HOME/.claude/.allow-vault-plugins" ] && return 1
+  case "$1" in
+    "$VAULT"/.obsidian/plugins/*/manifest.json) return 1 ;;
+    "$VAULT"/.obsidian/plugins|"$VAULT"/.obsidian/plugins/*) return 0 ;;
+  esac
+  return 1
+}
+
 block() {
   echo "Blocked: '$1' is tagged private in frontmatter. Skip it." >&2
   exit 2
 }
 
+block_plugin() {
+  echo "Blocked: '$1' is in .obsidian/plugins (secrets, minified code). Ask the user to run: touch ~/.claude/.allow-vault-plugins" >&2
+  exit 2
+}
+
+check() {
+  is_plugin_file "$1" && block_plugin "$1"
+  is_private "$1" && block "$1"
+}
+
 input=$(cat)
-tool=$(echo "$input" | jq -r '.tool_name // empty')
+tool=$(printf '%s' "$input" | jq -r '.tool_name // empty') || { echo "vault-private-guard: bad hook input, blocking" >&2; exit 2; }
+cwd=$(printf '%s' "$input" | jq -r '.cwd // empty')
+
+# Resolve a path the way the tool will: ~ and relative-to-cwd.
+resolve() {
+  local p="$1"
+  case "$p" in
+    "~"/*) p="$HOME/${p#\~/}" ;;
+    /*) ;;
+    *) [ -n "$cwd" ] && p="$cwd/$p" ;;
+  esac
+  printf '%s' "$p"
+}
 
 case "$tool" in
   Read)
-    file=$(echo "$input" | jq -r '.tool_input.file_path // empty')
-    is_private "$file" && block "$file"
+    file=$(resolve "$(printf '%s' "$input" | jq -r '.tool_input.file_path // empty')")
+    check "$file"
     ;;
   Grep)
-    path=$(echo "$input" | jq -r '.tool_input.path // empty')
-    [ -n "$path" ] || exit 0
-    case "$path" in "$VAULT"|"$VAULT"/*) ;; *) exit 0 ;; esac
+    path=$(printf '%s' "$input" | jq -r '.tool_input.path // empty')
+    path=$(resolve "${path:-.}")
+    case "$path" in "$VAULT"|"$VAULT"/*|"$VAULT"/.) ;; *) exit 0 ;; esac
     if [ -f "$path" ]; then
-      is_private "$path" && block "$path"
+      check "$path"
     elif [ -d "$path" ]; then
-      pattern=$(echo "$input" | jq -r '.tool_input.pattern // empty')
+      is_plugin_file "$path" && block_plugin "$path"
+      pattern=$(printf '%s' "$input" | jq -r '.tool_input.pattern // empty')
       while IFS= read -r f; do
         is_private "$f" && block "$f (matched by grep in $path)"
       done < <(rg -l --no-messages -- "$pattern" "$path" 2>/dev/null)
     fi
     ;;
   Bash)
-    cmd=$(echo "$input" | jq -r '.tool_input.command // empty')
-    # ponytail: word-splits the raw command string, so a path quoted or
-    # embedded inside a -c script (python -c "...open('path')...") can dodge
-    # this. Upgrade to actually parsing argv if that ever bites.
-    case "$cmd" in
-      cat\ *|head\ *|tail\ *|less\ *|bat\ *|more\ *|sed\ *|awk\ *|perl\ *|\
-      python\ *|python3\ *|node\ *|ruby\ *|rg\ *|grep\ *|ack\ *)
-        for word in $cmd; do
-          case "$word" in
-            "$VAULT"/*) is_private "$word" && block "$word" ;;
-          esac
-        done
-        ;;
-    esac
+    cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
+    # Check every word, not just the first command: `cd x && cat note` and
+    # pipelines are covered. Quotes and shell punctuation are stripped first.
+    # shortcut: a path built at runtime (python -c "open(base+'/x')") still
+    # dodges this; parse argv properly if that ever bites.
+    for word in $cmd; do
+      word="${word//[\"\'\(\)\;\|\&\<\>]/}"
+      [ -n "$word" ] || continue
+      check "$(resolve "$word")"
+    done
     ;;
 esac
 exit 0

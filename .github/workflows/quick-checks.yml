@@ -14,12 +14,7 @@ jobs:
       - name: Install tooling
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck lua5.4 tmux ripgrep stow
-
-      # tmux/.tmux.conf resolves its scripts and themes through ~/.tmux, so the
-      # package has to be stowed before the tmux checks run.
-      - name: Stow the tmux package
-        run: stow tmux
+          sudo apt-get install -y shellcheck lua5.4 ripgrep stow
 
       - name: Repo doctor
         run: ./scripts/doctor.sh

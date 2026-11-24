@@ -13,26 +13,85 @@ To see all installed plugins, run this command:
 herdr plugin list
 ```
 
+Note: these plugins were removed because other plugins do the same job:
+`flock.farm`, `herdr.collie`, `mirror`, `devswha.herdr-web-ui` (now Ovis),
+`chmarax.gitview` and `herdr-file-viewer` (now herdr-sidebar).
+
 Note: `unit1.claude-usage` (Claude Usage) was installed, then removed.
 herdr's own built-in display already shows Claude usage. The plugin's
 sidebar row was a duplicate of that.
 
-## flock.farm — Flock
+## herdr-sidebar — Sidebar
 
-Source: `github:ragamo/herdr-flock`
+Source: `github:alexarthurs/herdr-sidebar` (subdir `plugins/herdr-sidebar`)
 
 ### Purpose
 
-This plugin shows your AI agents as pixel-art sheep. The sheep live on a
-farm. This plugin has no work purpose. It is for enjoyment only.
+This plugin shows a file explorer and a git source control view next to
+your agent pane. It replaces `herdr-file-viewer` and `gitview`.
 
 ### How to use it
 
-1. Press `prefix+i`.
-2. The Flock Farm pane opens.
-3. Look at your agents as sheep.
+1. Press `prefix+i` to open or close the file explorer.
+2. Press `prefix+shift+v` to open or close source control.
+3. In the explorer, press `Enter` to preview a file. Press `ctrl+p` to find
+   a file by name. Press `ctrl+f` to search file text.
+4. In source control, press `Enter` to stage or unstage a file. Press `c`
+   to write a commit message.
+5. Press `F8` or `s` to open settings. Set auto-open, dock side and width
+   there.
 
-No further setup is needed.
+### Caveat
+
+Press `A` only if you want an AI-drafted commit message. Do not use it on
+work repos until you know which service it sends the diff to.
+
+## ohmyzsh.shell — Oh My Zsh for herdr
+
+Source: `github:robbyrussell/herdr-ohmyzsh`
+
+### Purpose
+
+This plugin shows slow shell commands in the herdr sidebar. A slow command
+is one that runs longer than ten seconds. When the command stops, you get a
+toast with the exit code and the time it took. It also gives short shell
+commands for herdr.
+
+### How to use it
+
+1. Run a slow command, for example a test suite. Go to a different pane.
+2. Wait for the toast. It tells you when the command is done.
+3. After you edit `.zshrc`, press `prefix+alt+r`. All idle zsh panes reload.
+4. Use these shell commands:
+   - `hsplit [right|down] [cmd]` — split this pane, same folder.
+   - `htab [label]` — new tab, same folder.
+   - `hagent NAME [KIND]` — start a named agent in a split to the right.
+   - `hworktree BRANCH [BASE]` — new git worktree as a workspace.
+
+### Setup notes
+
+`herdr` is in the `plugins=(...)` list in `zsh/.zshrc`. The plugin links
+itself into `~/.oh-my-zsh/custom/plugins/herdr` when it installs.
+
+## devswha.ovis — Ovis
+
+Source: `github:devswha/ovis` (was `devswha/herdr-web-ui`)
+
+### Purpose
+
+This plugin lets you see and drive your agent panes from a browser or a
+phone. It replaces Collie, Mirror and the old herdr web UI.
+
+### How to use it
+
+1. Ovis starts on its own when herdr starts.
+2. To connect a phone, run
+   `herdr plugin action invoke phone --plugin devswha.ovis`. Scan the QR
+   code.
+3. To check it, run
+   `herdr plugin action invoke status --plugin devswha.ovis`.
+4. To stop it, run
+   `herdr plugin action invoke stop --plugin devswha.ovis`.
 
 ## triage — Herdr Triage
 
@@ -184,21 +243,13 @@ set for herdr.
 
 ### Setup notes on this machine
 
-This machine also uses a different plugin, `nvim-tmux-navigation`, for the
-same keys inside tmux. To keep both working, this repo does not use the
-file that vim-herdr-navigation suggests
-(`editor/nvim.lua`). Instead, this repo uses its own file:
+This repo does not use the file that vim-herdr-navigation suggests
+(`editor/nvim.lua`). That file falls back to tmux commands that are not
+installed here. This repo uses its own file:
 
 `nvim/.config/nvim/lua/herdr-nav.lua`
 
-This file does one of two things, in order:
-
-1. Inside a herdr pane: it crosses into the next herdr pane at a split
-   edge.
-2. Outside herdr (for example, plain tmux): it calls the existing
-   `nvim-tmux-navigation` plugin. Tmux navigation works the same as before.
-
-You do not need to do anything more. This file loads on Neovim startup.
+This file loads on Neovim startup. You do not need to do anything more.
 
 Caveat: binding `ctrl+l` and `ctrl+k` this way can block your shell's own
 `ctrl+l` (clear screen) and `ctrl+k` (delete to end of line) inside plain
@@ -436,5 +487,7 @@ for another agent, see that repo's `list-skills.sh`.
 | `prefix+o` | gh-pr | open focused pane's pull request |
 | `prefix+shift+g` | gh-pr | force-refresh pull request status |
 | `prefix+shift+k` | iris | open skills cheatsheet |
+| `prefix+i` | herdr-sidebar | toggle file explorer |
+| `prefix+shift+v` | herdr-sidebar | toggle source control |
+| `prefix+alt+r` | ohmyzsh.shell | reload Oh My Zsh in idle panes |
 
-`prefix+i` still opens Flock Farm. It has not changed.

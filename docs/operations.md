@@ -17,7 +17,7 @@ z dotfiles
 ## Stow common packages
 
 ```bash
-stow git zsh starship tmux nvim ghostty
+stow git zsh starship nvim ghostty claude direnv herdr yazi
 ```
 
 ## Stow Linux desktop packages
@@ -30,12 +30,6 @@ stow hypr kanshi waybar rofi swaync wlogout
 
 ```bash
 stow llama opencode
-```
-
-## Set up tmux plugins
-
-```bash
-./setup-tmux.sh
 ```
 
 ## Run repo checks

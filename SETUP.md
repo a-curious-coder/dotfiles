@@ -26,13 +26,20 @@ cd ~/.dotfiles
 This runs:
 - `install-modern-tools.sh`
 - stow for common and platform packages
-- `setup-tmux.sh` (TPM install/update + plugin install)
 
 ### Core packages
 
 ```bash
-stow git zsh starship tmux nvim ghostty
+stow git zsh starship nvim ghostty claude direnv herdr yazi
 ```
+
+`git/` is gitignored (it holds personal and work identities), so a fresh clone
+has no `git` package. Copy your `.gitconfig*` files into `git/` first, or stow
+skips it.
+
+After stowing `claude`, run `herdr integration install claude`. It writes
+`~/.claude/hooks/herdr-agent-state.sh`, which `settings.json` calls. herdr owns
+that file, so it is not in this repo.
 
 ### Linux desktop (Hyprland stack)
 
@@ -49,7 +56,7 @@ stow llama opencode
 ### Common optional tools
 
 ```bash
-stow btop lazygit lazydocker fastfetch ripgrep
+stow btop lazygit lazydocker fastfetch
 ```
 
 ## Install Modern CLI Tools
@@ -59,26 +66,6 @@ Single installer path (cross-platform):
 ```bash
 ./install-modern-tools.sh
 ```
-
-Legacy Ubuntu entrypoint (kept for compatibility; delegates to the same installer):
-
-```bash
-./ubuntu_install.sh
-```
-
-## tmux + TPM Setup
-
-One-command bootstrap:
-
-```bash
-./setup-tmux.sh
-```
-
-This script:
-- stows the `tmux` package
-- installs or updates TPM at `~/.tmux/plugins/tpm`
-- installs declared tmux plugins
-- reloads `~/.tmux.conf`
 
 ## Shell + Theme Helpers
 
@@ -96,7 +83,7 @@ ghostty-theme nord    # switch theme
 
 ```bash
 # Confirm symlinks exist
-stow -nvt "$HOME" git zsh starship tmux nvim ghostty
+stow -nvt "$HOME" git zsh starship nvim ghostty claude direnv herdr yazi
 
 # Neovim health
 nvim +checkhealth +qa

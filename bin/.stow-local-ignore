@@ -1,0 +1,3 @@
+# Only .local/bin is a stow target; the rest are repo-only utilities.
+^/cloak\.py
+^/[^.]

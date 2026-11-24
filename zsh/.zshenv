@@ -23,6 +23,6 @@ export OPENCODE_ENABLE_EXA=1
 
 # Load machine-local secrets/env overrides (not tracked in git).
 # Sourced here (not just .zshrc) so vars are available in ALL zsh contexts:
-# interactive, non-interactive, login, non-login — including tmux run-shell
-# commands, plugin hooks, and tmux-resurrect restored panes.
+# interactive, non-interactive, login, non-login — including herdr plugin
+# commands and hooks.
 [[ -f "$HOME/.zshrc.env" ]] && source "$HOME/.zshrc.env"
