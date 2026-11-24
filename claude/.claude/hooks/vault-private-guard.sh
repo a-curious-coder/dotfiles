@@ -78,13 +78,16 @@ case "$tool" in
     cmd=$(printf '%s' "$input" | jq -r '.tool_input.command // empty')
     # Check every word, not just the first command: `cd x && cat note` and
     # pipelines are covered. Quotes and shell punctuation are stripped first.
+    # xargs splits the way the shell quotes ("Secret note.md" stays one word);
+    # the plain split still runs too, for input xargs rejects (unmatched quote).
     # shortcut: a path built at runtime (python -c "open(base+'/x')") still
     # dodges this; parse argv properly if that ever bites.
-    for word in $cmd; do
+    # shellcheck disable=SC2086  # unquoted $cmd below is the plain split
+    while IFS= read -r word; do
       word="${word//[\"\'\(\)\;\|\&\<\>]/}"
       [ -n "$word" ] || continue
       check "$(resolve "$word")"
-    done
+    done < <(printf '%s' "$cmd" | xargs printf '%s\n' 2>/dev/null; printf '%s\n' $cmd)
     ;;
 esac
 exit 0
