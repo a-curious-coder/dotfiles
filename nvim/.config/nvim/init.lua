@@ -15,5 +15,7 @@ require("file-templates").setup()
 require("snippet-picker").setup()
 require("snippet-edit-all").setup()
 require("test-files").setup()
-require("lazy").setup("plugins")
+-- No plugin here needs luarocks; disabling it stops :checkhealth erroring on
+-- machines without a Lua 5.1 toolchain.
+require("lazy").setup("plugins", { rocks = { enabled = false } })
 require("herdr-nav")

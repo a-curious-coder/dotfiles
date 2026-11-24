@@ -106,7 +106,7 @@ Not stow packages:
 | File | Purpose |
 |------|---------|
 | `bootstrap.sh` | Install + stow in one command |
-| `install-modern-tools.sh` | Install CLI tools (glow, mise, dust, navi, posting, …) |
+| `install-modern-tools.sh` | Install CLI tools (oh-my-zsh + plugins, shellcheck, glow, mise, dust, navi, posting, …) |
 | `detect-platform.sh` | Platform detection used by the setup scripts |
 | `scripts/doctor.sh` | Run the repo health checks |
 | `scripts/check-shell.sh` | `shellcheck` the maintained shell scripts |

@@ -186,6 +186,32 @@ install_noto_serif() {
     log_ok "Noto Serif font installed"
 }
 
+# .zshrc loads Oh My Zsh plus two third-party plugins. Cloned rather than run
+# through OMZ's install.sh, which replaces ~/.zshrc (the stowed symlink).
+install_oh_my_zsh() {
+    local omz="$HOME/.oh-my-zsh"
+    local custom="${ZSH_CUSTOM:-$omz/custom}"
+    local repo name
+
+    if [[ -d "$omz" ]]; then
+        log_skip "oh-my-zsh (already installed)"
+    else
+        log_info "Installing oh-my-zsh..."
+        git clone --depth 1 https://github.com/ohmyzsh/ohmyzsh.git "$omz"
+        log_ok "oh-my-zsh installed"
+    fi
+
+    for repo in zsh-users/zsh-autosuggestions zsh-users/zsh-syntax-highlighting; do
+        name="${repo#*/}"
+        if [[ -d "$custom/plugins/$name" ]]; then
+            log_skip "$name (already installed)"
+        else
+            git clone --depth 1 "https://github.com/$repo.git" "$custom/plugins/$name"
+            log_ok "$name installed"
+        fi
+    done
+}
+
 # Main installation
 main() {
     log_info "Starting modern CLI tools installation"
@@ -202,6 +228,7 @@ main() {
     pkg_install "ripgrep" "rg"
     pkg_install "fzf" "fzf"
     pkg_install "btop" "btop"
+    pkg_install "shellcheck" "shellcheck"  # scripts/doctor.sh needs it
 
     # bat (different names on some systems)
     if ! has bat && ! has batcat; then
@@ -327,6 +354,8 @@ main() {
 
     echo ""
     log_info "=== Shell & Prompt ==="
+
+    install_oh_my_zsh
 
     # starship prompt
     if [[ "$PKG_MGR" == "brew" || "$PKG_MGR" == "pacman" ]]; then

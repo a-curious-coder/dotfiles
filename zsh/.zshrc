@@ -54,8 +54,9 @@ plugins=(
     history-substring-search
     zsh-autosuggestions
     zsh-syntax-highlighting
-    herdr
 )
+# Linked in by herdr's ohmyzsh.shell plugin; absent on machines without herdr.
+[[ -d ${ZSH_CUSTOM:-$ZSH/custom}/plugins/herdr ]] && plugins+=(herdr)
 
 # Single-user machine: skip compaudit's per-startup ownership scan.
 ZSH_DISABLE_COMPFIX="true"
