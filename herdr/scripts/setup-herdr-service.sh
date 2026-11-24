@@ -8,6 +8,17 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
   # macOS: homebrew's herdr formula already ships a launchd job
   # (RunAtLoad + KeepAlive) — `brew services` is the whole setup.
   brew services start herdr
+  # launchd starts the server with PATH=/usr/bin:/bin:/usr/sbin:/sbin, so
+  # plugin binaries (clauth in ~/.cargo/bin, ...) fail to spawn. brew
+  # regenerates the plist on start/upgrade, so re-run this script after
+  # `brew upgrade herdr`. Takes effect on the next server restart:
+  #   launchctl bootout gui/$(id -u)/homebrew.mxcl.herdr
+  #   launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/homebrew.mxcl.herdr.plist
+  plist="$HOME/Library/LaunchAgents/homebrew.mxcl.herdr.plist"
+  path_value="$HOME/.cargo/bin:$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+  /usr/libexec/PlistBuddy -c "Delete :EnvironmentVariables" "$plist" 2>/dev/null || true
+  /usr/libexec/PlistBuddy -c "Add :EnvironmentVariables dict" \
+    -c "Add :EnvironmentVariables:PATH string $path_value" "$plist"
   echo "herdr started via brew services and enabled at login."
   brew services info herdr
   exit 0

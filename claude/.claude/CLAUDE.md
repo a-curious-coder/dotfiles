@@ -5,23 +5,33 @@ Cap concurrent agents/subagents/forks at 5 at any one time — do not spawn a 6t
 After 11:00 PM local time, before starting any new agent-driven work (not a quick question), ask Callum to confirm he wants to keep going rather than assuming yes.
 Reason: unbounded agent fan-out at night is the specific pattern ("AI vampire") that trades sleep for throughput. The cap and the time check exist to interrupt that escalation before it starts, not to slow down daytime work.
 
+## Responsible AI usage (always on)
+- Never send customer, patient, or proprietary data, or secrets, to a tool or service the organisation has not approved (web search, external APIs, pastebins).
+- Never open PRs, issues, or comments on any external service unless Callum says to in that instance.
+- When asking to commit, show `git diff --stat` and the key hunks so Callum can skim the diff first.
+- Two-retry cap: if the same approach fails twice, stop. Name the assumption that might be wrong before trying again.
+Strict mode for customer-facing work is the `careful` skill (`/careful`); `prep-card` turns it on. Source: `~/Projects/personal/x-ai-opinions/distilled.md`.
+
+## Skill routing
+Callum should not need to remember skill names; the only one he starts himself is `/prep-card`. When one of these moments appears, name the skill in one line and ask before running it. Suggest one skill at a time, never a list.
+- Asks what to work on → `next-card`. Starts a Jira card → `prep-card`.
+- An agreed plan exists → `implement-plan`. Changes exist but careful was off → `careful-check`.
+- About to commit or open a PR → `teach-back`, then `code-review`.
+- Its AI review came back clean → `ready-for-review`.
+- After a substantive explanation or fix → `knowledge-check`. Free time with no card → `study`.
+
 ## Git commits and pushes require explicit permission
 Never run `git commit` or `git push` (including creating/pushing new branches) unless the user has explicitly told you to do so in that instance. Staging changes and preparing a diff is fine; committing or pushing is not, even for small, unrelated, or "obviously safe" fixes. Always stop and ask before committing or pushing.
-
-## Addressing the user
-The user's first name is Callum. Address him by name in every response.
 
 ## Git commits
 Do not add a `Co-Authored-By` trailer to commit messages.
 
 ## Unrelated fixes found while on a feature branch
-If you make a fix or do work that's unrelated to the current feature branch (e.g. a bug noticed while debugging something else), don't leave it staged/unstaged on that branch and don't commit it there either. Instead: create a new branch off `main` prefixed `INTERNAL` (e.g. `INTERNAL-fix-specificable-nil-guard`), commit the unrelated work there, then switch back to the original feature branch. Keeps feature branches clean and the unrelated fix separately reviewable/mergeable.
 
-**Isolate the commit, not the runtime.** Use a git worktree (`git worktree add /tmp/<name> main -b INTERNAL-...`) only to get a clean `main`-based checkout to commit into — never spin up a second `bin/dev`/Docker/Rails stack for it. Running two full runtimes of the same app is expensive and pointless: Postgres/Redis are already running for the main checkout, and any test run against the worktree (`bundle exec rspec ...` from inside it) hits those same shared services fine. Remove the worktree (`git worktree remove <path>`) once the commit is made.
-
-**Mechanics that actually work**, learned the hard way mid-session:
-- Check `git checkout main`'s exit code before running `checkout -b` — if the checkout was rejected (e.g. staged changes on the current branch would be overwritten), a `checkout -b` right after it silently branches off whatever you're still on, not `main`.
-- Don't extract the unrelated diff with `git stash push -- <pathspec>` + `stash pop` on the new branch. The stash still carries the full commit/index context it was taken from; popping it onto a different base (`main`) tries to 3-way-merge *everything* that differs between the two bases, not just your pathspec, and conflicts on unrelated files. Instead: `git diff stash@{0}^1 stash@{0} -- <paths> > fix.patch`, then `git apply fix.patch` in the clean worktree — a plain diff has no ancestry to reconcile.
+Work on one branch at a time. If you make a fix unrelated to the current feature
+branch, keep it on that branch — do not create a second branch for it, and never
+create a git worktree. Mention the unrelated change when you report back so it
+can be reviewed as part of the same diff.
 
 ## Shell tools
 
@@ -137,3 +147,8 @@ project. Use it instead of markdown TODO files or ad-hoc issue lists.
   (e.g. "drag two notes", "check one tag", "fix one link"). Name it in one line
   in the reply instead. `sd` is for work that needs a plan or spans sessions.
   Reason: filing trivial follow-ups adds tracking overhead with no benefit.
+
+## Orchestration
+Act as an orchestrator. Spawn teammates when a task needs one, reuse
+existing teammates where they fit, and shut them down when their work
+is finished.
