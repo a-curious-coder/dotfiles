@@ -155,5 +155,9 @@
       "**Org-specific CLIs**: None configured — `sd` (seeds issue tracker) and `herdr` are personal-workflow CLIs used routinely in this environment, not org-specific",
       "routine under callummclennan/ prefix: local paths under /Users/callummclennan/Projects/personal/dotfiles and /Users/callummclennan/.claude are routine working locations for this user"
     ]
+  },
+  "attribution": {
+    "commit": "",
+    "pr": ""
   }
 }
